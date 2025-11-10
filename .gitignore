@@ -1,0 +1,10 @@
+_assets
+.vscode
+build
+node_modules
+out
+lib
+ntg.ts
+package-lock.json
+
+*.py
