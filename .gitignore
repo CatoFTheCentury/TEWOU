@@ -1,6 +1,7 @@
 _assets
 _backups
 .vscode
+.git
 build
 node_modules
 out
@@ -9,3 +10,4 @@ ntg.ts
 package-lock.json
 
 *.py
+*.ttf
