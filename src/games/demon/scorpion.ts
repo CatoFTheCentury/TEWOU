@@ -11,14 +11,6 @@ import { Time } from '../../engine/alacrity/time';
 import Capture from '../../engine/physics/capture';
 
 
-enum Actions {
-  stay = 0,
-  wander = 1,
-  panic = 2,
-  rush  = 3
-
-}
-
 enum AniSt {
   idle   = 0,
   walk   = 1,
@@ -71,15 +63,7 @@ export default class Scorpion extends Incarnations.Fauna{
       state:Incarnations.actionStates.off
     }
   }
-  // protected allstates: number = ((1<<Incarnations.AniSt.count) - 1) ^ (1<<Incarnations.AniSt.climb);
-  // private anims : Array<Composite.Animation>;
 
-  // public actiontimeouts: Array<Time.Timeout> = [
-  //   new Time.Timeout([200], "stay"),
-  //   new Time.Timeout([300], "wander"),
-  //   new Time.Timeout([Infinity], "panic"),
-  //   new Time.Timeout([400], "rush"),
-  // ]
   public awarenessbounds : T.Bounds =
     //looking right
     {x:-30,y:-20,w:90,h:75};
@@ -96,12 +80,7 @@ export default class Scorpion extends Incarnations.Fauna{
     ]
     super(new Composite.Frame([anims[AniSt.idle]]));
 
-    // for(let i = 0; i < this.actiontimeouts.length; i++){
-    //   this.timeouts.push(this.actiontimeouts[i]);
-    //   this.actiontimeouts[i].pause();
-    // }
-    this.switchaction('stay');
-    // this.actiontimeouts[Actions.stay].restart();
+    this.switchaction(this.action);
 
     this.anims = anims;
     this.pos.x = pos.x;
@@ -128,9 +107,6 @@ export default class Scorpion extends Incarnations.Fauna{
       if(owner.pos.x > target.pos.y) owner.dir = Dir.left;
       else owner.dir = Dir.right;
       owner.switchaction('panic');
-      // owner.actions.panic.timer?.restart();
-      // owner.velocity.add(owner.jumpgravity);
-      // owner.switchanimation(AniSt.jump);
     }
     return false;
   }
@@ -138,75 +114,5 @@ export default class Scorpion extends Incarnations.Fauna{
   public override update(){
     super.update();
     this.flip.flipx = this.dir === Dir.left;
-    // this.handleTriggers();
   }
-
-  // private handleTriggers(){
-  //   while(this.triggers.length > 0){
-  //     let t : Time.Trigger = this.triggers.pop() || {name:"notrigger"};
-  //     switch(t.name){
-  //       case "stay":
-  //         switch(t.state){
-  //           case "triggered":
-  //             if(Math.random() * 100 < 30){
-  //               this.actiontimeouts[Actions.stay].pause();
-  //               this.actiontimeouts[Actions.wander].restart();
-  //               if(Math.random() * 100 < 50) {
-  //                 this.flip.flipx = true;
-  //                 this.dir = Dir.left;
-  //               } else {
-  //                 this.flip.flipx = false;
-  //                 this.dir = Dir.right;
-  //               }
-  //             }
-  //           break;
-  //           case "active":
-  //             this.switchanimation(AniSt.idle);
-  //           break;
-  //           case "paused":
-  //           break;
-  //         }
-  //       break;
-  //       case "wander":
-  //         switch(t.state){
-  //           case "triggered":
-  //             if(Math.random() * 100 < 90){
-  //               this.actiontimeouts[Actions.wander].pause();
-  //               this.actiontimeouts[Actions.stay].restart();
-  //             }
-  //           break;
-  //           case "active":
-  //             if(this.actiontimeouts[Actions.panic].paused){
-  //               this.movementvector.x = this.dir == Dir.left? -1 : 1;
-  //               this.switchanimation(AniSt.walk);
-  //             }
-  //           break;
-  //           case "paused":
-  //           break;
-  //         }
-  //       break;
-  //       case "panic":
-  //         switch(t.state){
-  //           case "triggered":
-  //           break;
-  //           case "active":
-  //             if(this.dir == Dir.left) this.movementvector.x = 1;
-  //             else this.movementvector.x = -1;
-  //             if(this.actiontimeouts[Actions.panic].getTimeoutTicks() >= 200){
-  //               this.velocity.delete(this.jumpgravity);
-  //             }
-  //             if(this.actiontimeouts[Actions.panic].getTimeoutTicks() >= 500){
-  //               this.switchanimation(AniSt.walk);
-  //               this.actiontimeouts[Actions.panic].pause();
-  //               this.actiontimeouts[Actions.stay].restart();
-  //             }
-  //           break;
-  //           case "paused":
-  //           break;
-  //         }
-  //       break;
-  //     }
-  //   }
-  // }
-
 }

@@ -1,4 +1,5 @@
 _assets
+_backups
 .vscode
 build
 node_modules
