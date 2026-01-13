@@ -1,7 +1,22 @@
 # HAI!
-Typescript again!
+This version works
 
 # Features
+Game engine:
+  - entities
+    - animated
+    - hitboxes
+  - tiling
+    - layered
+  - render
+    - rotation
+    - scale
+    - shaders
+Console:
+  - Some commands
+  - Crude communicating between games
+  (type ``play arbre`` twice and watch the two players move independently)
+  - Crude window managements
 
 
 # HOW TO
@@ -15,6 +30,6 @@ Typescript again!
 >> npm install --save-dev
 >> python startServing
 >> npx webpack --watch
->> start chrome http://localhost:8003/html/z.html
+>> start chrome http://localhost:8003/html/index.html
 ```
 
