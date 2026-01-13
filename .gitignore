@@ -8,6 +8,10 @@ out
 lib
 ntg.ts
 package-lock.json
+dist
+build-types
 
 *.py
 *.ttf
+*.js
+*.txt

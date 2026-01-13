@@ -9,6 +9,8 @@ import Capture from '../../engine/physics/capture';
 import * as C from "../../engine/physics/states"
 import * as T from '../../engine/_type';
 import Game from './game'
+// import Games from "../../../build/src/game/games";
+// import { Generic } from '../../../build/src/engine/_games';
 
 
 // class BatActions extends  Incarnations.Fauna{
@@ -43,17 +45,17 @@ export default class Bat extends Incarnations.Fauna {
     // running:()=>{this.movementvector.y = .5;},
     elapsed:()=>{this.switchaction('stay1')},
     timer: new Time.Timeout([250],"stay0"),
-    state:Incarnations.actionStates.off},
+    state:T.RunSwitch.off},
 
     stay1 : {
     enabled:()=>{this.movetowards({x:this.ogpos.x,y:this.ogpos.y-32})},
     // running:()=>{this.movementvector.y = -.25;},
     elapsed:()=>{this.switchaction('stay0')},
     timer: new Time.Timeout([250],"stay1"),
-    state:Incarnations.actionStates.off},
+    state:T.RunSwitch.off},
 
     swoosh : {
-      state:Incarnations.actionStates.off
+      state:T.RunSwitch.off
     }
   }
   protected action: string = "stay0"
@@ -95,12 +97,19 @@ export default class Bat extends Incarnations.Fauna {
       C.CollideLayers.grid | C.CollideLayers.player | C.CollideLayers.npc,
       C.CollideTypes.block | C.CollideTypes.hurt));
 
-    Game.self.gamephysics.collisionpool.push(new Capture(
-      C.CollideLayers.interactable,
-      C.CollideLayers.player,
-      C.CollideTypes.interact,
-      this, this.swooshbounds, this.swoosh));
-    //Bounds:{BoundsTo,BoundsBox},actions,reuse?=true,
+    this.addCapture({
+      from: C.CollideLayers.interactable,
+      to: C.CollideLayers.player,
+      type: C.CollideTypes.interact,
+      hitbox: this.swooshbounds,
+      call: this.swoosh
+    })
+    // Game.self.gamephysics.collisionpool.push(new Capture(
+    //   C.CollideLayers.interactable,
+    //   C.CollideLayers.player,
+    //   C.CollideTypes.interact,
+    //   this, this.swooshbounds, this.swoosh));
+    // //Bounds:{BoundsTo,BoundsBox},actions,reuse?=true,
 
     Game.self.gamephysics.collisionpool.push(new Capture(
       C.CollideLayers.interactable,
@@ -117,7 +126,7 @@ export default class Bat extends Incarnations.Fauna {
 
   private lookatplayer(owner : Bat, target : Incarnations.Player):boolean{
     let playerisleft = (target.pos.x + target.hitbox.w/2) < (owner.pos.x + owner.hitbox.w/2);
-    if(playerisleft && owner.actions.swoosh.state < Incarnations.actionStates.enabled){
+    if(playerisleft && owner.actions.swoosh.state < T.RunSwitch.enabled){
       owner.dir = Dir.left;
     } else {
       owner.dir = Dir.right;
@@ -126,7 +135,7 @@ export default class Bat extends Incarnations.Fauna {
   }
 
   private swoosh(owner : Bat, target : Incarnations.Fauna):boolean{
-    if(owner.actions.swoosh.state < Incarnations.actionStates.enabled){
+    if(owner.actions.swoosh.state < T.RunSwitch.enabled){
       // owner.switchanimation(AniSt.fly);
       owner.actions.swoosh.enabled = ()=>{
 

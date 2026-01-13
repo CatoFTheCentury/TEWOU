@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne+Mono&display=swap" rel="stylesheet">
+  </head>
+  <style>
+    html {
+      background-color: #151515;
+    }
+    div #mydiv {
+      position: fixed;
+      top: 0;
+      left: 0;
+      resize: both;
+      overflow: hidden;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    #canvas {
+      position:absolute;
+      width: 100%;
+      height: 100%;
+    }
+    #mydivheader {
+      position: relative;
+      top:0;
+      left:0;
+      padding: 10px;
+      cursor: move;
+      z-index: 10;
+      background-color: #2196F3;
+      color: #fff;
+    }
+    #myForm {
+      position:fixed;
+      bottom:0;
+      width:100%;
+      background-color: #151515;
+      border:none;
+    }
+
+    .window {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 300px;
+      height: fit-content;
+      outline: 2px solid #55ff55;
+      box-shadow: 1px 1px 3px #009A00,
+        -1px 1px 3px #009A00,
+        -1px -1px 3px #009A00,
+        1px -1px 3px #009A00;
+    }
+
+    .window:active {
+      outline: 2px solid #99ff99;
+    }
+
+    .gamecontent {
+      position:relative;
+      width: 100%;
+      height: 300px;
+    }
+
+    .grabbar {
+      height:25px;
+      width: 100%;
+      top:0;
+      left:0;
+      position:relative;
+      background: linear-gradient(180deg,rgba(85, 255, 85, 1) 0%, rgba(0, 0, 0, 0) 100%);
+      cursor: move;
+      border-bottom: 2px solid #55ff55;
+      box-shadow: 1px 1px 3px #009A00,
+        -1px 1px 3px #009A00,
+        -1px -1px 3px #009A00,
+        1px -1px 3px #009A00;
+    }
+
+
+
+    .grabbar span {
+      position: absolute;
+      top: 0;
+      left: 10px;
+    }
+
+    #consoleArea {
+/* display: flex;
+  justify-content: flex-end;
+  align-items: flex-end; */
+      height: 100%;
+      width: 100%;
+      /* display:flex; */
+    }
+
+    #consoleArea pre {
+      position: absolute;
+      bottom: 45px;
+      left: 15px;
+      font-family: "Syne Mono", monospace;
+
+      /* align-self: flex-end; */
+    }
+    .syne-mono-regular {
+      font-size: 20px;
+      font-family: "Syne Mono", monospace;
+      font-weight: 400;
+      font-style: normal;
+      color: #55ff55;
+      text-shadow:
+        1px 1px 3px #009A00,
+        -1px 1px 3px #009A00,
+        -1px -1px 3px #009A00,
+        1px -1px 3px #009A00;
+    }
+  </style>
+  <body>
+    <!-- <form id="myForm"> -->
+    <!-- <input id="myForm" type="text" name="query" placeholder="Type ? for help"> -->
+    <!-- </form> -->
+    <!-- <input type="text" name="fieldName" placeholder="Enter details"> -->
+    <!-- <div id="mydiv"><div id="mydivheader">Click here to move</div>
+      <iframe src="gameframe.php?j=arbre"></iframe>
+    </div> -->
+
+    <script src="./server/dist/server.js"></script>
+    <script src="./console/dist/console.js"></script>
+    <script src="./engine/dist/engine.js"></script>
+    <script>window.Serve.Bob();</script>
+    <!-- <div>
+    <iframe src="gameframe.php?j=arbre"></iframe>
+    </div> -->
+
+  <!-- <script>
+
+  </script>
+  <script>
+    // Make the DIV element draggable:
+    dragElement(document.getElementById("mydiv"));
+
+    function dragElement(elmnt) {
+    var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+    if (document.getElementById(elmnt.id + "header")) {
+    // if present, the header is where you move the DIV from:
+    document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
+    } else {
+    // otherwise, move the DIV from anywhere inside the DIV:
+    elmnt.onmousedown = dragMouseDown;
+    }
+
+    function dragMouseDown(e) {
+    e = e || window.event;
+    e.preventDefault();
+    // get the mouse cursor position at startup:
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    document.onmouseup = closeDragElement;
+    // call a function whenever the cursor moves:
+    document.onmousemove = elementDrag;
+    }
+
+    function elementDrag(e) {
+    e = e || window.event;
+    e.preventDefault();
+    // calculate the new cursor position:
+    pos1 = pos3 - e.clientX;
+    pos2 = pos4 - e.clientY;
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    // set the element's new position:
+    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+    }
+
+    function closeDragElement() {
+    // stop moving when mouse button is released:
+    document.onmouseup = null;
+    document.onmousemove = null;
+    }
+    }
+  </script> -->
+  </body>
+</html>

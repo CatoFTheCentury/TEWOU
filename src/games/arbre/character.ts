@@ -1,45 +1,33 @@
-import {Bodies} from "../../engine/alacrity/_bodies"
-import Keyboard from "../../engine/systems/keyboard"
-import {Time} from "../../engine/alacrity/time"
-import {Composite} from "../../engine/render/composite"
+import {Keyboard, Composite, T, NPCCollision, C, Capture, Assets, Incarnations, Time, Games, GameObjects} from 'TEWOU'
 
-import FunSiYan from "./animations/funsiyan"
 import GaniYan from './animations/ganiyan'
-import * as T from "../../engine/_type"
-
-import Physics from "../../engine/systems/physics"
-import NPCCollision from "../../engine/physics/npcCollision"
-import * as C from "../../engine/physics/states"
-import Capture from '../../engine/physics/capture';
-
-import Touch from '../../engine/systems/touch';
-import Camera from "../../engine/systems/camera"
-import Assets from "../../engine/render/assets"
-import { Incarnations } from "../../engine/alacrity/_incarnations"
-import Game from './game'
-// import { Health } from '../../../build/src/components/components';
+import {Game} from './game'
+import { Manager } from 'Console'
+import { Engine } from 'TEWOU'
 
 export type Health = {
   max : number,
   current: number 
 }
 
-export default class Character extends Incarnations.Player {
+export default class Character extends GameObjects.Player {
   public action: string;
   public actions: { [key: string]: Incarnations.action; };
   // private changeframe : Time.Timeout;
   private character : GaniYan;
   // public walk : Array<Composite.Animation>;
-  private dir : number = 2;
+  // private dir : number = 2;
   // private currentAnim: Composite.Animation;
   private backtoidle : Time.Timeout;
+
+  public shared : T.SharedBlueprint;
   // public myCamera   : Camera;
 
   public hp : Health = {max:3,current:3};
 
-  constructor(){
-    let ganiYan = new GaniYan();
-    super(new Composite.Frame([ganiYan.idle[2]]));
+  constructor(game:Games.Action){
+    let ganiYan = new GaniYan(game);
+    super(new Composite.Frame(game.glContext,game.shadercontext,[ganiYan.idle[2]]));
     this.timeouts.push(new Time.Timeout([300],"move",false));
     // this.changeframe = new Time.Timeout([100,100],"changeframe",false)
     // this.changeframe.paused = true;
@@ -56,19 +44,48 @@ export default class Character extends Incarnations.Player {
     this.backtoidle.paused = true;
     this.timeouts.push(this.backtoidle);
 
-    Game.self.gamephysics.collisionpool.push(new NPCCollision(this,C.CollideLayers.player, C.CollideLayers.grid | C.CollideLayers.npc, C.CollideTypes.block));
+    // Game isn't static anymore...
+    // don't refer to self statically
+    // use gamephysics from the game:Games.* parameter
+    game.gamephysics.collisionpool.push(new NPCCollision(this,C.CollideLayers.player, C.CollideLayers.grid | C.CollideLayers.npc, C.CollideTypes.block));
     
     // this.myFrame = new Composite.Frame([this.character.idle[this.dir]], {w:200,h:800});
     // this.myFrame.rprops.pos = this.pos;
     // this.myFrame.worldpos = {x:0,y:0};
+    game.alacritypool.push(this);
+    this.gameid = game.gameid;
+
+    this.shared = 
+
+    // Engine.sharedobjects.push(
+      {
+        pos:this.pos,
+        anisrc:{
+          walk:"_assets/arbre/walk.gani",
+          idle:"_assets/arbre/idle.gani",
+          sword:"_assets/arbre/sword.gani"
+        },
+        currentani:"walk",
+        hitbox: this.hitbox,
+        owner: {
+          id: game.gameid,
+          name: "arbre"
+        },
+        dir: this.dir,
+        id : String(game.gameid) + "playerCharacter"
+      }
+    // )
+    Engine.sharedobjects.push(this.shared);
 
   }
 
   public override update(){
     super.update();
     // this.handleTouch();
-    this.handleKeys();
+    if(Manager.currentGame == this.gameid) this.handleKeys();
     this.handleTriggers();
+    this.shared.pos = this.pos;
+    this.shared.dir = this.dir;
   }
 
   // private handleTouch(){
@@ -131,6 +148,7 @@ export default class Character extends Incarnations.Player {
     this.backtoidle.reset();
 
     this.myFrame.frame = [this.character.sword[this.dir]];
+    this.shared.currentani = "sword";
     // this.currentAnim = this.character.sword[this.dir];
     // this.changeframe.step   = 0;
     // this.changeframe.paused = false;
@@ -162,6 +180,7 @@ export default class Character extends Incarnations.Player {
             case -1:
               this.character.walk[this.dir].currentFrame = 0;
               this.myFrame.frame = [this.character.idle[this.dir]];
+              this.shared.currentani = "idle";
               // this.changeframe.paused = true;
             case  0:
             break;
@@ -170,6 +189,7 @@ export default class Character extends Incarnations.Player {
             case  1:
               this.dir = 0;
               this.myFrame.frame = [this.character.walk[this.dir]];
+              this.shared.currentani = "walk";
               // this.currentAnim = this.character.walk[this.dir];
               // this.changeframe.paused = false;
               this.movementvector.y = -1
@@ -182,6 +202,7 @@ export default class Character extends Incarnations.Player {
             case -1:
               this.character.walk[this.dir].currentFrame = 0;
               this.myFrame.frame = [this.character.idle[this.dir]];
+              this.shared.currentani = "idle";
               // this.changeframe.paused = true;
             case  0:
             break;
@@ -190,6 +211,7 @@ export default class Character extends Incarnations.Player {
             case  1:
               this.dir = 1;
               this.myFrame.frame = [this.character.walk[this.dir]];
+              this.shared.currentani = "walk";
               // this.currentAnim = this.character.walk[this.dir];
               // this.changeframe.paused = false;
               this.movementvector.x = -1;
@@ -203,6 +225,7 @@ export default class Character extends Incarnations.Player {
             case -1:
               this.character.walk[this.dir].currentFrame = 0;
               this.myFrame.frame = [this.character.idle[this.dir]];
+              this.shared.currentani = "idle";
               // this.changeframe.paused = true;
             case  0:
             break;
@@ -211,6 +234,7 @@ export default class Character extends Incarnations.Player {
             case  1:
               this.dir = 2;
               this.myFrame.frame = [this.character.walk[this.dir]];
+              this.shared.currentani = "walk";
               // this.currentAnim = this.character.walk[this.dir];
               // this.changeframe.paused = false;
               this.movementvector.y = 1;
@@ -223,6 +247,7 @@ export default class Character extends Incarnations.Player {
             case -1:
               this.character.walk[this.dir].currentFrame = 0;
               this.myFrame.frame = [this.character.idle[this.dir]];
+              this.shared.currentani = "idle";
               // this.changeframe.paused = true;
             case  0:
             break;
@@ -231,6 +256,7 @@ export default class Character extends Incarnations.Player {
             case  1:
               this.dir = 3;
               this.myFrame.frame = [this.character.walk[this.dir]];
+              this.shared.currentani = "walk";
               // this.currentAnim = this.character.walk[this.dir];
               // this.changeframe.paused = false;
               this.movementvector.x = 1;
@@ -275,13 +301,14 @@ export default class Character extends Incarnations.Player {
             case "triggered":
               this.character.sword[this.dir].currentFrame = 0;
               this.myFrame.frame = [this.character.idle[this.dir]];
+              this.shared.currentani = "idle";
               // this.changeframe.paused = true;
               this.backtoidle.paused = true;
-              document.getElementById('sword')!.style.backgroundImage = 'conic-gradient( #ffffff 0% 100%, #2196f3 100% 100%)';
+              // document.getElementById('sword')!.style.backgroundImage = 'conic-gradient( #ffffff 0% 100%, #2196f3 100% 100%)';
               break;
             case "active":
               let percentdone = Math.round((this.backtoidle.getTimeoutTicks()/this.backtoidle.ms[0])*100)
-              document.getElementById('sword')!.style.backgroundImage = 'conic-gradient( #ffffff 0% '+ percentdone +'%, #2196f3 '+ percentdone+'% 100%)';
+              // document.getElementById('sword')!.style.backgroundImage = 'conic-gradient( #ffffff 0% '+ percentdone +'%, #2196f3 '+ percentdone+'% 100%)';
 
             break;
             case "paused":

@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "module": "esnext",
+    "target": "es2020",
+    "lib": [ "es2020", "dom"],
+    "types": [],
+
+
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": "build-types",
+    // "strict": true
+  },
+  "include": ["./source/"],
+  // "exclude": ["build-types", "build", "dist", "out"]
+}

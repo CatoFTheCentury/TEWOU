@@ -12,6 +12,7 @@ import { Time } from "./engine/alacrity/time";
 
 import RaceGame from './games/arduboyracing/game'
 import ArbreGame from './games/arbre/game'
+import sfx from './games/sfx/game'
 
 
 let paused = true;
@@ -61,6 +62,7 @@ let game: Games.Generic;
 new Render.GL(document.body.clientWidth+'',document.body.clientHeight+'');
 console.log(document.body.clientWidth);
 // console.log(Render.Info.gl)
+// game = new sfx();
 game = new ArbreGame();
 // game = new RaceGame();
 // game = new GameDemon();
