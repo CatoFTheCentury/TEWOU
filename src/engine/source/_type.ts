@@ -107,3 +107,14 @@ export type SharedBlueprint = {
   dir: number
   // action     : string
 }
+
+export type KeyboardAction = {
+  // key: string,
+  keydown   ?: ()=>void,
+  keyheld   ?: ()=>void,
+  keypressed?: ()=>void, //keydown and key held
+  keyup     ?: ()=>void,
+}
+// export type GameAnimation = {
+
+// }

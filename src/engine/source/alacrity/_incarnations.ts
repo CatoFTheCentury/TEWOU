@@ -37,15 +37,26 @@ export class Incarnated extends Bodies.Mobility{
   public dir  : number = 2;
   // protected game : Games;
 
-  public switchanimation(state: string){
+  public switchanimation(state: string, direction : number = -1){
+    let dir = direction == -1 ? this.dir : direction ;
     if(this.state == state ) {
-      this.myFrame.frame = [this.anims[this.state][this.dir]];
+      this.myFrame.frame = [this.anims[this.state][dir]];
       return;
     }
     this.state = state;
-    this.myFrame.frame = [this.anims[this.state][this.dir]];
-    this.anims[this.state][this.dir].restart();
+    this.myFrame.frame = [this.anims[this.state][dir]];
+    this.anims[this.state][dir].restart();
   }
+
+  // public switchstate(state: number){
+  //   if(this.state == state ) {
+  //     this.myFrame.frame = [this.anims[this.state][this.dir]];
+  //     return;
+  //   }
+  //   this.state = state;
+  //   this.myFrame.frame = [this.anims[this.state][this.dir]];
+  //   this.anims[this.state][this.dir].restart();
+  // }
 
   // ça va pas là - ça va dans game, pi un paramètre pour l'incarnation; pas pour gameID
   // protected addCapture(captureProperties : CaptureProperties, gameID: number = 0){

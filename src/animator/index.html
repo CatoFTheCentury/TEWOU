@@ -1,0 +1,46 @@
+<html>
+  <head>
+
+  
+  </head>
+  <style>
+
+  </style>
+  <body>
+    <script src="../engine/dist/engine.js"></script>
+    <script src="./dist/animator.js"></script>
+
+    <div style="display:block;" id="main">
+      <div id="left pane">
+        <canvas id="canvas"></canvas>
+        <div id="bottom pane">
+          <button>Play</button>
+        </div>
+      </div>
+
+      <div class="right pane">
+        <div class="top pane">
+          <button>New animation</button>
+          <div id="animationtree">
+            <!-- list of radio buttons with a pre formatting that graphically shows a tree -->
+            <div class="bottom pane">
+              <button>Add</button>
+              <button>Remove</button>
+            </div>
+          </div>
+        </div>
+        <div class="bottom pane">
+          <button>Extract sprites...</button>
+          <button>Save</button>
+          <button>Load</button>
+          
+        </div>
+      </div>
+    </div>
+
+    <div style="display:none;" id="spriteextracter">
+
+    </div>
+
+  </body>
+</html>

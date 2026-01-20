@@ -11,10 +11,11 @@ export type Health = {
 }
 
 export default class Character extends GameObjects.Player {
-  public action: string;
-  public actions: { [key: string]: Incarnations.action; };
+  // public action: string;
+  // public actions: { [key: string]: Incarnations.action; };
   // private changeframe : Time.Timeout;
   private character : GaniYan;
+  private game      : Games.Action;
   // public walk : Array<Composite.Animation>;
   // private dir : number = 2;
   // private currentAnim: Composite.Animation;
@@ -28,14 +29,23 @@ export default class Character extends GameObjects.Player {
   constructor(game:Games.Action){
     let ganiYan = new GaniYan(game);
     super(new Composite.Frame(game.glContext,game.shadercontext,[ganiYan.idle[2]]));
-    this.timeouts.push(new Time.Timeout([300],"move",false));
+    this.registercommands();
+    // this.timeouts.push(new Time.Timeout([300],"move",false));
+
     // this.changeframe = new Time.Timeout([100,100],"changeframe",false)
     // this.changeframe.paused = true;
     // this.timeouts.push(this.changeframe);
     this.character = ganiYan;
     this.hitbox  = {x:0,y:14,w:48,h:34};
     // this.myCamera = camera;
-    
+    this.addtimeout(durations,repeat,{
+      triggered: ()=>{
+        this.character.sword[this.dir].currentFrame = 0;
+        this.myFrame.frame = [this.character.idle[this.dir]];
+        this.shared.currentani = "idle";
+        // this.backtoidle.paused = true;
+      }
+    })
     this.backtoidle = new Time.Timeout([
       (/* this.changeframe.ms[0] */200*(this.character.sword[0].frames.length-1)),
       (/* this.changeframe.ms[0] */200*(this.character.sword[1].frames.length-1)),
@@ -77,12 +87,15 @@ export default class Character extends GameObjects.Player {
     // )
     Engine.sharedobjects.push(this.shared);
 
+    this.game = game;
+
   }
 
   public override update(){
     super.update();
     // this.handleTouch();
-    if(Manager.currentGame == this.gameid) this.handleKeys();
+    if(Manager.currentGame == this.gameid) this.updatekeys();
+      // this.handleKeys();
     this.handleTriggers();
     this.shared.pos = this.pos;
     this.shared.dir = this.dir;
@@ -164,7 +177,7 @@ export default class Character extends GameObjects.Player {
       //right
       {x:0+32,y:0,w:32,h:32}
     ]
-    Game.self.gamephysics.collisionpool.push(new Capture(C.CollideLayers.player,C.CollideLayers.npc,C.CollideTypes.hurt,this,hurtpos[this.dir],
+    this.game.gamephysics.collisionpool.push(new Capture(C.CollideLayers.player,C.CollideLayers.npc,C.CollideTypes.hurt,this,hurtpos[this.dir],
       (owner,target) => {
         target.triggers.push({name:"attacked"})
         return true;
@@ -172,113 +185,155 @@ export default class Character extends GameObjects.Player {
     ))
   }
 
-  private handleKeys(){
-    for(let k in Keyboard.keys){
-      switch (k){
-        case "ArrowUp":
-          switch(Keyboard.keys['ArrowUp']){
-            case -1:
-              this.character.walk[this.dir].currentFrame = 0;
-              this.myFrame.frame = [this.character.idle[this.dir]];
-              this.shared.currentani = "idle";
-              // this.changeframe.paused = true;
-            case  0:
-            break;
-            case  2:
-            // break;
-            case  1:
-              this.dir = 0;
-              this.myFrame.frame = [this.character.walk[this.dir]];
-              this.shared.currentani = "walk";
-              // this.currentAnim = this.character.walk[this.dir];
-              // this.changeframe.paused = false;
-              this.movementvector.y = -1
-              // do something
-            break;
-          }
-        break;
-        case "ArrowLeft":
-          switch(Keyboard.keys['ArrowLeft']){
-            case -1:
-              this.character.walk[this.dir].currentFrame = 0;
-              this.myFrame.frame = [this.character.idle[this.dir]];
-              this.shared.currentani = "idle";
-              // this.changeframe.paused = true;
-            case  0:
-            break;
-            case  2:
-            // break;
-            case  1:
-              this.dir = 1;
-              this.myFrame.frame = [this.character.walk[this.dir]];
-              this.shared.currentani = "walk";
-              // this.currentAnim = this.character.walk[this.dir];
-              // this.changeframe.paused = false;
-              this.movementvector.x = -1;
-              // do something
-            break;
-          }
-
-        break;
-        case "ArrowDown":
-          switch(Keyboard.keys['ArrowDown']){
-            case -1:
-              this.character.walk[this.dir].currentFrame = 0;
-              this.myFrame.frame = [this.character.idle[this.dir]];
-              this.shared.currentani = "idle";
-              // this.changeframe.paused = true;
-            case  0:
-            break;
-            case  2:
-            // break;
-            case  1:
-              this.dir = 2;
-              this.myFrame.frame = [this.character.walk[this.dir]];
-              this.shared.currentani = "walk";
-              // this.currentAnim = this.character.walk[this.dir];
-              // this.changeframe.paused = false;
-              this.movementvector.y = 1;
-              // do something
-            break;
-          }
-        break;
-        case "ArrowRight":
-          switch(Keyboard.keys['ArrowRight']){
-            case -1:
-              this.character.walk[this.dir].currentFrame = 0;
-              this.myFrame.frame = [this.character.idle[this.dir]];
-              this.shared.currentani = "idle";
-              // this.changeframe.paused = true;
-            case  0:
-            break;
-            case  2:
-            // break;
-            case  1:
-              this.dir = 3;
-              this.myFrame.frame = [this.character.walk[this.dir]];
-              this.shared.currentani = "walk";
-              // this.currentAnim = this.character.walk[this.dir];
-              // this.changeframe.paused = false;
-              this.movementvector.x = 1;
-              // do something
-            break;
-          }
-        break;
-        case "s":
-          switch(Keyboard.keys['s']){
-            case -1:
-            case  0:
-            break;
-            case  2:
-            break;
-            case  1:
-              this.slash();
-            break;
-          }
-        break;
+  private registercommands(){
+    this.registerkey('ArrowUp', {
+      keyup: ()=>{
+        this.character.walk[this.dir].currentFrame = 0;
+        this.myFrame.frame = [this.character.idle[this.dir]];
+        this.shared.currentani = "idle";
+      },
+      keypressed: ()=>{
+        this.dir = 0;
+        this.myFrame.frame = [this.character.walk[this.dir]];
+        this.shared.currentani = "walk";
+        this.movementvector.y = -1
       }
-    }
+    });
+
+    this.registerkey('ArrowLeft', {
+      keyup: ()=>{
+        this.character.walk[this.dir].currentFrame = 0;
+        this.myFrame.frame = [this.character.idle[this.dir]];
+        this.shared.currentani = "idle";
+      },
+      keypressed: ()=>{
+        this.dir = 1;
+        this.myFrame.frame = [this.character.walk[this.dir]];
+        this.shared.currentani = "walk";
+        this.movementvector.x = -1;
+      }
+    });
+
+    this.registerkey('ArrowDown', {
+      keyup: ()=>{
+        this.character.walk[this.dir].currentFrame = 0;
+        this.myFrame.frame = [this.character.idle[this.dir]];
+        this.shared.currentani = "idle";
+      },
+      keypressed: ()=>{
+        this.dir = 2;
+        this.myFrame.frame = [this.character.walk[this.dir]];
+        this.shared.currentani = "walk";
+        this.movementvector.y = 1;
+      }
+    });
+
+    this.registerkey('ArrowRight', {
+      keyup: ()=>{
+        this.character.walk[this.dir].currentFrame = 0;
+        this.myFrame.frame = [this.character.idle[this.dir]];
+        this.shared.currentani = "idle";
+      },
+      keypressed: ()=>{
+        this.dir = 3;
+        this.myFrame.frame = [this.character.walk[this.dir]];
+        this.shared.currentani = "walk";
+        this.movementvector.x = 1;
+      }
+    });
+
+    this.registerkey('s', {
+      keydown: ()=>{
+        this.slash();
+      }
+    });
   }
+    // for(let k in Keyboard.keys){
+    //   switch (k){
+    //     case "ArrowUp":
+    //       switch(Keyboard.keys['ArrowUp']){
+    //         case -1:
+    //           this.character.walk[this.dir].currentFrame = 0;
+    //           this.myFrame.frame = [this.character.idle[this.dir]];
+    //           this.shared.currentani = "idle";
+    //         case  0:
+    //         break;
+    //         case  2:
+    //         case  1:
+    //           this.dir = 0;
+    //           this.myFrame.frame = [this.character.walk[this.dir]];
+    //           this.shared.currentani = "walk";
+    //           this.movementvector.y = -1
+    //         break;
+    //       }
+    //     break;
+    //     case "ArrowLeft":
+    //       switch(Keyboard.keys['ArrowLeft']){
+    //         case -1:
+    //           this.character.walk[this.dir].currentFrame = 0;
+    //           this.myFrame.frame = [this.character.idle[this.dir]];
+    //           this.shared.currentani = "idle";
+    //         case  0:
+    //         break;
+    //         case  2:
+    //         case  1:
+    //           this.dir = 1;
+    //           this.myFrame.frame = [this.character.walk[this.dir]];
+    //           this.shared.currentani = "walk";
+    //           this.movementvector.x = -1;
+    //         break;
+    //       }
+
+    //     break;
+    //     case "ArrowDown":
+    //       switch(Keyboard.keys['ArrowDown']){
+    //         case -1:
+    //           this.character.walk[this.dir].currentFrame = 0;
+    //           this.myFrame.frame = [this.character.idle[this.dir]];
+    //           this.shared.currentani = "idle";
+    //         case  0:
+    //         break;
+    //         case  2:
+    //         case  1:
+    //           this.dir = 2;
+    //           this.myFrame.frame = [this.character.walk[this.dir]];
+    //           this.shared.currentani = "walk";
+    //           this.movementvector.y = 1;
+    //         break;
+    //       }
+    //     break;
+    //     case "ArrowRight":
+    //       switch(Keyboard.keys['ArrowRight']){
+    //         case -1:
+    //           this.character.walk[this.dir].currentFrame = 0;
+    //           this.myFrame.frame = [this.character.idle[this.dir]];
+    //           this.shared.currentani = "idle";
+    //         case  0:
+    //         break;
+    //         case  2:
+    //         case  1:
+    //           this.dir = 3;
+    //           this.myFrame.frame = [this.character.walk[this.dir]];
+    //           this.shared.currentani = "walk";
+    //           this.movementvector.x = 1;
+    //         break;
+    //       }
+    //     break;
+    //     case "s":
+    //       switch(Keyboard.keys['s']){
+    //         case -1:
+    //         case  0:
+    //         break;
+    //         case  2:
+    //         break;
+    //         case  1:
+    //           this.slash();
+    //         break;
+    //       }
+    //     break;
+    //   }
+    // }
+  // }
 
   private handleTriggers(){
     while(this.triggers.length > 0){

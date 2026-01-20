@@ -18,7 +18,7 @@ import LevelFactory from './levelfactory';
 
 
 export class Game extends Games.Action {
-  public static self : Game;
+  // public static self : Game;
   protected levels : LevelFactory[] = [new Level00()];
 
   // protected sharedobjects : Array<GameObjects.SharedObject> = [];
@@ -31,7 +31,6 @@ export class Game extends Games.Action {
   constructor(target:HTMLCanvasElement){
     // let bob = document.createElement('canvas');
     super(new Render.GLContext(target,"300","300"),[new Normal(), new Reverser(), new WhiteTransparent()]);
-    console.log(this.gameid);
     target.addEventListener('mousedown',()=>Manager.currentGame = this.gameid);
     this.window = new Window(this.glContext)
     // Game.self = this;
@@ -39,7 +38,7 @@ export class Game extends Games.Action {
 
   public async load():  Promise<void> {
     // let game = ;
-    Game.self = this;
+    // Game.self = this;
     this.gamephysics = new Physics();
     this.systempool.push(this.gamephysics);
     await this.shadercontext.init();

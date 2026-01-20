@@ -1,16 +1,13 @@
 {
-
-    "compilerOptions": {
-    "baseUrl": "./",
-
-    "paths": {
-      "TEWOU": ["../engine/source/index.ts"],
-      "Console": ["../console/source/main.ts"]
-    },
+  "compilerOptions": {
     "module": "esnext",
     "target": "esnext",
     "lib": [ "esnext", "dom"],
     "types":[],
+    
+    "paths": {
+      "TEWOU": ["../engine/source/index.ts"]
+    },
 
     "outDir": "./dist",
     "rootDir": "../",
@@ -40,15 +37,13 @@
     // "baseUrl": "./",
     // "paths": {}
   },
-
   "files": [
-    "./demon/main.ts",
+    "source/main.ts",
   ],
   "include": [
-    "./demon/"
+    "./source/"
   ],
-  "exclude": ["build-types", "build", "dist", "out"],
+  "exclude": ["build-types", "build", "dist", "out"]
 
   // "exclude":["node_modules", "dist"]
-
 }

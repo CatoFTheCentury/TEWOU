@@ -1,6 +1,6 @@
-import {Game} from './game';
+import Game from './game';
 import {Engine, Render} from 'TEWOU'
-import {Alice} from './test2';
+// import {Alice} from './test2';
 import {Manager} from 'Console';
 
 // new Render.GL(600+'',600+'');
@@ -8,7 +8,7 @@ import {Manager} from 'Console';
 let game = new Game(Manager.currentTarget);
 new Engine(game);
 
-new Alice().showResult();
+// new Alice().showResult();
 
 Engine.start(game).then(()=>{
   Engine.games.push(game);

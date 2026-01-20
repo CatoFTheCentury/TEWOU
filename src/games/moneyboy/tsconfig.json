@@ -4,8 +4,8 @@
     "baseUrl": "./",
 
     "paths": {
-      "TEWOU": ["../engine/source/index.ts"],
-      "Console": ["../console/source/main.ts"]
+      "TEWOU": ["../../engine/source/index.ts"],
+      "Console": ["../../console/source/main.ts"]
     },
     "module": "esnext",
     "target": "esnext",
@@ -13,7 +13,7 @@
     "types":[],
 
     "outDir": "./dist",
-    "rootDir": "../",
+    "rootDir": "../../",
     "skipLibCheck": true,
     "allowJs": true,
     // "strict":true,
@@ -42,10 +42,10 @@
   },
 
   "files": [
-    "./demon/main.ts",
+    "./main.ts",
   ],
   "include": [
-    "./demon/"
+    "./"
   ],
   "exclude": ["build-types", "build", "dist", "out"],
 

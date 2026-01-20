@@ -53,6 +53,8 @@ export namespace Render {
           // let cnv = document.createElement('canvas');
           canvas.setAttribute("width", width);
           canvas.setAttribute("height", height);
+          canvas.style.width = width+"px";
+          canvas.style.height = height+"px";
           // document.body.appendChild(cnv);
           // let ctx = (cnv as HTMLCanvasElement).getContext("webgl2",
           //   {premultipliedAlpha: false}

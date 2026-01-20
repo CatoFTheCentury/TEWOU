@@ -17,6 +17,7 @@ import { IniParser } from "./parsers/iniparser";
 import { Tiled } from "./parsers/tiledParser";
 import { GameObjects } from "./alacrity/_gameobjects";
 import { GaniParser } from "./parsers/ganiParser";
+import { Capture, CaptureProperties } from "./physics/capture";
 
 
 export namespace Games{
@@ -49,6 +50,7 @@ export namespace Games{
     // public sharedobjects : Array<T.SharedBlueprint> = [];
     public remoteobjects : {[owner:string]:GameObjects.SharedObject} = {};
     private loadedobjquant : number = 0;
+    public animationsobject : GameObjects.GameAnimations;
 
 
 
@@ -67,6 +69,7 @@ export namespace Games{
       if(touch) new Touch();
       await Promise.all(await Assets.loadAllExtInFolder(this.rootFolder+this.gamename+'/', this.fileextensions));
       await Promise.all(await Assets.loadAllExtInFolder(this.rootFolder+'_debug/', this.fileextensions));
+      await this.shadercontext.init();
       
     }
 
@@ -101,10 +104,21 @@ export namespace Games{
           tomod.presence.myFrame.rprops.pos = o.pos;
         }
       }
-      if(!this.paused) Bodies.Alacrity.refresh(this.alacritypool);
+      // if(!this.paused) Bodies.Alacrity.refresh(this.alacritypool);
+      if(!this.paused) this.refreshalacrities();
       // else Bodies.Alacrity.refreshsome(this.ui);
       // this.gameframe.camera.refresh();
       Bodies.Alacrity.resetallmovements(this.alacritypool);
+    }
+
+    private refreshalacrities(){
+      this.alacritypool = this.alacritypool.filter((a)=>!a.delete)
+      for(let i = 0; i < this.alacritypool.length; i++){
+        this.alacritypool[i].update();
+      }
+      for(let i = 0; i < this.alacritypool.length; i++){
+        this.alacritypool[i].finalize();
+      }
     }
 
     public loadAnims(src:{[id:string]:string}):{[id:string]:Array<Composite.Animation>}{
@@ -220,6 +234,7 @@ export namespace Games{
       return snap;
     }
 
+
   }
 
   abstract class Physical extends Generic {
@@ -227,9 +242,10 @@ export namespace Games{
     public gamephysics : Physics;
     
     protected async initialize(keyboard:boolean=true,touch:boolean=true){
-      super.initialize(keyboard,touch);
+      await super.initialize(keyboard,touch);
       this.gamephysics = new Physics();
-
+      this.systempool.push(this.gamephysics);
+      // await this.shadercontext.init();
     }
 
     public async newTiledLevel(leveln: number): Promise<GameObjects.Level> {
@@ -238,6 +254,19 @@ export namespace Games{
       return level;
     }
 
+    public addCapture(captureProperties : CaptureProperties, incarnation: Bodies.Embodiment){
+      this.gamephysics.collisionpool.push(
+        new Capture(
+          captureProperties.from,
+          captureProperties.to,
+          captureProperties.type,
+          incarnation,
+          captureProperties.hitbox,
+          captureProperties.call)
+      )
+    }
+
+    // public addCollision
   }
 
   export abstract class Action extends Physical{

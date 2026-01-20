@@ -12,7 +12,7 @@ export namespace Bodies {
   export abstract class Alacrity {
     protected lifetime    : Time.Timeout = new Time.Timeout([Infinity], 'lifetime');
 
-    // public static pool : Array<Alacrity> = [];
+    public delete : boolean = false;
 
     public triggers : Array<Time.Trigger> = [];
     public timeouts : Array<Time.Timeout>  = [];
@@ -28,11 +28,12 @@ export namespace Bodies {
     public resetmovementvector(){}
 
     public static refresh(pool:Array<Alacrity>){
-      for(let i = 0; i < pool.length; i++){
-        pool[i].update();
+      let rpool = pool.filter((e)=>!e.delete);
+      for(let i = 0; i < rpool.length; i++){
+        rpool[i].update();
       }
-      for(let i = 0; i < pool.length; i++){
-        pool[i].finalize();
+      for(let i = 0; i < rpool.length; i++){
+        rpool[i].finalize();
       }
     }
 
@@ -59,8 +60,13 @@ export namespace Bodies {
       })
     }
 
-    public destroy(pool:Array<Alacrity>){
-      pool.filter((i)=>i!=this);
+    public addtimeout(durations:Array<number>, callback:()=>void = ()=>{}, repeat:boolean=false):Time.Timeout{
+      
+      return;
+    }
+
+    public destroy(){
+      this.delete = true;
     }
 
     public react(name: string, params: Array<any>):boolean{return false;}
@@ -106,8 +112,8 @@ export namespace Bodies {
       this.myFrame.rprops.flip = this.flip;
     }
     
-    public destroy(pool:Array<Alacrity>){
-      super.destroy(pool);
+    public destroy(){
+      this.delete = true;
       this.myFrame.rprops.delete = true;
       
     }

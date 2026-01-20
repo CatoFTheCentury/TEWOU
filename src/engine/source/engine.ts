@@ -23,15 +23,15 @@ export class Engine {
 
   constructor(game: Games.Generic){
     // new Render.GL(document.body.clientWidth+'',document.body.clientHeight+'');
-    Engine.games.push(game);
+    // Engine.games.push(game);
   }
 
-  public static async start(game: Games.Generic){
+  public static async start(game: Games.Generic):Promise<void>{
     // await ShaderLoader.init();
     Assets.initAudio();
     await game.load();
     // Time.Timeout.pauseAll();
-
+    return;
   }
 
   public static mainLoop = () => {
@@ -39,11 +39,12 @@ export class Engine {
     Engine.games.forEach((g)=>{
       // g.sharedobjects = ;
       g.run(Engine.sharedobjects);
+      g.window.update();
       // g.sharedobjects = [];
     }) // drop static, or run multiple games
     Keyboard.refresh(); // shouldn't it be before engine.game.run?
     // Touch.refresh(); // drop functionality
-    Window.refresh(); // move into game
+    // Window.refresh(); // move into game
     // add something that knows which window is active keyboard should only act on active window
     // if(!Engine.paused)
     // Engine.sharedobjects = [];

@@ -5,6 +5,7 @@ import * as T from "../_type"
 import { CollisionGrid } from "../physics/gridCollision"
 import { IniParser } from "../parsers/iniparser"
 import Camera from '../systems/camera';
+import { Keyboard } from "../systems/keyboard";
 
 
 
@@ -62,10 +63,45 @@ export namespace GameObjects {
     // }
   }
 
-  export abstract class Player extends Incarnations.Fauna {
+  export abstract class Player extends Incarnations.Incarnated {
   // protected allstates = (1<<AniSt.count) - 1;
     public hp : Health = {max:3,current:3};
     public myCamera  : Camera;
 
+    private keyboardactions : {[id:string]:T.KeyboardAction} = {};
+
+    public registerkey(key:string, actions:T.KeyboardAction){
+      this.keyboardactions[key] = actions;
+    }
+
+    public updatekeys(){
+      for(let k in this.keyboardactions){
+        let keyactions = this.keyboardactions[k];
+        if(Keyboard.keys[k]!=undefined){
+          switch(Keyboard.keys[k]) {
+            case -1:
+              if(keyactions.keyup!=undefined)keyactions.keyup();
+            break;
+            case 0:
+            break;
+            case 1:
+              if(keyactions.keydown!=undefined)keyactions.keydown();
+              if(keyactions.keypressed!=undefined)keyactions.keypressed();
+            break;
+            case 2:
+              if(keyactions.keyheld!=undefined)keyactions.keyheld();
+              if(keyactions.keypressed!=undefined)keyactions.keypressed();
+            break;
+          }
+        }
+      }
+    }
+    // public update(){
+    //   // super.update();
+    // }
+  }
+
+  export abstract class GameAnimations {
+    public abstract animations:{[id:string]:{[id:string]:{[id:string]:Array<Composite.Animation>}}};
   }
 }

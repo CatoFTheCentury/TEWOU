@@ -96,7 +96,7 @@ Type "hint" to get a hint.`;
         if(args.length > 1) {
           switch(args[1].toLowerCase()) {
             case "arbre":
-              let game = Manager.createGame("arbre");
+              Manager.createGame("arbre");
               // let frame = game.querySelector("iframe");
               // // let gamesave = frame.contentWindow.document.getElementById('gamesaves');
               // frame.contentWindow.onload = () => {
@@ -105,6 +105,9 @@ Type "hint" to get a hint.`;
               //   // console.log(frame.contentWindow.document.getElementById('gamesaves'));
               // }
               // console.log(game,frame,gamesave,frame.contentWindow,frame.contentWindow.document);
+            break;
+            case "demon":
+              Manager.createGame("demon");
             break;
             default:
               consoleElement.innerHTML += `
