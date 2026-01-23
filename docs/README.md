@@ -1,4 +1,11 @@
 # Objects (main)
+  - Engine : Used to bootstrap the game
+    - usage:
+    ```
+      Engine.start(
+        new ActionGame(HTMLCanvasElement)
+      ).then(()=>{Engine.mainLoop()})
+    ```
   - ActionGame (your game class should extend this)
     - constructor: `super(target : HTMLCanvasElement, canvaswidth : number, canvasheight : number)`
     - Methods:
