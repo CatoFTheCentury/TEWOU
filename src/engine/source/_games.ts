@@ -77,8 +77,9 @@ export namespace Games{
     protected async initialize(keyboard:boolean=true,touch:boolean=true){
       // Time.Delta.refresh();
       if(keyboard) new Keyboard();
-      if(touch) new Touch();
-      await Promise.all(await Assets.loadAllExtInFolder(this.rootFolder+this.gamename+'/', this.fileextensions));
+      // if(touch) new Touch();
+      if(this.gamename == undefined || this.gamename == "") await Promise.all(await Assets.loadAllExtInFolder(this.rootFolder, this.fileextensions));
+      else await Promise.all(await Assets.loadAllExtInFolder(this.rootFolder+this.gamename+'/', this.fileextensions));
       await Promise.all(await Assets.loadAllExtInFolder(this.rootFolder+'_debug/', this.fileextensions));
       await this.shadercontext.init();
       
@@ -245,8 +246,12 @@ export namespace Games{
       return snap;
     }
 
-    public frameGame(){
-      this.window.frm = new Composite.Frame(this.glContext, this.shadercontext, [this.gameframe]);
+    public frameComposites(contents:Array<Composite.Composite>){
+      return new Composite.Frame(this.glContext,this.shadercontext,contents);
+    }
+
+    public frameGame(contents:Array<Composite.Composite>){
+      this.window.frm = new Composite.Frame(this.glContext, this.shadercontext, contents);
       this.window.frm.rprops.srcrect = {x:0,y:0, w:this.glContext.gl.canvas.width,h:this.glContext.gl.canvas.height};
       this.window.frm.rprops.shaderID = "reverser";
     }
