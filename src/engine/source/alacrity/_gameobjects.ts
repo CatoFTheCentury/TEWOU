@@ -6,6 +6,11 @@ import { CollisionGrid } from "../physics/gridCollision"
 import { IniParser } from "../parsers/iniparser"
 import Camera from '../systems/camera';
 import { Keyboard } from "../systems/keyboard";
+import { Render } from "../render/_render";
+import { ShaderLoader } from "../render/shaderloader";
+import { Assets } from "../render/assets";
+import { Tiled } from "../parsers/tiledParser";
+// import { Generic } from '../_games';
 
 
 
@@ -28,6 +33,14 @@ export namespace GameObjects {
     public async load(){
       this.cellbuild = await IniParser.loadIni("_assets/"+this.ininame);
       this.levelsize = {w: this.cellbuild.tiles[0].tileYX[0].length * this.cellbuild.square.w, h: this.cellbuild.tiles[0].tileYX.length * this.cellbuild.square.h};
+    }
+
+    public async buildCell(file:string, glContext:Render.GLContext, shadercontext: ShaderLoader){
+      this.cellbuild = await IniParser.loadIni(file);
+      this.cellbuild.texture = Assets.retrieveTex(this.cellbuild.tileset, glContext);
+      this.levelsize = {w: this.cellbuild.tiles[0].tileYX[0].length * this.cellbuild.square.w, h: this.cellbuild.tiles[0].tileYX.length * this.cellbuild.square.h};
+      this.representation = Tiled.blit(glContext, shadercontext, this.cellbuild, "level-layer")
+
     }
   }
 
@@ -63,6 +76,8 @@ export namespace GameObjects {
     // }
   }
 
+  export abstract class Fauna extends Incarnations.Fauna{}
+
   export abstract class Player extends Incarnations.Incarnated {
   // protected allstates = (1<<AniSt.count) - 1;
     public hp : Health = {max:3,current:3};
@@ -96,9 +111,10 @@ export namespace GameObjects {
         }
       }
     }
-    // public update(){
-    //   // super.update();
-    // }
+    public update(){
+      super.update();
+      this.updatekeys();
+    }
   }
 
   export abstract class GameAnimations {

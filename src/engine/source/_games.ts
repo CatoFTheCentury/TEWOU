@@ -18,6 +18,12 @@ import { Tiled } from "./parsers/tiledParser";
 import { GameObjects } from "./alacrity/_gameobjects";
 import { GaniParser } from "./parsers/ganiParser";
 import { Capture, CaptureProperties } from "./physics/capture";
+import * as C from "./physics/states"
+import {NPCCollision} from './physics/npcCollision';
+import { Normal } from "./render/shaders/normal";
+import { Reverser } from "./render/shaders/reverser";
+import { WhiteTransparent } from "./render/shaders/whitetransparent";
+import { CollisionGrid } from "./physics/gridCollision";
 
 
 export namespace Games{
@@ -30,7 +36,6 @@ export namespace Games{
     public alacritypool: Array<Bodies.Alacrity> = [];
     public systempool  : Array<System> = [];
     // public uiphysics : Physics;
-    public async load() : Promise<void>  {return}
     public abstract start(): void;
     public paused : boolean = false;
     public rootFolder : string = "_assets/";
@@ -54,14 +59,20 @@ export namespace Games{
 
 
 
-    constructor(glContext: Render.GLContext, shaders: Array<ShaderTemplate>){
-      this.glContext = glContext;
-      this.shadercontext = new ShaderLoader(glContext.gl,shaders);
+    constructor(target: HTMLCanvasElement, width: number, height: number, shaders: Array<ShaderTemplate> = [new Normal(), new Reverser(), new WhiteTransparent()]){
+      
+      this.glContext = new Render.GLContext(target,width+"",height+"");
+      this.shadercontext = new ShaderLoader(this.glContext.gl,shaders);
       Generic.gamespool.push(this);
       this.gameid = Generic.gamespool.length-1;
+      this.window = new Window(this.glContext)
+
       // Generic.nextid++;
       // Generic.pool.push(this);
     }
+
+    public async load() : Promise<void>  {await this.initialize();}
+
 
     protected async initialize(keyboard:boolean=true,touch:boolean=true){
       // Time.Delta.refresh();
@@ -234,7 +245,11 @@ export namespace Games{
       return snap;
     }
 
-
+    public frameGame(){
+      this.window.frm = new Composite.Frame(this.glContext, this.shadercontext, [this.gameframe]);
+      this.window.frm.rprops.srcrect = {x:0,y:0, w:this.glContext.gl.canvas.width,h:this.glContext.gl.canvas.height};
+      this.window.frm.rprops.shaderID = "reverser";
+    }
   }
 
   abstract class Physical extends Generic {
@@ -257,8 +272,7 @@ export namespace Games{
     public addCapture(captureProperties : CaptureProperties, incarnation: Bodies.Embodiment){
       this.gamephysics.collisionpool.push(
         new Capture(
-          captureProperties.from,
-          captureProperties.to,
+          captureProperties.cwith,
           captureProperties.type,
           incarnation,
           captureProperties.hitbox,
@@ -266,6 +280,18 @@ export namespace Games{
       )
     }
 
+    public addAsCollision(incarnation:Bodies.Embodiment, cwith: C.CollideLayers, type: C.CollideTypes){
+      this.gamephysics.collisionpool.push(
+        new NPCCollision(incarnation, cwith, type)
+      )
+      console.log(this.gamephysics.collisionpool)
+    }
+
+    public addGrid(boolArr : Array<Array<boolean>>, resolution: number, cwith : C.CollideLayers, type : C.CollideTypes){
+      this.gamephysics.collisionpool.push(
+        new CollisionGrid(boolArr,resolution,cwith,type)
+      )
+    }
     // public addCollision
   }
 

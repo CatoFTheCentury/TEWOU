@@ -60,9 +60,10 @@ export namespace Bodies {
       })
     }
 
-    public addtimeout(durations:Array<number>, callback:()=>void = ()=>{}, repeat:boolean=false):Time.Timeout{
-      
-      return;
+    public addtimeout(durations:Array<number>, actions:Time.TimerActions, repeat : boolean = true, continuous:boolean=true):Time.Timeout{
+      let timeout = new Time.Timeout(durations, "noname", {continuous:continuous,repeat:repeat},actions);
+      this.timeouts.push(timeout);
+      return timeout;
     }
 
     public destroy(){

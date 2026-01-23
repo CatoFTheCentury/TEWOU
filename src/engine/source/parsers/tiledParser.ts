@@ -22,7 +22,7 @@ export class Tiled {
 
     return  cellbuild.tiles.map(layer => {
         i++;
-
+        console.log(layer);
         const framebuffer : WebGLFramebuffer | null = glContext.gl.createFramebuffer()
 
         glContext.gl.bindFramebuffer(glContext.gl.FRAMEBUFFER, glContext.framebuffer)

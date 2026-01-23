@@ -1,5 +1,5 @@
 import {Game} from './game';
-import {Engine, Render} from 'TEWOU'
+import {Engine} from 'TEWOU'
 import {Alice} from './test2';
 import {Manager} from 'Console';
 

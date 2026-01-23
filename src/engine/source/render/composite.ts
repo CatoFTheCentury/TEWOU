@@ -171,7 +171,7 @@ export namespace Composite {
 
   }
 
-  class Composite extends Renderable {
+  export class Composite extends Renderable {
     public remove           : boolean;
     public dynamic          : boolean = false;
     public bg               : WebGLTexture;

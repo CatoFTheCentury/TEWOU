@@ -4,7 +4,7 @@
     "baseUrl": "./",
 
     "paths": {
-      "TEWOU": ["../../engine/source/index.ts"],
+      "TEWOU": ["../../engine/source/api.ts"],
       "Console": ["../../console/source/main.ts"]
     },
     "module": "esnext",

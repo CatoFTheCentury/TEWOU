@@ -34,7 +34,7 @@
     // "paths": {}
   },
   "files": [
-    "./source/index.ts",
+    "./source/api.ts",
   ],
   "include": [
     "./source/"

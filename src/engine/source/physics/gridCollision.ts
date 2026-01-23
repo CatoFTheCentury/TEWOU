@@ -25,8 +25,8 @@ export class CollisionGrid extends Collision{
   private xlimit : number;
 
   
-  constructor(boolArr : Array<Array<boolean>>, resolution: number, to : C.CollideLayers, type : C.CollideTypes){
-    super(C.CollideLayers.grid, to, type);
+  constructor(boolArr : Array<Array<boolean>>, resolution: number, cwith : C.CollideLayers, type : C.CollideTypes){
+    super(cwith, type);
     this.ylimit = boolArr.length;
     let gridwidth: number = boolArr[0].length;
     this.xlimit = Math.ceil(boolArr[0].length / CollisionGrid.bitSize);

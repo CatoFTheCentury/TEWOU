@@ -1,18 +1,22 @@
-import {Bodies, Games, Tiled, IniParser, Assets, Composite, Time, NPCCollision, C} from 'TEWOU';
+// import {Bodies, Games, Tiled, IniParser, Assets, Composite, Time, NPCCollision, C} from 'TEWOU';
+import {Player, ActionGame, CollideLayers, CollideTypes, CaptureProperties, API, Frame, Fauna} from 'TEWOU'
 
 
-export default class Tree extends Bodies.Embodiment{
+export default class Tree extends Fauna{
+  public actions;
+  public action;
   private health = 4;
-  constructor(game: Games.Action){
-    game.currentLevel.cellbuild.tiles = [IniParser.loadCSV(Assets.getText("_assets/arbre/00/tree.csv"))];
+  constructor(game: ActionGame){
+    // game.currentLevel.cellbuild.tiles = [];
 
-    let image = Tiled.blit(game.glContext,game.shadercontext,game.currentLevel.cellbuild, "Tree");
-    super(new Composite.Frame(game.glContext,game.shadercontext,image,{w:8*16,h:6*16}));
+    let image = API.imageFromCSV(game, "_assets/arbre/00/tree.csv");
+    super(new Frame(game.glContext,game.shadercontext,[image],{w:8*16,h:6*16}));
     this.pos.x = 16 * 27;
     this.pos.y = 16*31;
     this.hitbox = {x:0,y:7*16,w:8*16,h:2*16};
     // this.myFrame.frame[0].rprops.angle =  1.57;
-    game.gamephysics.collisionpool.push(new NPCCollision(this,C.CollideLayers.npc, C.CollideLayers.player, C.CollideTypes.block));
+    game.addAsCollision(this,CollideLayers.player,CollideTypes.block);
+    // game.gamephysics.collisionpool.push(new NPCCollision(this,C.CollideLayers.npc, C.CollideLayers.player, C.CollideTypes.block));
 
     // this.myFrame.rprops.flip.flipy = true;
     // this.myFrame.compose();
@@ -37,7 +41,7 @@ export default class Tree extends Bodies.Embodiment{
 
   private handleTriggers(){
     while(this.triggers.length > 0){
-      let t : Time.Trigger = this.triggers.pop() || {name:"notrigger"};
+      let t = this.triggers.pop() || {name:"notrigger"};
       switch(t.name){
         case "attacked":
           this.health--;

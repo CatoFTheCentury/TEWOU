@@ -1,5 +1,5 @@
-import {Games,Incarnations,GameObjects} from "TEWOU";
+import {Level, ActionGame} from "TEWOU";
 
-export default abstract class LevelFactory extends GameObjects.Level{
-  public async build(game: Games.Action,firstLevel:boolean):Promise<void>{}
+export default abstract class LevelFactory extends Level{
+  public async build(game: ActionGame,firstLevel:boolean):Promise<void>{}
 }

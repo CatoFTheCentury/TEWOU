@@ -4,10 +4,8 @@ import * as C from "./states"
 import * as T from "../_type"
 
 export type CaptureProperties = {
-  from: C.CollideLayers,
-  to: C.CollideLayers,
+  cwith: C.CollideLayers,
   type: C.CollideTypes,
-  // owner: Bodies.Embodiment,
   hitbox: T.Bounds,
   call: (owner: Bodies.Embodiment, target: Bodies.Alacrity) => boolean
 }
@@ -17,8 +15,8 @@ export class Capture extends Collision {
   private owner  : Bodies.Embodiment;
   private call   : (owner: Bodies.Embodiment,target: Bodies.Embodiment)=>boolean;
   
-  constructor(from : C.CollideLayers, to : C.CollideLayers, type : C.CollideTypes, owner: Bodies.Embodiment, hitbox: T.Bounds, call: (owner: Bodies.Embodiment,target: Bodies.Alacrity)=>boolean){
-    super(from,to,type);
+  constructor(cwith : C.CollideLayers, type : C.CollideTypes, owner: Bodies.Embodiment, hitbox: T.Bounds, call: (owner: Bodies.Embodiment,target: Bodies.Alacrity)=>boolean){
+    super(cwith,type);
     this.owner  = owner ;
     this.hitbox = hitbox;
     this.call   = call  ;
