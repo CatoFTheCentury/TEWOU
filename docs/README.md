@@ -3,17 +3,17 @@
     - constructor: `super(target : HTMLCanvasElement, canvaswidth : number, canvasheight : number)`
     - Methods:
       - `parseGani(file:string)` :
-<br>      Loads a gani file and returns an array of `Animation` objects representing each one direction of the animation.
-<br>      (ex.: `this.idle  = game.parseGani("assets/idle.gani")`)
+        - Loads a gani file and returns an array of `Animation` objects representing each one direction of the animation.
+        - (ex.: `this.idle  = game.parseGani("assets/idle.gani")`)
       - `newTiledLevel(leveln:number)` : async - returns a `Level` object from the `levels` field.
-<br>      Has 1 argument:
-<br>      `leveln : number` = the index of the level object in the `levels` field.
-<br>      (ex.: `game.currentLevel = game.newTiledLevel(0)`)
+        - Has 1 argument:
+          - `leveln : number` = the index of the level object in the `levels` field.
+        - (ex.: `game.currentLevel = game.newTiledLevel(0)`)
       - `displayLevel(level:Level)` - protected :
-      Creates the `Frame` (`game.gameframe`) object on which your level and its objects are to be displayed.
-      Creates a Camera at `game.gameframe.camera` for which you have to set the actor.
-      Has 1 argument:
-      `level : Level` a level object on which `newTiledLevel` has been run
+        - Creates the `Frame` (`game.gameframe`) object on which your level and its objects are to be displayed.
+        - Creates a Camera at `game.gameframe.camera` for which you have to set the actor.
+        - Has 1 argument:
+          - `level : Level` a level object on which `newTiledLevel` has been run
       - `buildAni(anibuild:T.AniBuild)` - returns `Animation` object.
       - `buildSnap(snapbuild:T.SnapBuild)` - returns `Snap` object.
       - `addCapture()`
@@ -21,14 +21,14 @@
       - `addGrid()`
       - `frameGame()` - call to create `Window`'s frame which will use a the `gameframe` `Game` field. Therefore, `displayLevel` should be called prior.
       - `load()` async
-      Overload this function in your custom Game class. `super()` call required.
+        - Overload this function in your custom Game class. `super()` call required.
       - `run()`
-      Overload this function in your custom Game class. `super([])` call required
+        - Overload this function in your custom Game class. `super([])` call required
 
     - Fields:
       - `gamename` : IS TOO IMPORTANT
       - `levels` : populate with an array of classes extending the Level class (through new).
-      Level data is preserved.
+        - Level data is preserved.
       - `gameframe` : The level representation with everything in it. The game's `Frame` which is relative to camera position. It is created and populated with `Game.displayLevel`. As a frame, its `rprops` can be modified.
       - `window` :
         - Fields :
