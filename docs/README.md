@@ -2,9 +2,11 @@
   - Engine : Used to bootstrap the game
     - usage:
     ```
-      Engine.start(
-        new ActionGame(HTMLCanvasElement)
-      ).then(()=>{Engine.mainLoop()})
+      let game = new ActionGame(HTMLCanvasElement);
+      Engine.start(game).then(()=>{
+        Engine.games.push(game);
+        Engine.mainLoop()
+      })
     ```
   - ActionGame (your game class should extend this)
     - constructor: `super(target : HTMLCanvasElement, canvaswidth : number, canvasheight : number)`
@@ -34,13 +36,16 @@
 
       - `addGrid()`
 
-      - `frameGame()` - call to create `Window`'s frame which will use a the `gameframe` `Game` field. Therefore, `displayLevel` should be called prior.
+      - `frameGame(Array<Composite>)` - composes what is to be displayed on screen as what is to be displayed as the `window`'s `Frame`.
 
       - `load()` async
         - Overload this function in your custom Game class. `super()` call required.
 
       - `run()`
         - Overload this function in your custom Game class. `super([])` call required
+
+      - `game.alacritypool.push(Entity)`
+        - Push entities to the game's alacritypool for them to be updated.
 
 
     - Fields:
@@ -70,8 +75,16 @@
         - (ex.: `await this.buildCell("assets/myinifile.ini",game.glContext,game.shadercontext)`)
 
 
+# Objects (entities)
+  - Common to each entity
+    - Fields:
+      - `myFrame` : The entity's Frame composite.
+      - `movementvector` : A Point {x:number,y:number}, modifying this variable will tell the Entity to move that direction for that frame.
+        - ex.: `this.movementvector.x = -1` // makes the entity go left for the current frame at normal speed.
+
   - Player (a special gameobject class to which you can bind key actions)
-    - constructor : `super()`
+    - constructor : `super(Composite)`
+      - the composite entered in super will be the image displayed. You can change the image by modifying `myFrame.frame`, which is is an `Array<Composite>`.
     - Methods:
       - `registerkey(key:string, actions : T.KeyboardAction)` :
         - Registers a key and its actions.
@@ -129,8 +142,12 @@
 
   - `Frame` (container for Animation)
     - constructor : `new Frame(game.glContext, game.shadercontext, Array<Composite>)`
+    - Fields:
+      - `public frame : Array<Composite>`
+
   - `Animation` (container for Snap which can contain multiple frames)
     - build with `ActionGame.buildAni`
+
   - `Snap` (Can contain multiple Snap that will be represented as one image)
     - build with `ActionGame.buildSnap`
   
