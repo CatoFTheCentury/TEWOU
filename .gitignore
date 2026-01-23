@@ -10,6 +10,7 @@ ntg.ts
 package-lock.json
 dist
 build-types
+releases
 
 *.py
 *.ttf
