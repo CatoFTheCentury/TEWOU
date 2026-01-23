@@ -49,8 +49,6 @@
 
 
     - Fields:
-      - `gamename` : IS TOO IMPORTANT
-
       - `levels` : populate with an array of classes extending the Level class (through new).
         - Level data is preserved.
 
