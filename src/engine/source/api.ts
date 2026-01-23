@@ -3,10 +3,10 @@ import { GameObjects } from "./alacrity/_gameobjects";
 import { Composite } from "./render/composite";
 import { GaniParser } from "./parsers/ganiParser";
 import { Assets } from "./render/assets"
-import * as T from "./_type"
-import { CollideLayers } from './physics/states';
-import { CollideTypes } from './physics/states';
-import { Bodies } from "./alacrity/_bodies";
+// import * as T from "./_type"
+// import { CollideLayers } from './physics/states';
+// import { CollideTypes } from './physics/states';
+// import { Bodies } from "./alacrity/_bodies";
 import { IniParser } from "./parsers/iniparser";
 import { Tiled } from "./parsers/tiledParser";
 export { Engine } from "./engine";
@@ -15,6 +15,7 @@ export { Engine } from "./engine";
 // export Engine
 export { CollideLayers } from './physics/states';
 export { CollideTypes } from './physics/states';
+export { CaptureProperties } from './physics/capture' 
 
 export abstract class Level extends GameObjects.Level{}
 export abstract class Player extends GameObjects.Player{}
@@ -29,12 +30,6 @@ export abstract class ActionGame extends Games.Action{
 export class Animation extends Composite.Animation{}
 export class Frame extends Composite.Frame{}
 
-export type CaptureProperties = {
-  cwith: CollideLayers,
-  type: CollideTypes,
-  hitbox: T.Bounds,
-  call: (owner: Bodies.Embodiment, target: Bodies.Alacrity) => boolean
-}
 
 export class API {
   // public static createFrame(game:ActionGame,composite:Array<Composite.Composite>){
