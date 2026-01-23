@@ -47,7 +47,7 @@ export class Game extends ActionGame {
     this.gameframe.camera.cameraman.actor = this.player;
 
     
-    this.frameGame();
+    this.frameGame([this.gameframe]);
     return;
   }
 
