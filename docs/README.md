@@ -72,34 +72,36 @@
           - `actions : T.KeyboardAction` = a series of functions that should happen when a key action is detected:
 
         - ex.:
-  ```this.registerkey('ArrowUp', {
-    keyup: ()=>{
-      this.myFrame.frame = [this.character.idle[this.dir]];
-    },
-    keypressed: ()=>{
-      this.dir = 0;
-      this.myFrame.frame = [this.character.walk[this.dir]];
-      this.movementvector.y = -1
-    }
-  });
-  ```
+          ```
+          this.registerkey('ArrowUp', {
+            keyup: ()=>{
+              this.myFrame.frame = [this.character.idle[this.dir]];
+            },
+            keypressed: ()=>{
+              this.dir = 0;
+              this.myFrame.frame = [this.character.walk[this.dir]];
+              this.movementvector.y = -1
+            }
+          });
+          ```
 
     - Fields:
 
       - `triggers : Array<T.Trigger>` : Triggers can be injected in this field to act upon it, iterating through it on update.
         - ex.:
-  ```private handleTriggers(){
-    while(this.triggers.length > 0){
-      let t = this.triggers.pop() || {name:"notrigger"};
-      switch(t.name){
-        case "attacked":
-          this.health--;
-          if(this.health <= 0) this.myFrame.rprops.hidden = true;
-        break;
-      }
-    }
-  }
-  ```
+            ```
+            private handleTriggers(){
+              while(this.triggers.length > 0){
+                let t = this.triggers.pop() || {name:"notrigger"};
+                switch(t.name){
+                  case "attacked":
+                    this.health--;
+                    if(this.health <= 0) this.myFrame.rprops.hidden = true;
+                  break;
+                }
+              }
+            }
+            ```
 
   - Fauna (a gameobject class for npcs):
     - Methods:
