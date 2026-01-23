@@ -71,6 +71,7 @@
 
 
   - Player (a special gameobject class to which you can bind key actions)
+    - constructor : `super()`
     - Methods:
       - `registerkey(key:string, actions : T.KeyboardAction)` :
         - Registers a key and its actions.
@@ -127,8 +128,11 @@
       - `rprops` : `T.RenderProperties`
 
   - `Frame` (container for Animation)
+    - constructor : `new Frame(game.glContext, game.shadercontext, Array<Composite>)`
   - `Animation` (container for Snap which can contain multiple frames)
+    - build with `ActionGame.buildAni`
   - `Snap` (Can contain multiple Snap that will be represented as one image)
+    - build with `ActionGame.buildSnap`
   
 # Types (T)
   - `Bounds`
