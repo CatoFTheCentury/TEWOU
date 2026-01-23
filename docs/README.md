@@ -108,7 +108,7 @@
       - `switchaction(action : string)` : Fauna objects have a special characteristic called "actions" which you can use to put life into them. More explanation in a later section.
     - Fields:
       - `triggers : Array<T.Trigger>` : Triggers can be injected in this field to act upon it, iterating through it on update.
-        - ex.: 
+        - ex.: (same as `Player`)
 
 # Objects (Composite)
   - `Composite` (common to each `Composite` object)
@@ -124,6 +124,29 @@
   - `Snap` (Can contain multiple Snap that will be represented as one image)
   
 # Types (T)
+  - `Bounds`
+    ```
+      = {
+        x : number,
+        y : number,
+        w : number,
+        h : number
+      }
+    ```
+  - `T.SnapBuild`
+    ```
+      = {
+        file   : string,
+        srcrect: Bounds,
+        dstrect: Bounds
+      }
+    ```
+  - `T.AniBuild`
+    ```
+      = {
+        frames: Array<Array<SnapBuild>>
+      }
+    ```
   - `T.KeyboardAction`
     ```
       = {
