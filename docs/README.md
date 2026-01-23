@@ -3,12 +3,12 @@
     - constructor: `super(target : HTMLCanvasElement, canvaswidth : number, canvasheight : number)`
     - Methods:
       - `parseGani(file:string)` :
-      Loads a gani file and returns an array of `Animation` objects representing each one direction of the animation.
-      (ex.: `this.idle  = game.parseGani("assets/idle.gani")`)
+<br>      Loads a gani file and returns an array of `Animation` objects representing each one direction of the animation.
+<br>      (ex.: `this.idle  = game.parseGani("assets/idle.gani")`)
       - `newTiledLevel(leveln:number)` : async - returns a `Level` object from the `levels` field.
-      Has 1 argument:
-      `leveln : number` = the index of the level object in the `levels` field.
-      (ex.: `game.currentLevel = game.newTiledLevel(0)`)
+<br>      Has 1 argument:
+<br>      `leveln : number` = the index of the level object in the `levels` field.
+<br>      (ex.: `game.currentLevel = game.newTiledLevel(0)`)
       - `displayLevel(level:Level)` - protected :
       Creates the `Frame` (`game.gameframe`) object on which your level and its objects are to be displayed.
       Creates a Camera at `game.gameframe.camera` for which you have to set the actor.
