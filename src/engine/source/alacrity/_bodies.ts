@@ -4,6 +4,7 @@ import * as T from "../_type"
 import Collision from '../physics/_collision'
 import * as C from "../physics/states";
 // import Gravity from "../systems/gravity";
+// import { glContext } from '../_type';
 
 export namespace Bodies {
 
@@ -101,13 +102,23 @@ export namespace Bodies {
     public myFrame: Composite.Frame;
     public collisions : Array<Collision> = [];
     // public hitbox     : T.Bounds = {x:0,y:0,w:0,h:0};
-    public activeeffects : Array<number> = [0,0,0,0];
+    public activeeffects : Array<number> = [1,1,1,1];
     // public pos : T.Point = {x:0,y:0};
     public flip : T.Flip = {flipx:false,flipy:false}
 
-    constructor(frame: Composite.Frame){
+    constructor(frame: Composite.Frame | Array<Composite.Composite> | Composite.Composite){
       super();
-      this.myFrame = frame;
+      let fr : Composite.Frame;
+      if(!(frame instanceof Composite.Frame)){
+        if(Array.isArray(frame)){
+          fr = new Composite.Frame(frame[0].glContext, frame[0].shadercontext, frame)
+        } else {
+          fr = new Composite.Frame(frame.glContext, frame.shadercontext, [frame])
+        } 
+      } else {
+        fr = frame as Composite.Frame;
+      }
+      this.myFrame = fr;
       this.myFrame.rprops.pos = this.pos;
       this.myFrame.rprops.layer = .5;
       this.myFrame.rprops.flip = this.flip;
@@ -179,7 +190,7 @@ export namespace Bodies {
           (movement.y > 0 && !(this.activeeffects[2] & C.CollideTypes.block))){
           this.pos.y += movement.y;
         }
-      // console.log(movement)
+      // console.log(this.pos.x)
       // this.movementvector = {x:0,y:0};
       
     }
