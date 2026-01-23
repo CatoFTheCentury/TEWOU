@@ -70,14 +70,14 @@
           - `file : string` = the ini file with its relative path
           - `glContext` = the glContext field from the game object
           - `shadercontext` = the shadercontext field from the game object
-        - (ex.: `await this.buildCell("assets/myinifile.ini",game.glContext,game.shadercontext)`)
+        - (ex.: `await this.buildCell("_assets/myinifile.ini",game.glContext,game.shadercontext)`)
 
 
-# Objects (entities)
+# Objects (Entities)
   - Common to each entity
     - Fields:
       - `myFrame` : The entity's Frame composite.
-      - `movementvector` : A Point {x:number,y:number}, modifying this variable will tell the Entity to move that direction for that frame.
+      - `movementvector` : A Point {x:number,y:number}, modifying this variable will tell the Entity to move that direction for that frame. Will take blocking terrain into account.
         - ex.: `this.movementvector.x = -1` // makes the entity go left for the current frame at normal speed.
 
   - Player (a special gameobject class to which you can bind key actions)
