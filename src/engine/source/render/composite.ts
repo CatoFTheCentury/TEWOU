@@ -13,7 +13,7 @@ export namespace Composite {
     public texture  : WebGLTexture;
     protected file  : string;
     public ready    : boolean;
-    public abstract compose() : void;
+    public abstract compose() : boolean;
     public parent : Renderable = undefined;
     public glContext : Render.GLContext;
     public shadercontext : ShaderLoader;
@@ -137,6 +137,34 @@ export namespace Composite {
   //   }
   // }
 
+  export class Rectangle extends Renderable {
+    // private bounds : T.Bounds;
+
+    constructor(glContext : Render.GLContext, shadercontext : ShaderLoader, bounds : T.Bounds, color : T.Color){
+      super(glContext, shadercontext);
+      this.rprops.dstrect = bounds;
+      this.rprops.colorize = color;
+      // this.rprops.shaderID = "rectangle"
+    }
+
+    public compose(){
+      if(!this.ready){
+        let gl = this.glContext.gl;
+
+        let spr : WebGLTexture = Textures.createTexToBlitOn(this.glContext, 1, 1);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.glContext.framebuffer);
+        gl.bindTexture(gl.TEXTURE_2D, spr);
+        
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+          new Uint8Array([this.rprops.colorize.r,this.rprops.colorize.g,this.rprops.colorize.b,this.rprops.colorize.a]));
+        
+        this.texture = spr;
+        this.ready = true;
+      }
+      return this.rprops.delete;
+    }
+  }
+
   export class Image extends Renderable {
 
     constructor(glContext: Render.GLContext, shadercontext: ShaderLoader, file : string, srcrect : T.Bounds, dstrect : T.Bounds, plane : T.Bounds = undefined){
@@ -165,13 +193,15 @@ export namespace Composite {
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     
         this.texture = spr;
+        this.ready = true;
       }
+      return this.rprops.delete;
     }
 
 
   }
 
-  export class Composite extends Renderable {
+  class Composite extends Renderable {
     public remove           : boolean;
     public dynamic          : boolean = false;
     public bg               : WebGLTexture;
@@ -409,13 +439,13 @@ export namespace Composite {
   }
 
   export class Frame extends Composite {
-    public frame : Array<Composite>;
+    public frame : Array<Renderable>;
     // public worldpos : T.Point = {x:0,y:0};
     public camera   : Camera = undefined;
     private picture  = {crop:{do:false,w:0,h:0},x:0,y:0,w:0,h:0,img:undefined,ready:false}
     // private size : T.Box;
 
-    constructor(glContext: Render.GLContext, shadercontext: ShaderLoader, frame: Array<Composite>, size: T.Box = {w:0,h:0}){
+    constructor(glContext: Render.GLContext, shadercontext: ShaderLoader, frame: Array<Renderable>, size: T.Box = {w:0,h:0}){
       super(glContext, shadercontext);
       this.frame = frame;
       this.dynamic = true;

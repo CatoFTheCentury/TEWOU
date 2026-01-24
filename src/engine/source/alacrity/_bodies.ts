@@ -106,7 +106,7 @@ export namespace Bodies {
     // public pos : T.Point = {x:0,y:0};
     public flip : T.Flip = {flipx:false,flipy:false}
 
-    constructor(frame: Composite.Frame | Array<Composite.Composite> | Composite.Composite){
+    constructor(frame: Composite.Frame | Array<Composite.Renderable> | Composite.Renderable){
       super();
       let fr : Composite.Frame;
       if(!(frame instanceof Composite.Frame)){

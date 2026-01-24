@@ -29,6 +29,7 @@ export abstract class ActionGame extends Games.Action{
 
 export class Animation extends Composite.Animation{}
 export class Frame extends Composite.Frame{}
+export class Rectangle extends Composite.Rectangle{}
 
 
 export class API {

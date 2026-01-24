@@ -66,6 +66,9 @@ export namespace Games{
       Generic.gamespool.push(this);
       this.gameid = Generic.gamespool.length-1;
       this.window = new Window(this.glContext)
+      this.window.frm = new Composite.Frame(this.glContext, this.shadercontext, []);
+      this.window.frm.rprops.srcrect = {x:0,y:0, w:this.glContext.gl.canvas.width,h:this.glContext.gl.canvas.height};
+      this.window.frm.rprops.shaderID = "reverser";
 
       // Generic.nextid++;
       // Generic.pool.push(this);
@@ -82,7 +85,12 @@ export namespace Games{
       else await Promise.all(await Assets.loadAllExtInFolder(this.rootFolder+this.gamename+'/', this.fileextensions));
       await Promise.all(await Assets.loadAllExtInFolder(this.rootFolder+'_debug/', this.fileextensions));
       await this.shadercontext.init();
-      
+
+      // console.log("FDASFDASFAS");
+      // this.window.frm = new Composite.Frame(this.glContext, this.shadercontext, []);
+      // this.window.frm.rprops.srcrect = {x:0,y:0, w:this.glContext.gl.canvas.width,h:this.glContext.gl.canvas.height};
+      // this.window.frm.rprops.shaderID = "reverser";
+      // console.log(this.window.frm)
     }
 
     // public static connectFauna(gameid:number,player:GameObjects.Player){
@@ -246,15 +254,26 @@ export namespace Games{
       return snap;
     }
 
-    public frameComposites(contents:Array<Composite.Composite>){
+    public newFrame(contents:Array<Composite.Renderable>){
       return new Composite.Frame(this.glContext,this.shadercontext,contents);
     }
 
-    public frameGame(contents:Array<Composite.Composite>){
-      this.window.frm = new Composite.Frame(this.glContext, this.shadercontext, contents);
-      this.window.frm.rprops.srcrect = {x:0,y:0, w:this.glContext.gl.canvas.width,h:this.glContext.gl.canvas.height};
-      this.window.frm.rprops.shaderID = "reverser";
+    public newRectangle(bounds: T.Bounds, color: T.Color){
+      return new Composite.Rectangle(this.glContext, this.shadercontext,
+        bounds, color
+      )
     }
+
+    public registerEntity(entity:Bodies.Embodiment){
+      this.alacritypool.push(entity);
+      this.window.frm.frame.push(entity.myFrame)
+    }
+
+    // public frameGame(contents:Array<Composite.Renderable>){
+    //   this.window.frm = new Composite.Frame(this.glContext, this.shadercontext, []);
+    //   this.window.frm.rprops.srcrect = {x:0,y:0, w:this.glContext.gl.canvas.width,h:this.glContext.gl.canvas.height};
+    //   this.window.frm.rprops.shaderID = "reverser";
+    // }
   }
 
   abstract class Physical extends Generic {

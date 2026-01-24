@@ -10,10 +10,11 @@ ntg.ts
 package-lock.json
 dist
 build-types
-releases
+
+output.js
 
 *.py
 *.ttf
-*.js
+*.zip
 *.txt
 *.bak.ts

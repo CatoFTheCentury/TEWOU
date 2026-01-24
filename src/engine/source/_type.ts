@@ -12,6 +12,13 @@ export type Box = {
 
 export type Bounds = Point & Box;
 
+export type Color = {
+  r: number,
+  g: number,
+  b: number,
+  a: number
+}
+
 export type Texture = Box & {
   t: WebGLTexture
 };
@@ -26,7 +33,7 @@ export type RenderProperties = {
   dstrect   : Bounds,
   pos       : Point,
 
-  colorize? : Array<number>,
+  colorize? : Color,
   shader?   : string,
   flip      : Flip
 
