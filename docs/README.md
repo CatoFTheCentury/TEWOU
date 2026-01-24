@@ -44,8 +44,11 @@
       - `run()`
         - Overload this function in your custom Game class. `super([])` call required
 
-      - `game.alacritypool.push(Entity)`
-        - Push entities to the game's alacritypool for them to be updated.
+      - `registerEntity(Entity)`
+        - Register `Entity` to the game; displaying and updating it.
+
+      - `newRectangle(T.Bounds,T.Color)` : creates a rectangle `Composite` with one solid color. You can add it to `Snap` or `Frame` or use it as you initialize an `Entity`, like any `Composite`.
+        - ex.: `game.newRectangle({x:0,y:0,w:32,h:32},{r:255,g:255,b:255,a:255})`
 
 
     - Fields:
