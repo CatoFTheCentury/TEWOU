@@ -21,7 +21,7 @@ export class Capture extends Collision {
     this.owner  = owner ;
     this.hitbox = hitbox;
     this.call   = call  ;
-
+    owner.collisions.push(this);
   }
 
 
