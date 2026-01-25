@@ -24,7 +24,7 @@ export class Physics extends System {
     }
     
     all.forEach((element) => {
-        let totest: Set<Bodies.Embodiment> = new Set(all.filter((a)=>((element.cwith) && a.self)).map((a)=>a.self));
+        let totest: Set<Bodies.Embodiment> = new Set(all.filter((a)=>((a.from & element.cwith) && a.self)).map((a)=>a.self));
         if(element.self) totest.delete(element.self);
 
         // if(element.self?.dbgName === "scorpion") {console.log(dupes); console.log(element);}

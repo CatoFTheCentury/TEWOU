@@ -61,7 +61,7 @@ export namespace Bodies {
       })
     }
 
-    public addtimeout(durations:Array<number>, actions:Time.TimerActions, repeat : boolean = true, continuous:boolean=true):Time.Timeout{
+    public addTimeout(durations:Array<number>, actions:Time.TimerActions, repeat : boolean = true, continuous:boolean=true):Time.Timeout{
       let timeout = new Time.Timeout(durations, "noname", {continuous:continuous,repeat:repeat},actions);
       this.timeouts.push(timeout);
       return timeout;
@@ -71,7 +71,7 @@ export namespace Bodies {
       this.delete = true;
     }
 
-    public react(name: string, params: Array<any>):boolean{return false;}
+    public react(owner: Alacrity, name: string, params: Array<any>):boolean{return false;}
   }
 
   export class UIElement extends Alacrity {
@@ -127,6 +127,9 @@ export namespace Bodies {
     public destroy(){
       this.delete = true;
       this.myFrame.rprops.delete = true;
+      for(let c of this.collisions) {
+        c.deleteMe = true;
+      }
       
     }
   }

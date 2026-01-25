@@ -26,13 +26,13 @@
         - Has 1 argument:
           - `level : Level` a level object on which `newTiledLevel` has been run
 
-      - `buildAni(anibuild:T.AniBuild)` - returns `Animation` object.
+      - `buildAni(T.AniBuild)` - returns `Animation` object.
 
-      - `buildSnap(snapbuild:T.SnapBuild)` - returns `Snap` object.
+      - `buildSnap(T.SnapBuild)` - returns `Snap` object.
 
-      - `addCapture()`
+      - `addCapture(CaptureProperties)` Add a `Capture` collision object. Will do a callback on collision.
 
-      - `addAsCollision()`
+      - `addAsCollision(incarnation:Entity, from: CollideLayers, cwith: CollideLayers, type: CollideTypes)` : Adds `Entity` to the physics layer. The Entity's hitbox must be initiliazed.
 
       - `addGrid()`
 
@@ -74,18 +74,73 @@
           - `glContext` = the glContext field from the game object
           - `shadercontext` = the shadercontext field from the game object
         - (ex.: `await this.buildCell("_assets/myinifile.ini",game.glContext,game.shadercontext)`)
+  
+  - Timeout
+
 
 
 # Objects (Entities)
+  - Each `Entity` is also an `Alacrity`. Common to each `Alacrity`:
+    - Fields:
+      - `triggers : Array<T.Trigger>` : Triggers can be injected in this field to act upon it, iterating through it on update.
+        - ex.:
+            ```
+            private handleTriggers(){
+              while(this.triggers.length > 0){
+                let t = this.triggers.pop() || {name:"notrigger"};
+                switch(t.name){
+                  case "attacked":
+                    this.health--;
+                    if(this.health <= 0) this.myFrame.rprops.hidden = true;
+                  break;
+                }
+              }
+            }
+            ```
+    - Methods:
+      - `addTimeout(durations:Array<number>, actions:TimerActions, repeat : boolean = true, continuous : boolean=true)` returns `Timeout`
+      - `destroy()` destroy the Alacrity, removes from screen and update loop.
+      - `react(name: string, params: Array<any>):boolean` Meant to be overloaded in an `Entity` so it can answer to `Capture` callbacks. The return value is whether the `Capture` calling the reaction should be deleted. It's like a more powerful version of `triggers`.
+        - use example:
+          ```
+            ...
+            call : (owner, target) => {
+              target.react(owner, "collect",["bananas", 5])
+            }
+          ```
+        - overload example:
+          ```
+            react(owner,name,params){
+              switch(name){
+                case "collect":
+                  switch(params[0]){
+                    case "bananas":
+                      this.bananas += params[1];
+                      owner.destroy();
+                      return true;
+                    break;
+                    default:
+                      this.coins += 1;
+                      owner.destroy();
+                      return true;
+                    break;
+                  }
+                case "hurt":
+                  this.hp -= params[0]
+                break;
+              }
+              return false;
+            }
+          ```
   - Common to each entity
+    - constructor : `super(Composite)`
+      - the composite entered in super will be the image displayed. You can change the image by modifying `myFrame.frame`, which is is an `Array<Composite>`.
     - Fields:
       - `myFrame` : The entity's Frame composite.
       - `movementvector` : A Point {x:number,y:number}, modifying this variable will tell the Entity to move that direction for that frame. Will take blocking terrain into account.
         - ex.: `this.movementvector.x = -1` // makes the entity go left for the current frame at normal speed.
 
   - Player (a special gameobject class to which you can bind key actions)
-    - constructor : `super(Composite)`
-      - the composite entered in super will be the image displayed. You can change the image by modifying `myFrame.frame`, which is is an `Array<Composite>`.
     - Methods:
       - `registerkey(key:string, actions : T.KeyboardAction)` :
         - Registers a key and its actions.
@@ -109,21 +164,7 @@
 
     - Fields:
 
-      - `triggers : Array<T.Trigger>` : Triggers can be injected in this field to act upon it, iterating through it on update.
-        - ex.:
-            ```
-            private handleTriggers(){
-              while(this.triggers.length > 0){
-                let t = this.triggers.pop() || {name:"notrigger"};
-                switch(t.name){
-                  case "attacked":
-                    this.health--;
-                    if(this.health <= 0) this.myFrame.rprops.hidden = true;
-                  break;
-                }
-              }
-            }
-            ```
+
 
   - Fauna (a gameobject class for npcs):
     - Methods:
@@ -153,6 +194,13 @@
     - build with `ActionGame.buildSnap`
   
 # Types (T)
+  - `Point`
+    ```
+      = {
+        x: number,
+        y: number
+      }
+    ```
   - `Bounds`
     ```
       = {
@@ -160,6 +208,13 @@
         y : number,
         w : number,
         h : number
+      }
+    ```
+  - `Flip`
+    ```
+      = {
+        flipx : boolean,
+        flipy : boolean
       }
     ```
   - `T.SnapBuild`
@@ -197,7 +252,7 @@
       = {
         shader?   : string,  // would require you to make and compile as shader that is compliant to this engine, don't use
 
-        pos       : Point, // Point = {x:number,y:number}
+        pos       : Point,
         flip      : Flip
 
         rotcenter?: Point,
@@ -211,5 +266,55 @@
 
         colorize? : Array<number>, // not implemented
       }
+    ```
+  - `CaptureProperties`
+    ```
+      = {
+        cwith : CollideLayers, // What the capture will collide with / communicate to.
+        type  : CollideTypes // The type of collision. Can be set to none if you use a callback.
+        hitbox : Bounds  // The hitbox relative to the owner
+        owner : Alacrity // The owner Entity, treated like an Alacrity
+        call  : the function to be called on collision.  // call : (owner,target)=>{}
+      }
+    ```
+  - `TimerActions`
+    ```
+      = {
+      active?:(timeout:Timeout)=>void,
+      triggered?:(timeout:Timeout)=>void
+      }
+    ```
+
+# Enums
+  - `CollideLayers`
+    ```
+      none         ,
+      player       ,
+      npc          ,
+      grid         ,
+      interactable ,
+      all          
+    ```
+  - `CollideTypes`
+    ```
+      none     ,
+      block    ,
+      hurt     ,
+      interact ,
+      climbable,
+      water    ,
+      instakill,
+      get      ,
+      custom0  ,
+      custom1  ,
+      custom2  ,
+      custom3  ,
+      custom4  ,
+      custom5  ,
+      custom6  ,
+      custom7  ,
+      custom8  ,
+      custom9  ,
+      all      
     ```
 # How to run the project

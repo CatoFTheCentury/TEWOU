@@ -10,11 +10,12 @@ export class NPCCollision extends Collision {
   // public self : Bodies.Embodiment;
 
 
-  constructor(self: Bodies.Embodiment, cwith : C.CollideLayers, types : C.CollideTypes){
+  constructor(self: Bodies.Embodiment, from : C.CollideLayers, cwith : C.CollideLayers, types : C.CollideTypes){
 
-    super(cwith, types);
+    super(from, cwith, types);
     this.self = self;
     this.padding = {x:8,y:8};
+    self.collisions.push(this)
 
   }
 

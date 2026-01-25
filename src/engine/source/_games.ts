@@ -293,22 +293,23 @@ export namespace Games{
       return level;
     }
 
-    public addCapture(captureProperties : CaptureProperties, incarnation: Bodies.Embodiment){
+    public addCapture(captureProperties : CaptureProperties){
       this.gamephysics.collisionpool.push(
         new Capture(
+          // captureProperties.from,
           captureProperties.cwith,
           captureProperties.type,
-          incarnation,
+          captureProperties.owner,
           captureProperties.hitbox,
           captureProperties.call)
       )
     }
 
-    public addAsCollision(incarnation:Bodies.Embodiment, cwith: C.CollideLayers, type: C.CollideTypes){
+    public addAsCollision(incarnation:Bodies.Embodiment, from: C.CollideLayers, cwith: C.CollideLayers, type: C.CollideTypes){
       this.gamephysics.collisionpool.push(
-        new NPCCollision(incarnation, cwith, type)
+        new NPCCollision(incarnation, from, cwith, type)
       )
-      console.log(this.gamephysics.collisionpool)
+      // console.log(this.gamephysics.collisionpool)
     }
 
     public addGrid(boolArr : Array<Array<boolean>>, resolution: number, cwith : C.CollideLayers, type : C.CollideTypes){

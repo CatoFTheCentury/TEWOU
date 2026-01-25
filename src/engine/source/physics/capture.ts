@@ -7,6 +7,7 @@ export type CaptureProperties = {
   cwith: C.CollideLayers,
   type: C.CollideTypes,
   hitbox: T.Bounds,
+  owner : Bodies.Embodiment,
   call: (owner: Bodies.Embodiment, target: Bodies.Alacrity) => boolean
 }
 
@@ -16,7 +17,7 @@ export class Capture extends Collision {
   private call   : (owner: Bodies.Embodiment,target: Bodies.Embodiment)=>boolean;
   
   constructor(cwith : C.CollideLayers, type : C.CollideTypes, owner: Bodies.Embodiment, hitbox: T.Bounds, call: (owner: Bodies.Embodiment,target: Bodies.Alacrity)=>boolean){
-    super(cwith,type);
+    super(C.CollideLayers.none,cwith,type);
     this.owner  = owner ;
     this.hitbox = hitbox;
     this.call   = call  ;
@@ -29,7 +30,8 @@ export class Capture extends Collision {
     let rectB = {x:bd.pos.x+bd.hitbox.x,y:bd.pos.y+bd.hitbox.y,w:bd.hitbox.w,h:bd.hitbox.h};
     // overlap
     if((rectA.x < rectB.x + rectB.w && rectA.x + rectA.w > rectB.x && rectA.y < rectB.y + rectB.h && rectA.y + rectA.h > rectB.y)){
-      this.deleteMe = this.call(this.owner,bd);
+      if(this.deleteMe == false) this.deleteMe = this.call(this.owner,bd);
+      // el
     }
 
        

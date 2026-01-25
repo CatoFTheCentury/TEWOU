@@ -13,7 +13,7 @@ export default abstract class Collision {
 
   // public dbgName : string = "not defined collision";
   
-  // public from : CollideLayers;
+  public from : CollideLayers;
   public cwith : CollideLayers;
   public type   : CollideTypes ;
   public self   : Bodies.Embodiment;
@@ -29,8 +29,8 @@ export default abstract class Collision {
   protected padding : T.Point = {x:1,y:1};
 
 
-  constructor(cwith : CollideLayers, type : CollideTypes){
-    // this.from    = from;
+  constructor(from: CollideLayers, cwith : CollideLayers, type : CollideTypes){
+    this.from    = from;
     this.cwith   = cwith;
     this.type    = type;
     // this.padding = padding * Globals.zoom;
