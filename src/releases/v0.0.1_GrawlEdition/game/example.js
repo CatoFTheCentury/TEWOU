@@ -1,10 +1,11 @@
 var game;
+var score;
 
 class Mothership extends window.TEWOU.Fauna {
   constructor(){
     super(
       game.newRectangle(
-        {x:0,y:0,w:0,h:0},
+        {x:0,y:0,w:1,h:1},
         {r:0,g:0,b:0,a:0}
       )
     )
@@ -16,12 +17,34 @@ class Mothership extends window.TEWOU.Fauna {
   }
 }
 
+class Score extends window.TEWOU.Fauna {
+  text;
+  score = 0;
+
+  constructor(){
+    let text = game.newText("0",{font:"syne mono"});
+    super(text)
+    this.text = text;
+
+    this.pos.x = 150 - this.text.size.w / 2;
+    this.pos.y = 0;
+
+    game.registerEntity(this)
+  }
+
+  increment(i = 1){
+    this.score += i;
+    this.text.setText(this.score+"")
+    this.pos.x = 150 - this.text.size.w / 2;
+  }
+}
+
 class Enemy extends window.TEWOU.Fauna {
   constructor(posx){
     super(
       game.newRectangle(
         {x:0,y:0,w:20,h:10},
-        {r:0,g:0,b:0,a:255}
+        {r:255,g:255,b:255,a:255}
       )
     )
     this.pos.x = posx;
@@ -46,6 +69,7 @@ class Enemy extends window.TEWOU.Fauna {
 
   react(owner,name,params){
     if(name == "hurt"){
+      score.increment();
       owner.destroy();
       this.destroy();
       return true;
@@ -121,7 +145,7 @@ class Player extends window.TEWOU.Player {
 class Game extends window.TEWOU.ActionGame {
   constructor(canvas){
     super(canvas,200,600);
-    canvas.style.border   = "1px solid black";
+    canvas.style.border   = "3px solid white";
     canvas.style.position = "absolute";
     canvas.style.left     = "10px";
     canvas.style.top      = "10px";
@@ -131,9 +155,10 @@ class Game extends window.TEWOU.ActionGame {
 
 // Start the game
 game = new Game(document.getElementById('canvas'))
+score = new Score();
 window.TEWOU.Engine.start(game).then(()=>{
   let player = new Player();
   game.registerEntity(player);
   game.registerEntity(new Mothership())
   window.TEWOU.Engine.games.push(game);
-  window.TEWOU.Engine.mainLoop()})
+  window.TEWOU.Engine.mainLoop()}) 

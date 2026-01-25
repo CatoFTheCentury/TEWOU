@@ -122,6 +122,14 @@ export type KeyboardAction = {
   keypressed?: ()=>void, //keydown and key held
   keyup     ?: ()=>void,
 }
+
+export type TextProperties = {
+  // text: string,
+  size ?: number,
+  color?: Color,
+  font ?: string,
+  align?: string,
+}
 // export type GameAnimation = {
 
 // }

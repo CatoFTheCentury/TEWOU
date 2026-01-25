@@ -14,8 +14,17 @@ export namespace Render {
     // protected static framebuffer : WebGLFramebuffer;
     // protected static renderbuffer : WebGLRenderbuffer;
     // static gl: WebGL2RenderingContext;
-    static txt: CanvasRenderingContext2D;
-    static textCanvas: HTMLCanvasElement;
+    static textcanvas: HTMLCanvasElement = //(document.getElementById('bob') as HTMLCanvasElement);
+    (()=>{
+      let cnv = document.createElement('canvas');
+      // cnv.style.display = "none";
+      cnv.width = 2048;
+      cnv.height = 2048;
+
+      // document.body.prepend(cnv);
+      return cnv;
+    })()
+    static textcontext : CanvasRenderingContext2D = Info.textcanvas.getContext('2d');
     protected static contextCounter : number = -1;
     
   }

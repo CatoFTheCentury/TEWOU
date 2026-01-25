@@ -264,6 +264,10 @@ export namespace Games{
       )
     }
 
+    public newText(text:string,properties:T.TextProperties={}){
+      return new Composite.Text(this.glContext,this.shadercontext,text,properties);
+    }
+
     public registerEntity(entity:Bodies.Embodiment){
       this.alacritypool.push(entity);
       this.window.frm.frame.push(entity.myFrame)

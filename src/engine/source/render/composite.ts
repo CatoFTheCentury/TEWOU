@@ -17,6 +17,7 @@ export namespace Composite {
     public parent : Renderable = undefined;
     public glContext : Render.GLContext;
     public shadercontext : ShaderLoader;
+    // public static txtcanvas : CanvasRenderingContext2D = document.createElement('canvas').getContext('2d');
 
     constructor(glContext: Render.GLContext, shadercontext: ShaderLoader){
       super();
@@ -136,6 +137,106 @@ export namespace Composite {
   //     Render.Info.gl.generateMipmap(Render.Info.gl.TEXTURE_2D);
   //   }
   // }
+  export class Text extends Renderable {
+    private text : string;
+    private properties : T.TextProperties = {};
+    public size : T.Box = {w:0,h:0};
+
+    constructor(glContext : Render.GLContext, shadercontext: ShaderLoader, text:string, textproperties: T.TextProperties = {}){
+      super(glContext,shadercontext)
+      this.text = text;
+      this.setProperties(textproperties);
+      Text.textcontext.textAlign = "left";
+      Text.textcontext.textBaseline = "top"
+      Text.textcontext.font = this.properties.size + "px " + this.properties.font;
+
+      this.size.w = Text.textcontext.measureText(this.text).width;
+      // this.size.h = 
+    }
+
+    public compose(){
+      if(!this.ready){
+        // let textcanvas : HTMLCanvasElement = (document.getElementById('bob') as HTMLCanvasElement)
+        let textcontext = Text.textcontext;
+        textcontext.clearRect(0, 0, textcontext.canvas.width, textcontext.canvas.height)
+        
+        textcontext.fillStyle = "rgba("+ 
+        this.properties.color.r +","+
+        this.properties.color.g +","+
+        this.properties.color.b +","+
+        this.properties.color.a +")"
+
+        textcontext.textAlign = "left";
+        textcontext.textBaseline = "top"
+        textcontext.font = this.properties.size + "px " + this.properties.font;
+
+        this.rprops.dstrect.w = textcontext.measureText(this.text).width;
+        this.rprops.dstrect.h = this.properties.size;
+        this.size.w = this.rprops.dstrect.w;
+        this.size.h = this.rprops.dstrect.h;
+
+        textcontext.fillText(this.text,0,0);
+
+        let gl = this.glContext.gl;
+
+        let spr : WebGLTexture = Textures.createTexToBlitOn(this.glContext, Text.textcanvas.width, Text.textcanvas.height);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.glContext.framebuffer);
+        gl.bindTexture(gl.TEXTURE_2D, spr);
+        
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.size.w, this.size.h, 0, gl.RGBA, gl.UNSIGNED_BYTE, Text.textcanvas);      
+        this.texture = spr;
+        this.ready = true;
+
+      }
+      if(this.rprops.delete) this.glContext.gl.deleteTexture(this.texture);
+      return this.rprops.delete;
+    }
+
+    public setText(text:string){
+      if(this.ready) this.glContext.gl.deleteTexture(this.texture);
+      this.text = text;
+      this.size.w = Text.textcontext.measureText(this.text).width;
+      this.ready = false;
+    }
+
+    public setProperties(textproperties: T.TextProperties){
+      if(this.ready) this.glContext.gl.deleteTexture(this.texture);
+      this.ready = false;
+      
+      if(textproperties.size != undefined) {
+        this.properties.size = textproperties.size;
+      } else if(this.properties.size == undefined) {
+        this.properties.size = 60;
+      }
+      this.size.h = this.properties.size;
+
+      if(textproperties.color != undefined) {
+        this.properties.color = textproperties.color;
+      } else if (this.properties.color == undefined) {
+        this.properties.color = {r:0,g:0,b:0,a:255};
+      }
+
+      if(textproperties.font != undefined) {
+        this.properties.font = textproperties.font;
+      } else if (this.properties.font == undefined){
+        this.properties.font = "monospace"
+      }
+
+    }
+    
+    public setColor(color: T.Color){
+      if(this.ready) this.glContext.gl.deleteTexture(this.texture);
+      this.properties.color = color;
+      this.ready = false;
+    }
+    
+    public setSize(size: number){
+      if(this.ready) this.glContext.gl.deleteTexture(this.texture);
+      this.properties.size = size;
+      this.size.h = this.properties.size;
+      this.ready = false;
+    }
+  }
 
   export class Rectangle extends Renderable {
     // private bounds : T.Bounds;
@@ -161,6 +262,8 @@ export namespace Composite {
         this.texture = spr;
         this.ready = true;
       }
+
+      if(this.rprops.delete) this.glContext.gl.deleteTexture(this.texture);
       return this.rprops.delete;
     }
   }
@@ -195,6 +298,8 @@ export namespace Composite {
         this.texture = spr;
         this.ready = true;
       }
+
+      if(this.rprops.delete) this.glContext.gl.deleteTexture(this.texture);
       return this.rprops.delete;
     }
 
