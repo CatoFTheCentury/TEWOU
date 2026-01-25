@@ -68,8 +68,8 @@ export class Normal extends Template {
         positionMatrix = Matrix.mat4mul(positionMatrix,Matrix.mat4rot(cmp.rprops.angle)) as Float32Array<ArrayBuffer>;
         positionMatrix = Matrix.mat4mul(positionMatrix,Matrix.mat4translation({x:rotcenter.x,y:rotcenter.y})) as Float32Array<ArrayBuffer>;
         
-        positionMatrix[12] += cmp.rprops.dstrect.x*(2/plane.w) - 1;
-        positionMatrix[13] += -((plane.h-cmp.rprops.dstrect.y-cmp.rprops.dstrect.h)*(2/plane.h))+1;
+        positionMatrix[12] += Math.round(cmp.rprops.dstrect.x)*(2/plane.w) - 1;
+        positionMatrix[13] += -(Math.round(plane.h-cmp.rprops.dstrect.y-cmp.rprops.dstrect.h)*(2/plane.h))+1;
 
         gl.uniformMatrix4fv(this.matrixLocation, false, positionMatrix);
 
