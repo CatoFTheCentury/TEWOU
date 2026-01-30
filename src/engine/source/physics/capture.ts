@@ -33,16 +33,5 @@ export class Capture extends Collision {
       if(this.deleteMe == false) this.deleteMe = this.call(this.owner,bd);
       // el
     }
-
-       
-
-        
-    // this.deleteMe = true;
   }
 }
-
-// overlap
-    // if(((Math.max(bd1.x,bd2.x)>=Math.min(bd1.x,bd2.x) && Math.max(bd1.x,bd2.x) <= Math.max(bd1.x+bd1.w,bd2.x+bd2.w)) ||
-    //      Math.min(bd1.x+bd1.w,bd2.x+bx2.w) >= Math.min(bd1.x,bd2.x) && Math.min(bd1.x+bd1.w,bd2.x+bd2.w) <= Math.max(bd1.x+bd1.w,bd2.x+bd2.w)) &&
-    //    ((Math.max(bd1.y,bd2.y)>=Math.min(bd1.y,bd2.y) && Math.max(bd1.y,bd2.y) <= Math.max(bd1.y+bd1.h,bd2.y+bd2.h)) ||
-    //      Math.min(bd1.y+bd1.h,bd2.y+bx2.h) >= Math.min(bd1.y,bd2.y) && Math.min(bd1.y+bd1.h,bd2.y+bd2.h) <= Math.max(bd1.y+bd1.h,bd2.y+bd2.h)))

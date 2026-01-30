@@ -1,7 +1,6 @@
 import * as T from '../_type'
 import {System} from './_system'
 import { Bodies } from '../alacrity/_bodies'
-import { Composite } from '../render/composite';
 import { Time } from '../alacrity/time';
 import Camera from './camera';
 
@@ -24,10 +23,7 @@ export default class Cameraman extends System {
 
   constructor(camera: Camera){
     super(true);
-    this.freemovement = new Bodies.Existence(/* 
-      new Composite.Frame([new Composite.Snap([
-      new Composite.Image("_assets/blocking.png", {x:0,y:0,w:1,h:1}, {x:0,y:0,w:1,h:1})])]) */);
-    // this.freemovement.myFrame.rprops.hidden = true;
+    this.freemovement = new Bodies.Existence();
     this.camera = camera;
   }
 

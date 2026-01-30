@@ -4,11 +4,8 @@ import * as T       from '../_type'
 import {Bodies} from '../alacrity/_bodies';
 
 import Collision from "./_collision"
-// import Collision from "../collisions/_collision"
 
 export class NPCCollision extends Collision {
-  // public self : Bodies.Embodiment;
-
 
   constructor(self: Bodies.Embodiment, from : C.CollideLayers, cwith : C.CollideLayers, types : C.CollideTypes){
 
@@ -51,7 +48,6 @@ public intersect(bd: Bodies.Embodiment): void {
       // Check left
       applyEffects[1] |= ((npcBounds.x + npcBounds.w) - body.x > 0 && body.x > npcBounds.x) ? this.type : C.CollideTypes.none;
       // Check right
-      // console.log("npcbdx" + npcBounds.x + " rightmost:" + (body.x + body.w) +" lt0:" + (npcBounds.x - body.x + body.w) + " limits:" + (body.x + body.w < npcBounds.x + npcBounds.w))
       applyEffects[3] |= (npcBounds.x - (body.x + body.w) < 0 && body.x + body.w < npcBounds.x + npcBounds.w) ? this.type : C.CollideTypes.none;
     }
 

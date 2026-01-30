@@ -72,7 +72,9 @@ export namespace Render {
           // document.getElementById("canvas")!.setAttribute("height", height)
           let ctx = canvas.
           getContext("webgl2",
-          {premultipliedAlpha: false}
+          {premultipliedAlpha: false,
+            antialias: false
+          }
           )
 
           ctx.enable(ctx.BLEND);

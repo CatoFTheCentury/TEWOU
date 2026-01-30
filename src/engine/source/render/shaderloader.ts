@@ -1,13 +1,10 @@
-import { Render } from './_render';
 import Shader from "./_shaders"
 import {Assets} from "./assets"
 import ShaderTemplate from "./shaders/template"
-import * as T from "../_type"
 
 import {Reverser} from './shaders/reverser'
 import {Normal} from './shaders/normal'
 import {WhiteTransparent} from './shaders/whitetransparent'
-// import { glContext } from '../_type';
 
 export class ShaderLoader extends Shader {
   public shaderts : Array<ShaderTemplate>;

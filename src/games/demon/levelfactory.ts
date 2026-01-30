@@ -1,4 +1,3 @@
-// import {Incarnations} from '../../engine/alacrity/_incarnations'
 import { GameObjects, Games } from "TEWOU"
 
 import Scorpion from './scorpion'
@@ -6,15 +5,12 @@ import Bat from './bat'
 import YellowFire from './yellowfire';
 import RedFire from './redfire'
 import * as Objects from './items'
-// import { Games } from '../../engine/_games';
 
 export default abstract class LevelFactory extends GameObjects.Level {
-  // public static Game : Games.Action;
   public async build(game: Games.Action):Promise<void>{}
 
   protected putNPCs(game: Games.Action, file: string){
     let lines = file.split('\n');
-    // let countperline = lines[0].split(',').length;
     let list  = lines.map((l)=>{return l.split(',');});
     for(let y = 0; y < list.length; y++){
       for(let x = 0; x < list[y].length; x++){

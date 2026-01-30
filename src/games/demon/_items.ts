@@ -1,11 +1,4 @@
-// import { Bodies } from "../../engine/alacrity/_bodies"
-// import { Composite } from "../../engine/render/composite";
-// import * as T from '../../engine/_type';
-
 import { Bodies, Composite, T, Games } from "TEWOU"
-// import Games from '../../_backups/cat_platformer/engine/games';
-
-
 
 export default class Items extends Bodies.Embodiment {
     public static index = 0;

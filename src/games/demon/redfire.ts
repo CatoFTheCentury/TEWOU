@@ -1,17 +1,4 @@
-// import * as T from "../../engine/_type";
-// import {Incarnations} from "../../engine/alacrity/_incarnations";
-// import { Bodies } from "../../engine/alacrity/_bodies";
-// import { Composite } from "../../engine/render/composite";
-// import Physics from '../../engine/systems/physics';
-// import NPCCollision from '../../engine/physics/npcCollision';
-// import * as C from "../../engine/physics/states"
-// import Capture from "../../engine/physics/capture"
-
 import { T, Incarnations, Bodies, Composite, NPCCollision, C, Capture, Games} from "TEWOU"
-
-import GameAnimations from "./animations";
-import Game from "./game";
-
 
 enum Actions {
   wander = 0,
@@ -27,7 +14,6 @@ export default class RedFire extends Incarnations.Fauna {
   public static index     : number = 682;
   public actions: { [key: string]: Incarnations.action; } = {};
   public    action        : string = "wander";
-  // protected dir           : number = Dir.right;
   protected normalgravity : Bodies.Velocity = {strength:0,x:0,y:0};
   private ogpos           : T.Point = {x:0,y:0};
 
@@ -36,7 +22,6 @@ export default class RedFire extends Incarnations.Fauna {
 
 
   constructor(game : Games.Action, pos: T.Point){
-    // new GameAnimations.Fireball();
     let anims = game.animationsobject.animations["fireballs"]["red"];
     super(new Composite.Frame(game.glContext,game.shadercontext,[anims["idle"][0]]));
     this.anims = anims;

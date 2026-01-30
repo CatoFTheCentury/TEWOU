@@ -10,11 +10,8 @@ import {
 import { Manager } from 'Console';
 
 
-// import GameAnimations from './animations';
-// import LevelMaster from './levelfactory';
 import Level00 from './level00';
 import LevelFactory from "./levelfactory";
-// import Physics from "../../engine/systems/physics"
 
 
 export default class Game extends Games.Action {
@@ -29,7 +26,6 @@ export default class Game extends Games.Action {
       document.body.appendChild(mtarget);
     }
     super(new Render.GLContext(mtarget,(9*16)+"",(20*16)+""),[new Normal(), new Reverser()]);
-    // target.addEventListener('mousedown',()=>Manager.currentGame = this.gameid)
     this.window = new Window(this.glContext);
   }
 

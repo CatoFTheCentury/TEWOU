@@ -17,7 +17,7 @@ export class Reverser extends Template {
       () => {}]
     public first : Array<(ctx:WebGL2RenderingContext)=>void> = [
       (ctx:WebGL2RenderingContext) => {
-        let gl = ctx;        // DefaultShader.gl.activeTexture(DefaultShader.gl.TEXTURE0);
+        let gl = ctx;
         let aVertexPosition = gl.getAttribLocation(this.program, "aVertexPosition");
         gl.enableVertexAttribArray(aVertexPosition);
         gl.vertexAttribPointer(aVertexPosition, 2, gl.FLOAT, false, 0 , 0);
@@ -31,42 +31,25 @@ export class Reverser extends Template {
         this.texture = gl.getUniformLocation(this.program, "texture");
       },
     ]
-      public passes : Array<(ctx:WebGL2RenderingContext, cmp: Composite.Renderable, plane: T.Box)=>void> = [
-        (ctx:WebGL2RenderingContext, cmp: Composite.Image, plane: T.Box) => {
+      public passes : Array<(ctx:WebGL2RenderingContext, cmp: Composite.Renderable, plane: T.Bounds, extraarguments: T.ExtraShaderArguments)=>void> = [
+        (ctx:WebGL2RenderingContext, cmp: Composite.Image, plane: T.Bounds, extraarguments: T.ExtraShaderArguments) => {
           let gl = ctx;
-          // gl.activeTexture(gl.TEXTURE0);
-          // gl.bindTexture(gl.TEXTURE_2D, cmp.texture);
-          // gl.uniform1i(this.texture, 0);
-          // let matrix = Matrix.orthographic(-1, 1, 1, -1, -1,1);
-          // matrix = Matrix.scale(matrix,cmp.rprops.dstrect.w,cmp.rprops.dstrect.h,1);
-          // matrix = Matrix.translate(matrix,cmp.rprops.dstrect.x,cmp.rprops.dstrect.y,1);
 
         let funtimes = new Float32Array(
           [cmp.rprops.dstrect.w,0,0,0,
             0,cmp.rprops.dstrect.h,0,0,
             0,0,1,0,
-            cmp.rprops.dstrect.x, cmp.rprops.dstrect.y,0,1]
+            plane.x, plane.y,0,1]
         )
+
         funtimes[0]  *=  2/plane.w;
         funtimes[5]  *= -2/plane.h;
         funtimes[12]  =  (funtimes[12]*(2/plane.w))-1;
         funtimes[13]  = -(funtimes[13]*(2/plane.h))+1;
-            // console.log("FDS)")
 
         gl.uniformMatrix4fv(this.matrixLocation, false, funtimes);
 
         if(this.textureMatrixLocation != null){
-          // let texMatrix = new Float32Array(
-          //   [cmp.rprops.srcrect.w,0,0,0,
-          //     0,cmp.rprops.srcrect.h,0,0,
-          //     0,0,1,0,
-          //     cmp.rprops.srcrect.x, cmp.rprops.srcrect.y,0,1]
-          // )
-          // texMatrix[0]  *=  2/cmp.rprops.dstrect.w;
-          // texMatrix[5]  *= -2/cmp.rprops.dstrect.h;
-          // texMatrix[12]  =  (texMatrix[12]*(2/cmp.rprops.dstrect.w))-1;
-          // texMatrix[13]  = -(texMatrix[13]*(2/cmp.rprops.dstrect.h))+1;
-  
           let texMatrix = Matrix.orthographic(-1, 1, 1, -1, -1,1);
           gl.uniformMatrix4fv(this.textureMatrixLocation, false, texMatrix);
         }

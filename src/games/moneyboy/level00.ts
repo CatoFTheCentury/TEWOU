@@ -1,13 +1,5 @@
 import {T,C,Games,Incarnations,IniParser,Assets,CollisionGrid,Tiled,GameObjects} from "TEWOU";
 
-// import * as T from "../../engine/_type"
-// import IniParser from '../../engine/parsers/iniparser';
-// import {Games} from "../../engine/_games";
-// import { Incarnations } from '../../engine/alacrity/_incarnations';
-// import Assets from "../../engine/render/assets";
-// import CollisionGrid from "../../engine/physics/gridCollision";
-// import * as C from '../../engine/physics/states'
-// import TiledParser from '../../engine/parsers/tiledParser'
 import Tree from "./tree"
 import Character from "./character";
 import LevelFactory from "./levelfactory";

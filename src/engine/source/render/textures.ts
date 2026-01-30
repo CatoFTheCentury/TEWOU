@@ -5,7 +5,6 @@ import * as T from "../_type"
 export default class Textures extends Render.Info {
 
   public static createTexture(glContext: Render.GLContext, img: HTMLImageElement) : WebGLTexture {
-    // console.log(Render.Info.contextPool[contextID].gl);
     let gl = glContext.gl;
     let tex : WebGLTexture = Textures.createTexToBlitOn(glContext, img.width,img.height)
     gl.bindTexture(gl.TEXTURE_2D, tex)
@@ -35,15 +34,11 @@ export default class Textures extends Render.Info {
   public static createTexToBlitOn(glContext: Render.GLContext, width: number, height: number): WebGLTexture {
     let gl = glContext.gl;
     const targetTexture = gl.createTexture() as WebGLTexture;
-    // let arr = new Uint8Array(width*height*4).fill(0);
     gl.bindTexture(gl.TEXTURE_2D, targetTexture);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 
       width,height,
-                // Textures.nextPowerOfTwo(width), Textures.nextPowerOfTwo(height),
-                // 1024,1024,
                 0, gl.RGBA, gl.UNSIGNED_BYTE,
                 null)
-                // arr)
 
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)

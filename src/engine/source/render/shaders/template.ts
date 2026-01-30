@@ -7,7 +7,7 @@ export default abstract class Template {
     public abstract program : WebGLProgram;
     public abstract first  : Array<(ctx: WebGL2RenderingContext)=>void>;
     public abstract second : Array<()=>void>;
-    public abstract passes : Array<(ctx: WebGL2RenderingContext,cmp: Composite.Image, plane: T.Box)=>void>;
+    public abstract passes : Array<(ctx: WebGL2RenderingContext,cmp: Composite.Image, plane: T.Bounds, extraarguments: T.ExtraShaderArguments)=>void>;
 
     constructor(){
         

@@ -1,5 +1,3 @@
-import { Bodies } from "./_bodies";
-
 export namespace Time {
 
   export type TimerActions = {
@@ -10,7 +8,6 @@ export namespace Time {
   export type Trigger = {
     name  : string,
     state?: string,
-    // from? : Embodiment
   }
 
   class Watch {
@@ -62,8 +59,6 @@ export namespace Time {
       if(ms[0] === Infinity) this.end = Infinity;
       else this.end = Watch.currTick + ms[0];
       this.actions = actions;
-      // Timeout.pool.add(this);
-      // if(Timeout.allPaused) this.pause();
     }
 
     public reset(){
@@ -77,28 +72,6 @@ export namespace Time {
       this.step = 0;
       this.reset();
     }
-
-    // public static pauseAll(){
-    //   if(Timeout.allPaused) return;
-    //   for(let t of Timeout.pool){
-    //     if(t.paused) Timeout.pausedAtPause.add(t);
-    //     else t.pause();
-    //   }
-    //   Timeout.allPaused = true;
-    // }
-
-    // public static resumeAll(){
-    //   if(!Timeout.allPaused) return;
-    //   let unpause = new Set<Timeout>(Timeout.pool);
-    //   for(let t of Timeout.pausedAtPause){
-    //     unpause.delete(t);
-    //   }
-    //   for(let t of unpause){
-    //     t.resume();
-    //   }
-    //   Timeout.pausedAtPause.clear();
-    //   Timeout.allPaused = false;
-    // }
 
     public pause(){
       this.pauseTime = Watch.currTick;
@@ -146,28 +119,5 @@ export namespace Time {
 
     }
 
-    // public test2() {
-    //   if(this.done) return;
-    //   if(!this.paused){
-    //     let finished : boolean = (this.end <= Watch.currTick);
-    //     if(finished){
-    //       if(this.continuous) {
-    //         this.step++;
-    //         if(this.step >= this.ms.length){
-    //           if(!this.repeat) this.done = true;
-    //           this.step = 0;
-    //         }
-    //       } else if(!this.repeat){
-    //         this.done = true;
-    //       }
-    //       this.start = Watch.currTick;
-    //       if(this.ms[this.step] !== Infinity) this.end = Watch.currTick + this.ms[this.step];
-    //       else this.end = Infinity;
-    //       if(this.actions.triggered) this.actions.triggered();
-    //     } else {
-    //       if(this.actions.active) this.actions.active(this);
-    //     }
-    //   }
-    // }
   }
 }

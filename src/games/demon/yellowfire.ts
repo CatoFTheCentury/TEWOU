@@ -1,20 +1,4 @@
-// import * as T from "../../engine/_type";
-// import {Incarnations} from "../../engine/alacrity/_incarnations";
-// import { Bodies } from "../../engine/alacrity/_bodies";
-// // import { GameAnimations } from "./animations";
-// import { Composite } from "../../engine/render/composite";
-// import Physics from '../../engine/systems/physics';
-// import NPCCollision from '../../engine/physics/npcCollision';
-// import * as C from "../../engine/physics/states"
-// // import Games from '../../_backups/20250912/src/_backups/cat_platformer/engine/games';
-
 import { T, Incarnations, Bodies, Composite, NPCCollision, C, Games} from "TEWOU"
-
-import Game from "./game"
-
-// enum Actions {
-//   wander = 0,
-// }
 
 enum AniSt {
   idle, walk, dead
@@ -26,7 +10,6 @@ export default class YellowFire extends Incarnations.Fauna {
   public static index     : number = 676;
   public    action        : string = "wander";
   public actions: { [key: string]: Incarnations.action; } = {};
-  // protected dir           : number = Dir.right;
   protected normalgravity : Bodies.Velocity = {strength:0,x:0,y:0};
 
   constructor(game: Games.Action, pos: T.Point) {

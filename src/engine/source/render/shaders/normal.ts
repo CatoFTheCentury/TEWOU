@@ -1,8 +1,5 @@
 import * as T from "../../_type"
-import Shader from "../_shaders"
-
 import Template from "./template"
-
 import Matrix from "./matrices"
 import {Composite} from '../composite';
 
@@ -19,7 +16,6 @@ export class Normal extends Template {
     public first : Array<(ctx:WebGL2RenderingContext)=>void> = [
       (ctx:WebGL2RenderingContext) => {
         let gl = ctx;
-        // DefaultShader.gl.activeTexture(DefaultShader.gl.TEXTURE0);
         let aVertexPosition = gl.getAttribLocation(this.program, "aVertexPosition");
         gl.enableVertexAttribArray(aVertexPosition);
         gl.vertexAttribPointer(aVertexPosition, 2, gl.FLOAT, false, 0 , 0);
@@ -30,15 +26,11 @@ export class Normal extends Template {
 
         this.matrixLocation = gl.getUniformLocation(this.program, "matrixLocation")!;
         this.textureMatrixLocation = gl.getUniformLocation(this.program, "textureMatrixLocation")!;
-        // this.texture = gl.getUniformLocation(this.program, "texture");
       },
     ]
-      public passes : Array<(ctx:WebGL2RenderingContext, cmp: Composite.Renderable, plane: T.Box)=>void> = [
-        (ctx:WebGL2RenderingContext, cmp: Composite.Image, plane: T.Box) => {
+      public passes : Array<(ctx:WebGL2RenderingContext, cmp: Composite.Renderable, plane: T.Bounds, extraarguments: T.ExtraShaderArguments)=>void> = [
+        (ctx:WebGL2RenderingContext, cmp: Composite.Image, plane: T.Bounds, extraarguments: T.ExtraShaderArguments) => {
           let gl = ctx;
-          // gl.activeTexture(gl.TEXTURE0);
-          // gl.bindTexture(gl.TEXTURE_2D, cmp.texture);
-          // gl.uniform1i(this.texture, 0);
         let normalizedHeight = cmp.rprops.dstrect.h * (-2/plane.h);
         let normalizedWidth  = cmp.rprops.dstrect.w * (2/plane.w);
         let positionMatrix = new Float32Array(
@@ -68,8 +60,8 @@ export class Normal extends Template {
         positionMatrix = Matrix.mat4mul(positionMatrix,Matrix.mat4rot(cmp.rprops.angle)) as Float32Array<ArrayBuffer>;
         positionMatrix = Matrix.mat4mul(positionMatrix,Matrix.mat4translation({x:rotcenter.x,y:rotcenter.y})) as Float32Array<ArrayBuffer>;
         
-        positionMatrix[12] += Math.round(cmp.rprops.dstrect.x)*(2/plane.w) - 1;
-        positionMatrix[13] += -(Math.round(plane.h-cmp.rprops.dstrect.y-cmp.rprops.dstrect.h)*(2/plane.h))+1;
+        positionMatrix[12] += Math.round(plane.x)*(2/plane.w) - 1;
+        positionMatrix[13] += -(Math.round(plane.h-plane.y-cmp.rprops.dstrect.h)*(2/plane.h))+1;
 
         gl.uniformMatrix4fv(this.matrixLocation, false, positionMatrix);
 
@@ -87,7 +79,6 @@ export class Normal extends Template {
             texMatrix = Matrix.translate(texMatrix,-1,1,0);
           } else if(cmp.rprops.flip.flipy){
             texMatrix = Matrix.orthographic(-1, 1, 1,-1,-1, 1);
-            // texMatrix = Matrix.translate(texMatrix,0,0,0);
           }
           gl.uniformMatrix4fv(this.textureMatrixLocation, false, texMatrix);
         }

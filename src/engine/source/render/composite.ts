@@ -17,22 +17,24 @@ export namespace Composite {
     public parent : Renderable = undefined;
     public glContext : Render.GLContext;
     public shadercontext : ShaderLoader;
-    // public static txtcanvas : CanvasRenderingContext2D = document.createElement('canvas').getContext('2d');
+    public offset           : T.Point = {x:0,y:0};
 
     constructor(glContext: Render.GLContext, shadercontext: ShaderLoader){
       super();
       this.glContext = glContext;
       this.shadercontext = shadercontext;
       this.rprops = {
-        srcrect : undefined,
-        dstrect : {x:0,y:0,w:0,h:0},
-        pos     : {x:0,y:0},
-        flip    : {flipx:false,flipy:false},
-        angle   : 0,
-        scale   : {x:1,y:1},
-        layer   : 0,
-        hidden  : false,
-        delete  : false
+        srcrect    : undefined,
+        dstrect    : {x:0,y:0,w:0,h:0},
+        rotcenter  : {x:0,y:0},
+        scalecenter: {x:0,y:0},
+        pos        : {x:0,y:0},
+        flip       : {flipx:false,flipy:false},
+        angle      : 0,
+        scale      : {x:1,y:1},
+        layer      : 0,
+        hidden     : false,
+        delete     : false
       }
     }
 
@@ -49,9 +51,8 @@ export namespace Composite {
     //// so parent is updated at addition (instead of pushing directly)
 
     public getclientleft():number{
-      // console.log(this.rprops.pos.x)
       if(!this.parent){
-        return this.rprops.pos.x * this.getwidthratio();// + (this.parent==undefined?0:this.parent.getclientleft());
+        return this.rprops.pos.x * this.getwidthratio();
       }
       return (this.rprops.pos.x + this.parent.getclientleft()) * this.getwidthratio();
     }
@@ -90,53 +91,8 @@ export namespace Composite {
       return this.glContext.textures[fileName];
     }
 
-    // protected static retrieveTex(fileName : string, glContext: Render.GLContext){
-    //   if(!glContext.textures[fileName]){
-    //     // Assumes the file always exists
-    //     glContext.textures[fileName] = Textures.createTexture(glContext, Assets.getTexture(fileName))
-    //   }
-    //   return glContext.textures[fileName];
-    // }
-
-    // protected addTexture(name:string,tex:WebGLTexture){
-    //   this.glContext.textures[name] = tex;
-    // }
-
-    // protected getTexture(name:string): WebGLTexture{
-    //   return this.glContext.textures[name];
-    // }
-
   }
 
-  // export class Text extends Renderable {
-  //   constructor(content: string, size: number, font: string, color: string){
-  //     super();
-
-  //     // Create a 2D canvas
-  //     // const textCanvas = Render.Info.txt;
-
-  //     // Draw text on the 2D canvas
-  //     Render.Info.txt.fillStyle = color;//'white';
-  //     Render.Info.txt.font = size + 'px' + ' ' + font; //'30px Arial' ;
-  //     Render.Info.txt.fillText(content, 0, 0);
-
-  //     let textsize = Render.Info.txt.measureText(content);
-  //     this.rprops.srcrect = {
-  //       x:0,
-  //       y:0,
-  //       w: textsize.width,
-  //       h: size
-  //     }
-  //     this.rprops.dstrect = this.rprops.srcrect;
-
-  //     // Use the 2D canvas as a texture in WebGL
-  //     // const gl = document.getElementById('webglCanvas').getContext('webgl');
-  //     const texture = Render.Info.gl.createTexture();
-  //     Render.Info.gl.bindTexture(Render.Info.gl.TEXTURE_2D, texture);
-  //     Render.Info.gl.texImage2D(Render.Info.gl.TEXTURE_2D, 0, Render.Info.gl.RGBA, Render.Info.gl.RGBA, Render.Info.gl.UNSIGNED_BYTE, Render.Info.textCanvas);
-  //     Render.Info.gl.generateMipmap(Render.Info.gl.TEXTURE_2D);
-  //   }
-  // }
   export class Text extends Renderable {
     private text : string;
     private properties : T.TextProperties = {};
@@ -239,13 +195,11 @@ export namespace Composite {
   }
 
   export class Rectangle extends Renderable {
-    // private bounds : T.Bounds;
 
     constructor(glContext : Render.GLContext, shadercontext : ShaderLoader, bounds : T.Bounds, color : T.Color){
       super(glContext, shadercontext);
       this.rprops.dstrect = bounds;
       this.rprops.colorize = color;
-      // this.rprops.shaderID = "rectangle"
     }
 
     public compose(){
@@ -299,7 +253,7 @@ export namespace Composite {
         this.ready = true;
       }
 
-      if(this.rprops.delete) this.glContext.gl.deleteTexture(this.texture);
+      if(this.rprops.delete && this.texture) this.glContext.gl.deleteTexture(this.texture);
       return this.rprops.delete;
     }
 
@@ -324,50 +278,92 @@ export namespace Composite {
     }
 
     protected static createFocus(rd: Array<Renderable>): T.Bounds{
-      // console.log(rd);
-      return {
-            x: rd.reduce((acc,c)=>{return Math.min(acc,c.rprops.dstrect.x)},rd[0].rprops.dstrect.x),
+      
+      let bob = 
+      {
+            x: rd.reduce((acc,c)=>{return Math.min(acc,c.rprops.dstrect.x)},
+            rd[0].rprops.dstrect.x 
+            ),
             y: rd.reduce((acc,c)=>{return Math.min(acc,c.rprops.dstrect.y)},rd[0].rprops.dstrect.y),
-            w: rd.reduce((acc,c)=>{return Math.max(acc,c.rprops.dstrect.w+c.rprops.dstrect.x)},0),
-            h: rd.reduce((acc,c)=>{return Math.max(acc,c.rprops.dstrect.h+c.rprops.dstrect.y)},0)
+            w: rd.reduce((acc,c)=>{return Math.max(acc,
+              (c.rprops.dstrect.w * Math.abs(Math.cos(c.rprops.angle)) + 
+                c.rprops.dstrect.h * Math.abs(Math.sin(c.rprops.angle)) +
+                c.rprops.dstrect.x)
+                * c.rprops.scale.x
+              )},0),
+            h: rd.reduce((acc,c)=>{return Math.max(acc,(c.rprops.dstrect.w * Math.abs(Math.sin(c.rprops.angle)) + c.rprops.dstrect.h * Math.abs(Math.cos(c.rprops.angle))+c.rprops.dstrect.y)*c.rprops.scale.y)},0)
           };
+
+      return bob;
+    }
+
+    private static createBounds(rd : Array<Renderable>) : T.Bounds{
+      let r = rd[0]
+      let topleft = Composite.scaleThenRotatePreserveOriginalRotation(
+        {x:r.rprops.dstrect.x,y:r.rprops.dstrect.y},
+        {x:r.rprops.scalecenter.x,y:r.rprops.scalecenter.y},
+        {x:r.rprops.scale.x,y:r.rprops.scale.y},
+        {x:r.rprops.rotcenter.x,y:r.rprops.rotcenter.y},
+        r.rprops.angle
+      );
+      topleft = (()=>{
+        let tl = topleft;
+        for(let i = 1; i < rd.length; i++){
+          r = rd[i];
+          let ctl = Composite.scaleThenRotatePreserveOriginalRotation(
+            {x:r.rprops.dstrect.x,y:r.rprops.dstrect.y},
+            {x:r.rprops.scalecenter.x,y:r.rprops.scalecenter.y},
+            {x:r.rprops.scale.x,y:r.rprops.scale.y},
+            {x:r.rprops.rotcenter.x,y:r.rprops.rotcenter.y},
+            r.rprops.angle
+          )
+          if(ctl.x < tl.x) tl.x = ctl.x;
+          if(ctl.y < tl.y) tl.y = ctl.y;
+        }
+        return tl;
+      })()
+
+
+      return {
+        x:topleft.x,
+        y:0,w:0,h:0
+      }
+
     }
 
     protected generateComposite(rd : Array<Renderable>, focusRect: T.Bounds){
       let toDraw : Array<Renderable> = rd.filter((r)=>{return !r?.rprops.hidden});
         if(toDraw.length > 0){
+          let newtest = Composite.createBounds(toDraw);
           toDraw.sort((a,b)=>a.rprops.layer - b.rprops.layer);
           for(let i = 0; i < toDraw.length; i++) toDraw[i].compose();
-          // let focusRect : T.Bounds = ;
-          // console.log(focusRect)
-        this.rprops.srcrect = {
-          x : focusRect.x,
-          y : focusRect.y,
-          w : focusRect.w/*  <= this.rprops.dstrect.w ? this.rprops.dstrect.w : focusRect.w */,
-          h : focusRect.h/*  <= this.rprops.dstrect.h ? this.rprops.dstrect.h : focusRect.h */
-        }
+
+        this.offset.x = focusRect.x;
+        this.offset.y = focusRect.y;
 
         this.rprops.dstrect = {
-          x : this.rprops.pos.x/* + (this.rprops.scalex == 1 ? 0 : (this.rprops.srcrect!.w - (this.rprops.srcrect!.w * this.rprops.scalex)) / 2) */,
-          y : this.rprops.pos.y/* + (this.rprops.scaley == 1 ? 0 : (this.rprops.srcrect!.h - (this.rprops.srcrect!.h * this.rprops.scaley)) / 2) */,
-          w : this.rprops.srcrect.w/* +focusRect.x */,
-          h : this.rprops.srcrect.h/* +focusRect.y */
+          x : this.rprops.pos.x,
+          y : this.rprops.pos.y,
+          w : focusRect.w,
+          h : focusRect.h
         }
-
 
         let gl = this.glContext.gl;
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.glContext.framebuffer);
-        this.texture = Textures.createTexToBlitOn(this.glContext, this.rprops.dstrect.w, this.rprops.dstrect.h);
+
+        this.texture = Textures.createTexToBlitOn(this.glContext, focusRect.w, focusRect.h);
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.texture, 0);
 
-        gl.viewport(-this.viewport.x,-this.viewport.y,this.rprops.dstrect.w,this.rprops.dstrect.h);
-        // gl.clearColor(0, 1, 0, .5);
-        // gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.viewport(-this.viewport.x,-this.viewport.y,focusRect.w,focusRect.h);
         
         for(let i = 0; i < toDraw.length; i++){
-          // toDraw[i].compose();
           this.glContext.gl.bindTexture(gl.TEXTURE_2D, toDraw[i].texture);
-          this.shadercontext.passShader(toDraw[i], this.rprops.dstrect);
+          this.shadercontext.passShader(toDraw[i],
+            { x:toDraw[i].rprops.dstrect.x,
+              y:toDraw[i].rprops.dstrect.y,
+              w:focusRect.w,
+              h:focusRect.h
+            });
           gl.drawArrays(gl.TRIANGLES, 0, 6);
         }        
         this.ready = true;
@@ -378,9 +374,8 @@ export namespace Composite {
     //// so parent is updated at addition (instead of pushing directly)
     // need to refresh camera for viewport to have the camera modifications
     public getclientleft():number{
-      // console.log(this.rprops.pos.x - this.viewport.x);
       if(!this.parent){
-        return this.rprops.pos.x - this.viewport.x;// + (this.parent==undefined?0:this.parent.getclientleft());
+        return this.rprops.pos.x - this.viewport.x;
       }
       return this.rprops.pos.x + this.parent.getclientleft() - this.viewport.x;
     }
@@ -390,6 +385,46 @@ export namespace Composite {
     }
 
     public addtocomposition(arr:Composite[]){}
+
+    private static rotateAround(p: T.Point, center: T.Point, angleRad: number): T.Point {
+      const cos = Math.cos(angleRad);
+      const sin = Math.sin(angleRad);
+
+      const dx = p.x - center.x;
+      const dy = p.y - center.y;
+
+      return {
+        x: center.x + dx * cos - dy * sin,
+        y: center.y + dx * sin + dy * cos,
+      };
+    }
+
+    private static scaleAround(p: T.Point, center: T.Point, scale: T.Point): T.Point {
+      return {
+        x: center.x + (p.x - center.x) * scale.x,
+        y: center.y + (p.y - center.y) * scale.y,
+      };
+    }
+
+    private static scaleThenRotatePreserveOriginalRotation(
+      p: T.Point,
+      scaleCenter: T.Point,
+      scale: T.Point,
+      rotationCenter: T.Point,
+      angleRad: number
+    ): T.Point {
+      // 1) scale the point
+      const scaledPoint = Composite.scaleAround(p, scaleCenter, scale);
+
+      // 2) compensate the rotation center
+      const compensatedRotationCenter: T.Point = {
+        x: scaleCenter.x + (rotationCenter.x - scaleCenter.x) * scale.x,
+        y: scaleCenter.y + (rotationCenter.y - scaleCenter.y) * scale.y,
+      };
+
+      // 3) rotate around the compensated center
+      return Composite.rotateAround(scaledPoint, compensatedRotationCenter, angleRad);
+    }
 
   }
 
@@ -405,8 +440,13 @@ export namespace Composite {
     public compose():boolean{
       if(this.rprops.delete) {
         if(this.ready) this.glContext.gl.deleteTexture(this.texture);
+        for(let f of this.parts){
+          f.rprops.delete = true;
+          f.compose();
+        }
         return this.rprops.delete;
       }
+
       if(this.dynamic){
         if(this.ready){
           this.glContext.gl.deleteTexture(this.texture);
@@ -414,11 +454,9 @@ export namespace Composite {
         this.ready = false;
       }
       if(!this.ready){
+        this.parts = this.parts.filter((f)=>f!=undefined && !f.compose());
+
         let focusRect: T.Bounds = Snap.createFocus(this.parts);
-        // focusRect.x = 0;
-        // focusRect.y = 0;
-        // this.rprops.pos.x = focusRect.x;
-        // this.viewport.x   = -focusRect.x;
         this.generateComposite(this.parts, focusRect);
       }
       return this.rprops.delete;
@@ -435,7 +473,6 @@ export namespace Composite {
   export class Animation extends Composite {
     public frames : Array<Composite>;
     public currentFrame : number = 0;
-    // private timings     : number[];
     private timer       : Time.Timeout;
     
 
@@ -461,18 +498,7 @@ export namespace Composite {
       }
       this.texture = this.frames[this.currentFrame].texture;
       this.rprops = this.frames[this.currentFrame].rprops;
-      // this.rprops.srcrect = this.frames[this.currentFrame].rprops.srcrect;
-      // this.rprops.dstrect = this.frames[this.currentFrame].rprops.dstrect;
-      // this.rprops.pos     = this.frames[this.currentFrame].rprops.pos    ;
-      // this.rprops.flip    = this.frames[this.currentFrame].rprops.flip   ;
-      // this.rprops.angle   = this.frames[this.currentFrame].rprops.angle  ;
-      // this.rprops.scalex  = this.frames[this.currentFrame].rprops.scalex ;
-      // this.rprops.scaley  = this.frames[this.currentFrame].rprops.scaley ;
-      // this.rprops.layer   = this.frames[this.currentFrame].rprops.layer  ;
-      // this.rprops.hidden  = this.frames[this.currentFrame].rprops.hidden ;
-      // this.rprops.delete  = this.frames[this.currentFrame].rprops.delete ;
 
-      // console.log(this.rprops.pos.y);
       this.ready = this.frames[this.currentFrame].ready;
       return this.rprops.delete;
     }
@@ -512,7 +538,6 @@ export namespace Composite {
     // returns and diminishes once too many?
     public getclientwidth():number{
       return super.getclientwidth(this.frames[this.currentFrame].rprops.dstrect)
-      // return this.frames[this.currentFrame].rprops.dstrect.w * this.getwidthratio();
     }
 
     public getclientheight():number{
@@ -527,41 +552,23 @@ export namespace Composite {
     }
 
 
-    // private getwidthratio():number{
-    //   if(this.parent!=undefined){
-    //     return (this.rprops.dstrect.w / this.rprops.srcrect.w) * this.parent.getwidthratio();
-    //   }
-    //   return this.rprops.dstrect.w / this.rprops.srcrect.w;
-    // }
-
-    // private getheightratio():number{
-    //   if(this.parent!=undefined){
-    //     return (this.rprops.dstrect.h / this.rprops.srcrect.h) * this.parent.getheightratio();
-    //   }
-    //   return this.rprops.dstrect.h / this.rprops.srcrect.h;
-    // }
-
   }
 
   export class Frame extends Composite {
     public frame : Array<Renderable>;
-    // public worldpos : T.Point = {x:0,y:0};
     public camera   : Camera = undefined;
     private picture  = {crop:{do:false,w:0,h:0},x:0,y:0,w:0,h:0,img:undefined,ready:false}
-    // private size : T.Box;
 
     constructor(glContext: Render.GLContext, shadercontext: ShaderLoader, frame: Array<Renderable>, size: T.Box = {w:0,h:0}){
       super(glContext, shadercontext);
       this.frame = frame;
       this.dynamic = true;
-      // this.size = size;
       this.rprops.dstrect.w = size.w;
       this.rprops.dstrect.h = size.h;
       for(let f of frame) f.parent = this;
     }
 
     public compose():boolean {
-      // if(this.rprops.delete) return this.rprops.delete;
       // There has to be an underlying bug for this next line to be required:
       if(this.frame[0] === undefined) {
         console.log("Skipping empty frame...")
@@ -586,10 +593,8 @@ export namespace Composite {
         if(this.camera !== undefined){
           this.rprops.dstrect.w = this.camera.viewport.w;
           this.rprops.dstrect.h = this.camera.viewport.h;
-          // console.log(this.camera.viewport.x)
           this.viewport = {x: this.camera.viewport.x, y: this.camera.viewport.y, w: this.camera.viewport.w, h: this.camera.viewport.h};
         }
-        // console.log("BOB")
         if(parts.length>0) this.generateComposite(parts, focusRect);
         if(this.picture.crop.do)this.crop();
         this.ready = true;
@@ -599,7 +604,6 @@ export namespace Composite {
 
     private crop(){
       if(this.picture.ready){
-        // Composite.gl.deleteTexture(this.picture.img.texture);
         this.glContext.gl.deleteTexture(this.glContext.getTexture('croptex'));
         this.picture.ready = false;
       }
@@ -629,10 +633,6 @@ export namespace Composite {
       }
       this.frame.push(...arr)
     }
-
-    // public test():number{
-    //   return this.camera.viewport.x
-    // }
 
 
   }

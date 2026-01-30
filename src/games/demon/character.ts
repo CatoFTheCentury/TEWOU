@@ -28,14 +28,10 @@ enum AniSt {
 }
 
 export default class Character extends GameObjects.Player {
-  // public actions: { [key: string]: Incarnations.action; } = {};
-  // public action = "";
   private jumpend     : Time.Timeout;
-  // protected normalgravity : Bodies.Gravity = {strength:.05,x:0,y:1};
   protected jumpstrength  : number         = .2;
   protected jumpgravity   : Bodies.Velocity = {strength:.125,x:0,y:-1};
   protected watergravity  : Bodies.Velocity = {strength:.025,x:0,y:1};
-  // private lifetime        : Time.Timeout = new Time.Timeout([Infinity], 'lifetime');
   private isghost         : boolean = false;
   private stoptimer       : number  = 0;
   public timer            : Time.Timeout;
@@ -46,7 +42,6 @@ export default class Character extends GameObjects.Player {
   private footstep : Time.Timeout = new Time.Timeout([Infinity], 'footstep');
   private collidingwater : number = 0;
   private collidingclimb : number = 0;
-  // public collisiongrid    : CollisionGrid;
   private usestouch : boolean = false;
 
   public inventory = {
@@ -57,7 +52,6 @@ export default class Character extends GameObjects.Player {
   
   constructor(game: Games.Action){
     let anims = game.animationsobject.animations["characters"]["skull"];
-    // console.log(anims)
     super(new Composite.Frame(game.glContext, game.shadercontext, [anims["idle"][0]]));
     this.anims = anims;
     this.game = game;
@@ -117,10 +111,9 @@ export default class Character extends GameObjects.Player {
 
     
     this.wraphorizontal();
-    this.handletimer()
+    // this.handletimer()
     this.handleKeys();
     this.handleTriggers();
-    // this.handleTouch();
   }
 
   // buggy
@@ -144,7 +137,6 @@ export default class Character extends GameObjects.Player {
     switch (name){
       case 'bananaup':
         this.inventory.bananas += params[0];
-      //  console.log("health up by " + params[0])
       break;
       case 'becomeghost':
         this.anims = this.game.animationsobject.animations["characters"]["ghost"];
@@ -179,76 +171,11 @@ export default class Character extends GameObjects.Player {
         this.uielt.innerHTML = "" + this.stoptimer + (this.stoptimer % 1 == 0 ? '.0':'');
         this.uielt.style.background = "green";
       break;
-      // break;
     }
-    // console.log('woops')
     return false;
   }
 
-  // private handleTouch(){
-  //   let touchCount = 0;
-  //   for(let t of Touch.touches) if(t!==undefined && t.state !== undefined && t.state > 0) touchCount++;
-  //   if(touchCount > 0) this.usestouch = true;
-  //   if(this.usestouch){
-  //     for(let i = 0; i < Touch.touches.length; i++){
-  //       let touch = Touch.touches[i];
-  //       if(touch === undefined) continue;
-  //       switch(touch.state){
-  //         case -1:
-  //           if(touch.timer.getTimeoutTicks() < 500
-  //             && touch.start.y - touch.pos.y > 20){
-  //             if(this.activeeffects[2] & C.CollideTypes.block && this.state != AniSt.jump){
-  //               if(Math.random() * 100 > 50) Assets.playSound('_assets/demon/boing1.wav')
-  //               else Assets.playSound('_assets/demon/boing2.wav')
-
-  //               this.velocity.add(this.jumpgravity);
-  //               this.jumpend.reset();
-  //               this.jumpend.paused = false;
-  //               this.state = AniSt.jump;
-  //               this.myFrame.frame = [this.anims[this.state]];
-  //             }
-  //         }
-  //         break;
-  //         case 0:
-  //           if(touchCount == 0 && this.state != AniSt.jump){
-  //             // if(touch.timer.getTimeoutTicks() < 300){
-  //             //   let playerpos = this.myCamera.worldtoscreen(this);
-  //             //   this.movementvector = {x:Math.min(3,2/(Touch.view.w/touch.pos.x) - 8/((Touch.view.w)/(playerpos.x))), y:0};
-  //             // } else {
-  //               this.state = AniSt.idle;
-  //               this.myFrame.frame = [this.anims[this.state]];
-  //               this.changeframe.pause();
-  //             // }
-  //           }
-            
-  //         break;
-  //         case 1:
-  //           this.changeframe.resume();
-  //         break;
-  //         case 2:
-  //           if(i===0 || touchCount == 1){
-
-  //             let playerpos = this.myCamera.worldtoscreen(this);
-  //             this.movementvector = {x:Math.min(3,2/(Touch.view.w/touch.pos.x) - 8/((Touch.view.w)/(playerpos.x))), y:0};
-  //             this.flip.flipx = this.movementvector.x > 0
-  //             ? false
-  //             : true;
-  //             this.state = AniSt.walk;
-  //             this.myFrame.frame = [this.anims[this.state]];
-  //           }
-  //           this.currentAnim = this.anims[this.state];
-
-  //         break;
-
-  //       }
-    
-  //     }
-  //   }
-    
-  // }
-
 private handleKeys(){
-  // console.log("ALLO")
   for(let k in Keyboard.keys){
     switch (k){
       case "ArrowUp":
@@ -322,18 +249,15 @@ private handleKeys(){
           case  2:
           break;
           case  1:
-            // console.log("Player x: " + this.pos.x +", Player y: " + this.pos.y);
             if((this.activeeffects[2] & C.CollideTypes.block && this.state != "jump") || this.collidingwater){
               if(Math.random() * 100 > 50) Assets.playSound('_assets/demon/boing1.wav')
               else Assets.playSound('_assets/demon/boing2.wav')
 
               this.velocity.add(this.jumpgravity);
               this.jumpgravity.strength = this.collidingwater ? this.jumpstrength / 2 : this.jumpstrength;
-              // this.jumpend.ms[0] = this.collidingwater ? 350 : 700;
               this.jumpend.restart();
               this.switchanimation("jump",0);
             }
-            // console.log("SPACE")
           break;
         }
       break;
@@ -370,19 +294,6 @@ private handleKeys(){
     this.jumpend.pause();
   }
 
-  private handletimer(){
-    // if(!this.timer){
-    //   this.uielt.style.textAlign = "left";
-    //   this.uielt.style.background = "red";
-    //   this.uielt.style.visibility = 'hidden';
-    //   // this.uielt
-    //   this.timer = new Time.Timeout([Infinity],'timer');
-    // }
-    // if(this.stoptimer == 0){
-    //   let potate = Math.round(this.timer.getTimeoutTicks() / 100) / 10;
-    //   this.uielt.innerHTML = "" + potate + (potate % 1 == 0 ? '.0':'');
-    // } 
 
-  }
 
 }

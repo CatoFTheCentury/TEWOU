@@ -1,4 +1,3 @@
-import {Composite} from "../render/composite"
 import * as T from "../_type"
 
 type Sprite = {
@@ -10,7 +9,6 @@ type Sprite = {
 
 type Gani = {
   properties: number,
-  // sprites: Array<Sprite>,
   next: string,
   animations : Array<T.AniBuild>
 };

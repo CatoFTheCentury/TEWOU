@@ -3,16 +3,10 @@ import { GameObjects } from "./alacrity/_gameobjects";
 import { Composite } from "./render/composite";
 import { GaniParser } from "./parsers/ganiParser";
 import { Assets } from "./render/assets"
-// import * as T from "./_type"
-// import { CollideLayers } from './physics/states';
-// import { CollideTypes } from './physics/states';
-// import { Bodies } from "./alacrity/_bodies";
 import { IniParser } from "./parsers/iniparser";
 import { Tiled } from "./parsers/tiledParser";
 export { Engine } from "./engine";
-// import Assets from './render/assets';
 
-// export Engine
 export { CollideLayers } from './physics/states';
 export { CollideTypes } from './physics/states';
 export { CaptureProperties } from './physics/capture' 
@@ -33,9 +27,7 @@ export class Rectangle extends Composite.Rectangle{}
 
 
 export class API {
-  // public static createFrame(game:ActionGame,composite:Array<Composite.Composite>){
-    
-  // }
+
   public static playSound(file:string){
     Assets.playSound(file);
   }

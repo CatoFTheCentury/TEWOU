@@ -1,26 +1,4 @@
-// import {Incarnations} from "../../engine/alacrity/_incarnations";
-// import { Bodies } from "../../engine/alacrity/_bodies";
-// import { Time } from "../../engine/alacrity/time";
-// import GameAnimations from './animations'
-// import { Composite } from '../../engine/render/composite';
-// import Physics from '../../engine/systems/physics';
-// import NPCCollision from '../../engine/physics/npcCollision';
-// import Capture from '../../engine/physics/capture';
-// import * as C from "../../engine/physics/states"
-// import * as T from '../../engine/_type';
-import Game from './game'
-
 import { Incarnations, Bodies, Time, Composite, NPCCollision, Capture, C, T, Games, GameObjects} from "TEWOU"
-// import Games from "../../../build/src/game/games";
-// import { Generic } from '../../../build/src/engine/_games';
-
-
-// class BatActions extends  Incarnations.Fauna{
-
-// }
-
-
-
 
 
 enum AniSt {

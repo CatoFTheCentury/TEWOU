@@ -1,4 +1,3 @@
-import {System} from "./_system"
 import * as T from '../_type';
 import { Time } from "../alacrity/time";
 import { Bodies } from '../alacrity/_bodies';
@@ -8,7 +7,6 @@ type Clickable = {
   name       : string,
   callback   : ()=>void,
   ownertouch : number
-  // state    : number
 }
 
 type Touches = {
@@ -16,7 +14,6 @@ type Touches = {
   pos   : T.Point,
   start : T.Point,
   timer : Time.Timeout
-  // id   : number
 }
 
 export class Touch {
@@ -42,10 +39,7 @@ export class Touch {
       }
       
       document.addEventListener('touchstart', (event: TouchEvent) => {
-        // if()
         for(let i = 0; i < Math.min(event.changedTouches.length,4); i++){
-          // console.log(event.changedTouches[i].clientX)
-          // console.log(event.changedTouches[i].identifier)
           Touch.touches[event.changedTouches[i].identifier] = {
             state: 1,
             pos   : {x:event.changedTouches[i].clientX,
@@ -54,14 +48,6 @@ export class Touch {
                     y:event.changedTouches[i].clientY},
             timer : new Time.Timeout([Infinity],"time")
           }
-          // update this
-          // for(let c of Touch.clickables){
-          //   if(Touch.inBounds(
-          //     Touch.touches[event.changedTouches[i].identifier].pos.x,
-          //     Touch.touches[event.changedTouches[i].identifier].pos.y,
-          //     c.bounds)) c.callback();
-            // if(Touch.inBounds(Touch.touchPos.x,Touch.touchPos.y, c.bounds)) Touch.clicked.push(c.name);
-          // }
         }
       });
           
@@ -71,8 +57,6 @@ export class Touch {
           Touch.touches[event.changedTouches[i].identifier].state = -1;
         }
         Touch.clicked = [];
-        // Touch.time.paused = true;
-        // Touch.touchstate = -1;
       });
       
       document.addEventListener('touchmove', (event: TouchEvent) => {
@@ -82,14 +66,6 @@ export class Touch {
           {x: event.changedTouches[i].clientX, y: event.changedTouches[i].clientY};
         }
       });
-          
-          // let ckables = [].slice.call(document.getElementById('clickables')!.getElementsByTagName('*'));
-          // for(let c of ckables){
-            //   let boundrect = c.getBoundingClientRect();
-            //   Touch.clickables.push({name:c.getAttribute('id'),bounds:{x:boundrect.left,y:boundrect.top,w:boundrect.right-boundrect.left,h:boundrect.bottom-boundrect.top}})
-            // }
-            // let swordclickable = document.getElementById("sword");
-            
     }
     Touch.init = true;
   }
@@ -117,7 +93,6 @@ export class Touch {
       }
       if(h && h.state > 0){
         for(let j of Touch.ckables){
-          // if(h==j.ownertouch && h.state)
           if(Touch.inBounds(h.pos.x,h.pos.y,j.bounds)){
             if(Touch.clickables[j.name] <= 0) {
               Touch.clickables[j.name] = 1;
@@ -131,18 +106,13 @@ export class Touch {
         }
       }
     }
-    
-    // for(let k in Keyboard.keys){
-    //   Touch.touchstate = Touch.touchstate < 0 ? 
-    //     0 : Touch.touchstate > 0 ? 2 : 0;
-    // // }
+
   }
 
   public static addButton(name: string, bounds: T.Bounds, callback=()=>{}){
     Touch.ckables.push({name:name,bounds:bounds,callback:callback,ownertouch:-1});
     console.log(bounds);
     Touch.clickables[name] = 0;
-    // Touch.clickables.push({name:name,bounds:bounds,callback:callback})
   }
 
   public static registeruielement(name:string, element: Bodies.UIElement){

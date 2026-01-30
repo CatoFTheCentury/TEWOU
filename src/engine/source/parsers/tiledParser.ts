@@ -1,16 +1,7 @@
-/**
- * 
- * Send a 2char string and returns tile position in pics1_dyl.png array
- * 
- * TODO: Links, Signs, NPCs, Chests and Baddies
- * 
- *  */ 
-
 import * as T from "../_type"
 import {Render} from "../render/_render"
 import {Composite} from "../render/composite"
 import Textures from "../render/textures"
-import {Assets} from "../render/assets"
 import { ShaderLoader } from "../render/shaderloader"
 
 export class Tiled {
@@ -30,7 +21,6 @@ export class Tiled {
         const cellWidth  =  cellbuild.square.w     * layer.tileYX[0].length;
         const cellHeight =  cellbuild.square.h     * layer.tileYX.length   ;
         const tilesetTW  = (cellbuild.tilesetwidth  / cellbuild.square.w    );
-        // const tilesetTH  =  game.assetList.tileset.h  / game.assetList.square    ;
 
         let cellTex : WebGLTexture = Textures.createTexToBlitOn(glContext, cellWidth, cellHeight);
 
@@ -48,8 +38,6 @@ export class Tiled {
               cellbuild.square.w, cellbuild.square.h)
           }
         }
-        // console.log(cellTex);
-        // glContext.gl.deleteFramebuffer(framebuffer)
 
         glContext.addTexture(prefix+i, cellTex);
         let a = new Composite.Image(glContext,shadercontext,prefix+i, {x:0,y:0,w:cellWidth,h:cellHeight},{x:0,y:0,w:cellWidth,h:cellHeight});

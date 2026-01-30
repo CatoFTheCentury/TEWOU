@@ -1,17 +1,6 @@
-// import Capture from "../../engine/physics/capture";
-// import * as C from "../../engine/physics/states"
-// // import Physics from '../../engine/systems/physics';
-// import * as T from '../../engine/_type';
-// import NPCCollision from "../../engine/physics/npcCollision";
-// import Assets from "../../engine/render/assets";
-// import { Time } from "../../engine/alacrity/time";
-
 import { Capture, C, T, NPCCollision, Assets, Time, Games } from "TEWOU"
 
 import Items from "./_items"
-import Game from './game'
-// import { Action } from '../../engine/source/_games';
-
 
 export class Death extends Items {
   public static index = 2686;
@@ -137,7 +126,6 @@ export class Idol extends Items {
 
   private grab(owner, target): boolean{
     Assets.playSound('_assets/demon/finish.mp3')
-    // target.react('stoptimer', [1])
     owner.destroy();
     return true;
   }

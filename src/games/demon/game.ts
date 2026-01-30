@@ -19,24 +19,12 @@ import GameAnimations from './animations';
 import LevelMaster from './levelfactory';
 import Level00 from './level00';
 import LevelFactory from "./levelfactory";
-// import Physics from "../../engine/systems/physics"
 
 
 export default class Game extends Games.Action {
-  // public static self : Game;
   protected levels  : LevelFactory[] = [new Level00()];
   public gamename: string = 'demon';
   protected srcview: T.Box = {w:4.5*16,h:10*16};
-  // public static glContext : Render.GLContext;
-  // public static 
-
-  // public bodies    : Array<Bodies.Embodiment> = [];
-  // // public cellbuild : T.CellBuild;
-  // public player    : Incarnations.Player;
-  // public ui        : Array<Bodies.Alacrity> = [];
-  // public paused    : boolean = false;
-  // public levelsize : T.Box = {w:0,h:0};
-  // private uielt    : HTMLElement;
 
   constructor(target:HTMLCanvasElement){
     super(new Render.GLContext(target,(9*16)+"",(20*16)+""),[new Normal(), new Reverser()]);
@@ -105,37 +93,19 @@ export default class Game extends Games.Action {
       [
         this.gameframe
       ]);
-    // Window.frm.camera = cam;
 
-    // cam.actor = char;
-    // char.myCamera = Window.frm.camera;
     this.window.frm.rprops.srcrect = {x:0,y:0, w:this.glContext.gl.canvas.width,h:this.glContext.gl.canvas.height};
     this.window.frm.rprops.shaderID = "reverser";
 
     return;
-    // Games.pool.push(this)
   }
 
   public start(){
-    // Time.Timeout.resumeAll();
-    // this.paused = false;
   }
  
   public run(){
     super.run([]);
-    // console.log("fdasf")
     this.gameframe.camera.refresh();
   }
 
 }
-
-  // public putnpcsfromcsv(npcsarr: string, squaresize: number): Array<Bodies.Embodiment>{
-  //   let bodies: Array<Bodies.Embodiment> = [];
-  //   let lines : Array<string> = npcsarr.split('\n');
-  //   let putpos: T.Point       = {x:0,y:0}
-  //   for(let i = 0; i < lines.length; i++){
-  //     putpos.y = i * squaresize
-  //   }
-
-  // }
-// }

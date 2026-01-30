@@ -53,7 +53,7 @@ export default abstract class Shader {
   }
 
   
-    public passShader(cmp:Composite.Image, plane: T.Box){
+    public passShader(cmp:Composite.Image, plane: T.Bounds, extraarguments: T.ExtraShaderArguments = {}){
       if(cmp.rprops.shaderID!=undefined) this.validateShader(cmp.rprops.shaderID);
       else this.validateShader(this.fallbackShader);
 
@@ -70,7 +70,7 @@ export default abstract class Shader {
         }
         
         for(const a of this.currShader.passes){
-          a(this.gl, cmp, plane);
+          a(this.gl, cmp, plane, extraarguments);
         }
       }
     }

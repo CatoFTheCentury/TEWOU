@@ -1,9 +1,4 @@
-// import { Composite } from "../../engine/render/composite"
-// import * as T from "../../engine/_type"
 import { Composite, T, GameObjects, Games, ShaderLoader, Render } from "TEWOU"
-// import Bat from '../../../build/src/zFunFlyingGuy/bat';
-// import { glContext } from '../../engine/source/_type';
-// import { GLContext } from '../../engine/source/render/_render';
 
 export enum FullChar {
   grayguy     = 0,

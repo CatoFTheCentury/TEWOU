@@ -31,11 +31,8 @@ export class Game extends ActionGame {
   protected srcview = {w:300,h:300};
 
   constructor(target:HTMLCanvasElement){
-    // let bob = document.createElement('canvas');
     super(target, 300, 300);
     target.addEventListener('mousedown',()=>Manager.currentGame = this.gameid);
-    // this.window = new Window(this.glContext)
-    // Game.self = this;
   }
 
   public async load():  Promise<void> {
@@ -46,8 +43,9 @@ export class Game extends ActionGame {
     this.displayLevel(this.currentLevel);
     this.gameframe.camera.cameraman.actor = this.player;
 
+    this.window.frm.frame.push(this.gameframe);
+
     
-    this.frameGame([this.gameframe]);
     return;
   }
 
@@ -55,22 +53,6 @@ export class Game extends ActionGame {
 
   public run(sharedobjects){
     super.run(sharedobjects);
-    // if(Engine.sharedobjects.length > 0){
-    //   for(let i of games)
-    // }
-    // Engine.sharedobjects.forEach((obj)=>{
-    //   if(obj.owner.id == this.gameid) return;
-    //   if(obj.haspopulated.includes(this.gameid)) return;
-    //   for(let s in obj.anisrc){
-    //     let src = obj.anisrc[s];
-    //     let spl = src.split('.');
-    //     if(spl[spl.length-1] == "gani"){
-
-    //     }
-
-    //   }
-    // })
-    // if(Engine.sharedobjects)
     this.gameframe.camera.refresh();
   }
 

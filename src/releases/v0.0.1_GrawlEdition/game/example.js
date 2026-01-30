@@ -80,11 +80,19 @@ class Enemy extends window.TEWOU.Fauna {
 
 class Bullet extends window.TEWOU.Fauna {
   constructor(posx,posy){
+    let laser  = game.newRectangle({x:0,y:0,w:5,h:20},{r:128,g:128,b:255,a:255})
+    let shine  = game.newRectangle({x:-10,y:-10,w:2,h: 20},{r:255,g:255,b:255,a:255});
+    // let haha   = game.newFrame([
+    //   // game.newRectangle({x:0,y:0,w:100,h:100},{r:0,g:0,g:0,a:210}),
+    //   shine
+    // ]);
+    // let shine2 = game.newRectangle({x:0,y:0,w:45,h: 8},{r:128,g:128,b:255,a:255})
+    shine.rprops.angle = -.7;
+    shine.rprops.scale = {x:11,y:1};
+    // shine2.rprops.angle = 1.36;
+    console.log("///")
     super(
-      game.newRectangle(
-        {x:0,y:0,w:4,h:20},
-        {r:128,g:128,b:255,a:255}
-      )
+      game.newFrame([laser/* ,shine2 */])
     )
     this.pos.x = posx;
     this.pos.y = posy;

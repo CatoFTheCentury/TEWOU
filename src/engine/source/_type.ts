@@ -37,10 +37,10 @@ export type RenderProperties = {
   shader?   : string,
   flip      : Flip
 
-  rotcenter?: Point,
+  rotcenter : Point,
   angle     : number,
 
-  scalecenter?: Point,
+  scalecenter : Point,
   scale       : Point,
 
   layer     : number,
@@ -49,7 +49,6 @@ export type RenderProperties = {
   shaderID? : string,
   delete    : boolean,
 
-  // contextID : number,
 }
 
 export type shaderPass = (
@@ -81,16 +80,6 @@ export enum RunSwitch {
   off,disabled,enabled,running,elapsed
 }
 
-// export type glContext = {
-//   vbuffer: WebGLBuffer,
-//   Rframebuffer : WebGLFramebuffer,
-//   framebuffer : WebGLFramebuffer,
-//   renderbuffer : WebGLRenderbuffer,
-//   gl: WebGL2RenderingContext,
-//   id: string,
-//   textures: {[id:string]:WebGLTexture}
-// }
-
 export type SnapBuild = {
   file   : string,
   srcrect: Bounds,
@@ -112,11 +101,9 @@ export type SharedBlueprint = {
   },
   id: string,
   dir: number
-  // action     : string
 }
 
 export type KeyboardAction = {
-  // key: string,
   keydown   ?: ()=>void,
   keyheld   ?: ()=>void,
   keypressed?: ()=>void, //keydown and key held
@@ -124,12 +111,12 @@ export type KeyboardAction = {
 }
 
 export type TextProperties = {
-  // text: string,
   size ?: number,
   color?: Color,
   font ?: string,
   align?: string,
 }
-// export type GameAnimation = {
 
-// }
+export type ExtraShaderArguments = {
+  uvs ?: Bounds
+}

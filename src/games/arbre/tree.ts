@@ -1,4 +1,3 @@
-// import {Bodies, Games, Tiled, IniParser, Assets, Composite, Time, NPCCollision, C} from 'TEWOU';
 import {Player, ActionGame, CollideLayers, CollideTypes, CaptureProperties, API, Frame, Fauna} from 'TEWOU'
 
 
@@ -7,26 +6,19 @@ export default class Tree extends Fauna{
   public action;
   private health = 4;
   constructor(game: ActionGame){
-    // game.currentLevel.cellbuild.tiles = [];
 
     let image = API.imageFromCSV(game, "_assets/arbre/00/tree.csv");
     super(new Frame(game.glContext,game.shadercontext,[image],{w:8*16,h:6*16}));
     this.pos.x = 16 * 27;
     this.pos.y = 16*31;
     this.hitbox = {x:0,y:7*16,w:8*16,h:2*16};
-    // this.myFrame.frame[0].rprops.angle =  1.57;
-    game.addAsCollision(this,CollideLayers.player,CollideTypes.block);
-    // game.gamephysics.collisionpool.push(new NPCCollision(this,C.CollideLayers.npc, C.CollideLayers.player, C.CollideTypes.block));
+    game.addAsCollision(this,CollideLayers.npc, CollideLayers.player,CollideTypes.block);
 
-    // this.myFrame.rprops.flip.flipy = true;
-    // this.myFrame.compose();
     this.myFrame.rprops.rotcenter = {x:4*16,y:3*16};
-    // this.myFrame.rprops.angle = -1;
     this.myFrame.rprops.scale = {x:.5,y:.5};
     this.myFrame.rprops.scalecenter = {x:4*16,y:3*16}
 
-    // console.log(this.myFrame.rprops.rotcenter)
-    game.alacritypool.push(this);
+    game.registerEntity(this); 
 
     
   }

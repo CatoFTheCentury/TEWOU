@@ -10,7 +10,6 @@ import { Render } from "../render/_render";
 import { ShaderLoader } from "../render/shaderloader";
 import { Assets } from "../render/assets";
 import { Tiled } from "../parsers/tiledParser";
-// import { Generic } from '../_games';
 
 
 
@@ -21,7 +20,6 @@ export namespace GameObjects {
   }
 
   export abstract class Level {
-    // public cellbuild: T.CellBuild;
     public bodies : Bodies.Embodiment[] = [];
     public abstract ininame : string;
     public representation : Composite.Snap[];
@@ -29,7 +27,6 @@ export namespace GameObjects {
     public grids : Array<CollisionGrid>;
     public cellbuild : T.CellBuild;
     
-    // public physics    : Physics = new Physics();
     public async load(){
       this.cellbuild = await IniParser.loadIni("_assets/"+this.ininame);
       this.levelsize = {w: this.cellbuild.tiles[0].tileYX[0].length * this.cellbuild.square.w, h: this.cellbuild.tiles[0].tileYX.length * this.cellbuild.square.h};
@@ -45,7 +42,6 @@ export namespace GameObjects {
   }
 
   export class SharedObject {
-    // public shared : T.SharedBlueprint;
       public presence   : Incarnations.Incarnated;
       public pos        : T.Point;
       public anisrc     : {[id:string]:string} = {};
@@ -54,10 +50,8 @@ export namespace GameObjects {
       public ownerid    : number;
       public ownername  : string;
       public dir        : number;
-      // public haspopulated: Array<number> = []; //ids of populated games (where the object has been created already)
 
     constructor(shared:T.SharedBlueprint){
-      // this.shared = shared;
       this.pos = shared.pos;
       this.anisrc = shared.anisrc;
       this.currentani = shared.currentani;
@@ -71,15 +65,11 @@ export namespace GameObjects {
       
     }
 
-    // public invoke(){
-
-    // }
   }
 
   export abstract class Fauna extends Incarnations.Fauna{}
 
   export abstract class Player extends Incarnations.Incarnated {
-  // protected allstates = (1<<AniSt.count) - 1;
     public hp : Health = {max:3,current:3};
     public myCamera  : Camera;
 

@@ -1,10 +1,3 @@
-// import {Games} from "../../engine/_games";
-// import IniParser from "../../engine/parsers/iniparser";
-
-// import TiledParser from '../../engine/parsers/tiledParser'
-// import CollisionGrid from "../../engine/physics/gridCollision"
-// import * as C from "../../engine/physics/states"
-
 import { Games, IniParser, Tiled, CollisionGrid, C, Assets} from "TEWOU"
 
 import LevelFactory from "./levelfactory";

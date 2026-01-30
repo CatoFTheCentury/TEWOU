@@ -49,14 +49,9 @@ export class Assets {
   }
 
   public static initAudio(){
-    // window.addEventListener('load', function() {
       Assets.audioContext = new window.AudioContext();
-    // });
   }
 
-  // public static addTexture(name: string, tex: WebGLTexture, size: T.Box) {
-  //   Assets.textures[name] = {t:tex, ...size};
-  // }
   public static retrieveTex(fileName : string, glContext: Render.GLContext){
     if(!glContext.textures[fileName]){
       // Assumes the file always exists

@@ -1,4 +1,3 @@
-  
 import * as T from "../_type"
 import {Assets} from "../render/assets"
 
@@ -18,10 +17,8 @@ export class IniParser {
     let playLayer   : number;
 
     let file : string = "";
-    // const lvlPath = iniFileName.split('.')[0];
     
     const inifile: string = Assets.getText(await Assets.addText(iniFileName));
-    // const iniFile = await Assets.getText(iniFileName);
 
     const iniLines: Array<string> = inifile.split('\n');
     for(let i = 0; i < iniLines.length; i++){
@@ -36,8 +33,6 @@ export class IniParser {
             case "FILE":
               tileset = await Assets.addImage(currParams[1]);
               file = currParams[1];
-              // tilesetwidth = Assets.getTextureWidth(currParams[1]);
-              // console.log(tilesetwidth)
             break;
           };
         break;

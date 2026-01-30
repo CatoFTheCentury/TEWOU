@@ -9,9 +9,6 @@ export default abstract class Collision {
 
   public deleteMe : boolean = false;
 
-  // public cpool : Array<Collision> = [];
-
-  // public dbgName : string = "not defined collision";
   
   public from : CollideLayers;
   public cwith : CollideLayers;
@@ -33,11 +30,6 @@ export default abstract class Collision {
     this.from    = from;
     this.cwith   = cwith;
     this.type    = type;
-    // this.padding = padding * Globals.zoom;
-    // this.npc = null;
-    // this.cpool.push(this);
-
-
   }
 
   public update(to: Set<Bodies.Embodiment>): void {

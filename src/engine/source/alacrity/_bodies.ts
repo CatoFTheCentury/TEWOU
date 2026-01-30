@@ -3,8 +3,6 @@ import {Composite} from "../render/composite"
 import * as T from "../_type"
 import Collision from '../physics/_collision'
 import * as C from "../physics/states";
-// import Gravity from "../systems/gravity";
-// import { glContext } from '../_type';
 
 export namespace Bodies {
 
@@ -19,10 +17,7 @@ export namespace Bodies {
     public timeouts : Array<Time.Timeout>  = [];
     public gameid : number;
 
-    // public abstract update();
-
     constructor(){
-      // Alacrity.pool.push(this);
     }
  
     public finalize(){}
@@ -101,9 +96,7 @@ export namespace Bodies {
   export class Embodiment extends Existence {
     public myFrame: Composite.Frame;
     public collisions : Array<Collision> = [];
-    // public hitbox     : T.Bounds = {x:0,y:0,w:0,h:0};
     public activeeffects : Array<number> = [1,1,1,1];
-    // public pos : T.Point = {x:0,y:0};
     public flip : T.Flip = {flipx:false,flipy:false}
 
     constructor(frame: Composite.Frame | Array<Composite.Renderable> | Composite.Renderable){
@@ -139,9 +132,7 @@ export namespace Bodies {
   }
 
   export abstract class Mobility extends Embodiment {
-    // public abstract pos   : T.Point;
     public movementvector : T.Point = {x:0,y:0};
-    // public gravityvector  : T.Point = {x:0,y:0};
     public speed          : number = .2;
     public velocity: Set<Velocity> = new Set();
     protected normalgravity : Velocity = {strength:.075,x:0,y:1};
@@ -193,8 +184,6 @@ export namespace Bodies {
           (movement.y > 0 && !(this.activeeffects[2] & C.CollideTypes.block))){
           this.pos.y += movement.y;
         }
-      // console.log(this.pos.x)
-      // this.movementvector = {x:0,y:0};
       
     }
     public resetmovementvector(){
@@ -209,44 +198,6 @@ export namespace Bodies {
       this.movecallback = callback;
     }
   }
-
-  // export abstract class Animated extends Mobility {
-  //   public    paused      : boolean = false;
-  //   protected anims       : Array<Composite.Animation>;
-  //   protected timers      : Time.Timeout[] = [];
-  //   protected currentanim : number = 0;
-  //   protected timings     : number[][] = [];
-  //   // private   currentFrame : number = 0;
-  
-  //   constructor(frame: Composite.Frame){
-  //     super(frame);
-  //     this.anims = anims;
-  //     // this.currentAnim = this.anims[0];
-  //     for(let i = 0; i < this.anims.length; i++){
-  //       this.timers.push(new Time.Timeout([Infinity], "" + i));
-  //     }
-  //     // this.changeframe.paused = true;
-  //     // this.timeouts.push(this.changeframe);
-  //   }
-  //   public update(){
-  //     super.update();
-  //     // this.handleanimations();
-  //   }
-
-  //   public switchanim(animnumber: number){
-  //     if(animnumber < 0 || animnumber >= this.anims.length) return;
-  //     this.currentanim = animnumber;
-  //     this.timers[animnumber].restart();
-  //     this.anims[this.currentanim].currentFrame = 0;
-  //     this.myFrame.frame = [this.anims[this.currentanim]];
-  //     // this.changeframe.restart();
-  //   }
-
-  //   public settimings(timings: number[][]){
-  //     this.timings = timings;
-  //   }
-
-  // }
 
 }
 

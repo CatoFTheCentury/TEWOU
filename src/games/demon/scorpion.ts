@@ -1,17 +1,4 @@
-// import {Bodies} from '../../engine/alacrity/_bodies'
-// import { Composite } from '../../engine/render/composite';
-// import * as T from '../../engine/_type'
-// import { Incarnations } from '../../engine/alacrity/_incarnations';
-// import Physics from '../../engine/systems/physics';
-// import * as C from "../../engine/physics/states"
-// import NPCCollision from '../../engine/physics/npcCollision';
-// import { Time } from '../../engine/alacrity/time';
-// import Capture from '../../engine/physics/capture';
-
 import { Bodies, Composite, T, Incarnations, C, NPCCollision, Time, Capture, Games, GameObjects } from "TEWOU"
-
-import GameAnimations from './animations'
-import Game from './game'
 
 enum AniSt {
   idle   = 0,
@@ -29,7 +16,6 @@ enum Dir {
 
 export default class Scorpion extends Incarnations.Fauna{
   public static index : number = 538; //540
-  // public dir : number;
   protected jumpgravity   : Bodies.Velocity = {strength:.1,x:0,y:-1};
 
   protected actions : {[key:string]:Incarnations.action} = {
@@ -76,7 +62,6 @@ export default class Scorpion extends Incarnations.Fauna{
 
 
   constructor(game:Games.Action, pos: T.Point){
-    // new GameAnimations.Scorpion();
     let anims = game.animationsobject.animations["scorpions"]["green"];
     super(new Composite.Frame(game.glContext, game.shadercontext, [anims["idle"][0]]));
 
