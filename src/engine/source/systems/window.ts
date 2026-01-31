@@ -38,7 +38,8 @@ export class Window {
       gl.clear(gl.COLOR_BUFFER_BIT);
       
       gl.bindTexture(gl.TEXTURE_2D, this.frm.texture)
-      this.frm.shadercontext.passShader(this.frm, {x:0,y:0,w:gl.canvas.width,h:gl.canvas.height});
+      let focus = Composite.Frame.createFocus(this.frm.frame)
+      this.frm.shadercontext.passShader(this.frm, {x:focus.x,y:focus.y,w:gl.canvas.width,h:gl.canvas.height});
       
       gl.drawArrays(gl.TRIANGLES, 0, 6);
     }

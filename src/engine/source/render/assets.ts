@@ -71,7 +71,7 @@ export class Assets {
           Assets.textures[this.pathprefix+fileName] = img;
         })
       } catch {
-        console.log("Error");
+        console.error("Image not found: " + this.pathprefix+fileName);
       }
     }
     return this.pathprefix+fileName;
@@ -79,7 +79,12 @@ export class Assets {
 
   public static async addText(fileName:string) : Promise<string>{
     if(!Assets.texts[this.pathprefix+fileName]){
-      Assets.texts[this.pathprefix+fileName] = await fetch(this.pathprefix+fileName).then((x)=>x.text());
+      let txt = await fetch(this.pathprefix+fileName).then((x)=>x.text())
+        .catch(error => {console.error('Error loading text file: ', error);
+          return 'Error loading text file: ' + error;}
+        );
+      
+      Assets.texts[this.pathprefix+fileName] = txt;
     }
     return this.pathprefix+fileName;
   }
@@ -100,6 +105,7 @@ export class Assets {
   public static playSound(fileName: string) {
     if(!Assets.sounds[this.pathprefix+fileName]){
       Assets.addSound(this.pathprefix+fileName).then((file)=>Assets.play(Assets.sounds[this.pathprefix+fileName]))
+      .catch(error=>console.error('Error loading audio file:', error))
     } else {
       Assets.play(Assets.sounds[this.pathprefix+fileName]);
     }

@@ -277,64 +277,54 @@ export namespace Composite {
       this.viewport = {x:0,y:0,w:glContext.gl.canvas.width,h:glContext.gl.canvas.height};
     }
 
-    protected static createFocus(rd: Array<Renderable>): T.Bounds{
-      
-      let bob = 
-      {
-            x: rd.reduce((acc,c)=>{return Math.min(acc,c.rprops.dstrect.x)},
-            rd[0].rprops.dstrect.x 
-            ),
-            y: rd.reduce((acc,c)=>{return Math.min(acc,c.rprops.dstrect.y)},rd[0].rprops.dstrect.y),
-            w: rd.reduce((acc,c)=>{return Math.max(acc,
-              (c.rprops.dstrect.w * Math.abs(Math.cos(c.rprops.angle)) + 
-                c.rprops.dstrect.h * Math.abs(Math.sin(c.rprops.angle)) +
-                c.rprops.dstrect.x)
-                * c.rprops.scale.x
-              )},0),
-            h: rd.reduce((acc,c)=>{return Math.max(acc,(c.rprops.dstrect.w * Math.abs(Math.sin(c.rprops.angle)) + c.rprops.dstrect.h * Math.abs(Math.cos(c.rprops.angle))+c.rprops.dstrect.y)*c.rprops.scale.y)},0)
-          };
+    public static createFocus(rd: Array<Renderable>): T.Bounds{
+      let minX = Infinity;
+      let minY = Infinity;
+      let maxX = -Infinity;
+      let maxY = -Infinity;
 
-      return bob;
-    }
+      for (const r of rd) {
+        const originX = r.rprops.dstrect.x;
+        const originY = r.rprops.dstrect.y;
 
-    private static createBounds(rd : Array<Renderable>) : T.Bounds{
-      let r = rd[0]
-      let topleft = Composite.scaleThenRotatePreserveOriginalRotation(
-        {x:r.rprops.dstrect.x,y:r.rprops.dstrect.y},
-        {x:r.rprops.scalecenter.x,y:r.rprops.scalecenter.y},
-        {x:r.rprops.scale.x,y:r.rprops.scale.y},
-        {x:r.rprops.rotcenter.x,y:r.rprops.rotcenter.y},
-        r.rprops.angle
-      );
-      topleft = (()=>{
-        let tl = topleft;
-        for(let i = 1; i < rd.length; i++){
-          r = rd[i];
-          let ctl = Composite.scaleThenRotatePreserveOriginalRotation(
-            {x:r.rprops.dstrect.x,y:r.rprops.dstrect.y},
-            {x:r.rprops.scalecenter.x,y:r.rprops.scalecenter.y},
-            {x:r.rprops.scale.x,y:r.rprops.scale.y},
-            {x:r.rprops.rotcenter.x,y:r.rprops.rotcenter.y},
-            r.rprops.angle
-          )
-          if(ctl.x < tl.x) tl.x = ctl.x;
-          if(ctl.y < tl.y) tl.y = ctl.y;
+        const localCorners = [
+          { x: 0, y: 0 },
+          { x: r.rprops.dstrect.w, y: 0 },
+          { x: 0, y: r.rprops.dstrect.h },
+          { x: r.rprops.dstrect.w, y: r.rprops.dstrect.h },
+        ];
+
+        for (let i = 0; i < localCorners.length; i++) {
+          const localCorner = localCorners[i];
+          const transformed = Composite.scaleThenRotatePreserveOriginalRotation(
+            localCorner,
+            r.rprops.scalecenter || { x: 0, y: 0 },
+            r.rprops.scale || { x: 1, y: 1 },
+            r.rprops.rotcenter || { x: 0, y: 0 },
+            -r.rprops.angle || 0
+          );
+
+          const absoluteX = originX + transformed.x;
+          const absoluteY = originY + transformed.y;
+
+          minX = Math.min(minX, absoluteX);
+          minY = Math.min(minY, absoluteY);
+          maxX = Math.max(maxX, absoluteX);
+          maxY = Math.max(maxY, absoluteY);
         }
-        return tl;
-      })()
-
-
-      return {
-        x:topleft.x,
-        y:0,w:0,h:0
       }
 
+      return {
+        x: Math.floor(minX),
+        y: Math.floor(minY),
+        w: Math.ceil(maxX - Math.floor(minX)),
+        h: Math.ceil(maxY - Math.floor(minY))
+      };
     }
 
     protected generateComposite(rd : Array<Renderable>, focusRect: T.Bounds){
       let toDraw : Array<Renderable> = rd.filter((r)=>{return !r?.rprops.hidden});
         if(toDraw.length > 0){
-          let newtest = Composite.createBounds(toDraw);
           toDraw.sort((a,b)=>a.rprops.layer - b.rprops.layer);
           for(let i = 0; i < toDraw.length; i++) toDraw[i].compose();
 
@@ -342,8 +332,8 @@ export namespace Composite {
         this.offset.y = focusRect.y;
 
         this.rprops.dstrect = {
-          x : this.rprops.pos.x,
-          y : this.rprops.pos.y,
+          x : this.rprops.pos.x + focusRect.x,
+          y : this.rprops.pos.y + focusRect.y,
           w : focusRect.w,
           h : focusRect.h
         }
@@ -353,19 +343,23 @@ export namespace Composite {
 
         this.texture = Textures.createTexToBlitOn(this.glContext, focusRect.w, focusRect.h);
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.texture, 0);
+      // gl.clear(gl.COLOR_BUFFER_BIT);
 
-        gl.viewport(-this.viewport.x,-this.viewport.y,focusRect.w,focusRect.h);
-        
+        gl.viewport(0,0, focusRect.w, focusRect.h);
+
         for(let i = 0; i < toDraw.length; i++){
           this.glContext.gl.bindTexture(gl.TEXTURE_2D, toDraw[i].texture);
-          this.shadercontext.passShader(toDraw[i],
-            { x:toDraw[i].rprops.dstrect.x,
-              y:toDraw[i].rprops.dstrect.y,
-              w:focusRect.w,
-              h:focusRect.h
-            });
+
+          const childPlane = {
+            x: toDraw[i].rprops.dstrect.x - focusRect.x,
+            y: toDraw[i].rprops.dstrect.y - focusRect.y,
+            w: focusRect.w,
+            h: focusRect.h
+          };
+
+          this.shadercontext.passShader(toDraw[i], childPlane);
           gl.drawArrays(gl.TRIANGLES, 0, 6);
-        }        
+        }
         this.ready = true;
       } else this.ready = false;
     }
