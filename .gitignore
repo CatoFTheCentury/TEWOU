@@ -12,6 +12,7 @@ dist
 build-types
 
 output.js
+test.html
 
 *.py
 *.ttf
