@@ -1,7 +1,9 @@
-import * as T from '../../engine/_type'
-import { Incarnations } from '../../engine/alacrity/_incarnations';
-import System from '../../engine/systems/_system'
-import Character from './character'
+import {T, Incarnations, System} from 'TEWOU'
+
+// import * as T from '../../engine/_type'
+// import { Incarnations } from '../../engine/alacrity/_incarnations';
+// import System from '../../engine/systems/_system'
+// import Character from './character'
 
 export default class divUI extends System{
   private static container: HTMLElement;

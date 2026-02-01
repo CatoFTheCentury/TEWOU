@@ -1,22 +1,4 @@
-import {Incarnations} from "../../engine/alacrity/_incarnations";
-import { Bodies } from "../../engine/alacrity/_bodies";
-import { Time } from "../../engine/alacrity/time";
-import { GameAnimations } from './animations'
-import { Composite } from '../../engine/render/composite';
-import Physics from '../../engine/systems/physics';
-import NPCCollision from '../../engine/physics/npcCollision';
-import Capture from '../../engine/physics/capture';
-import * as C from "../../engine/physics/states"
-import * as T from '../../engine/_type';
-import Game from './game'
-
-
-// class BatActions extends  Incarnations.Fauna{
-
-// }
-
-
-
+import { Incarnations, Bodies, Time, Composite, NPCCollision, Capture, C, T, Games, GameObjects} from "TEWOU"
 
 
 enum AniSt {
@@ -43,24 +25,24 @@ export default class Bat extends Incarnations.Fauna {
     // running:()=>{this.movementvector.y = .5;},
     elapsed:()=>{this.switchaction('stay1')},
     timer: new Time.Timeout([250],"stay0"),
-    state:Incarnations.actionStates.off},
+    state:T.RunSwitch.off},
 
     stay1 : {
     enabled:()=>{this.movetowards({x:this.ogpos.x,y:this.ogpos.y-32})},
     // running:()=>{this.movementvector.y = -.25;},
     elapsed:()=>{this.switchaction('stay0')},
     timer: new Time.Timeout([250],"stay1"),
-    state:Incarnations.actionStates.off},
+    state:T.RunSwitch.off},
 
     swoosh : {
-      state:Incarnations.actionStates.off
+      state:T.RunSwitch.off
     }
   }
   protected action: string = "stay0"
 
   public static index     : number = 426;
   private   ogpos         : T.Point = {x:0,y:0};
-  protected dir           : number;
+  // protected dir           : number;
   protected normalgravity : Bodies.Velocity = {strength:0,x:0,y:0};
 
   public swooshbounds: T.Bounds =
@@ -68,15 +50,14 @@ export default class Bat extends Incarnations.Fauna {
   public awarenessbounds: T.Bounds =
     {x:-4*16,y:-4*16,w:9*16,h:9*16};
 
-  constructor(pos: T.Point) {
-    new GameAnimations.Bat();
-    let anims = GameAnimations.Bat.fullbats[
-      GameAnimations.Bat.bats.white
-    ]
+  constructor(game: Games.Action, pos: T.Point) {
+    // new GameAnimations.Bat();
+    let anims = game.animationsobject.animations["bats"]["gray"]
     // console.log(GameAnimations.Bat.fullbats);
-    super(new Composite.Frame([anims[AniSt.fly]]));
+    super(new Composite.Frame(game.glContext,game.shadercontext,
+      [anims["walk"][0]]));
     this.anims = anims;
-    this.switchanimation(AniSt.fly);
+    this.switchanimation("walk", 0);
     this.switchaction("stay1")
     // for(let i = 0; i < this.actiontimeouts.length; i++){
     //   this.timeouts.push(this.actiontimeouts[i])
@@ -90,23 +71,32 @@ export default class Bat extends Incarnations.Fauna {
     this.speed = 0.075;
     this.hitbox = {x:0,y:0,w:16,h:16};
 
-    Game.self.gamephysics.collisionpool.push(new NPCCollision(this, 
+    game.gamephysics.collisionpool.push(new NPCCollision(this, 
       C.CollideLayers.npc,
       C.CollideLayers.grid | C.CollideLayers.player | C.CollideLayers.npc,
       C.CollideTypes.block | C.CollideTypes.hurt));
 
-    Game.self.gamephysics.collisionpool.push(new Capture(
-      C.CollideLayers.interactable,
-      C.CollideLayers.player,
-      C.CollideTypes.interact,
-      this, this.swooshbounds, this.swoosh));
-    //Bounds:{BoundsTo,BoundsBox},actions,reuse?=true,
+    game.addCapture({
+      from: C.CollideLayers.interactable,
+      to: C.CollideLayers.player,
+      type: C.CollideTypes.interact,
+      hitbox: this.swooshbounds,
+      call: this.swoosh
+    },this)
+    // Game.self.gamephysics.collisionpool.push(new Capture(
+    //   C.CollideLayers.interactable,
+    //   C.CollideLayers.player,
+    //   C.CollideTypes.interact,
+    //   this, this.swooshbounds, this.swoosh));
+    // //Bounds:{BoundsTo,BoundsBox},actions,reuse?=true,
 
-    Game.self.gamephysics.collisionpool.push(new Capture(
+    game.gamephysics.collisionpool.push(new Capture(
       C.CollideLayers.interactable,
       C.CollideLayers.player,
       C.CollideTypes.interact,
       this, this.awarenessbounds, this.lookatplayer));
+
+    game.alacritypool.push(this);
   }
 
   public override update(){
@@ -115,9 +105,9 @@ export default class Bat extends Incarnations.Fauna {
     // this.handleTriggers();
   }
 
-  private lookatplayer(owner : Bat, target : Incarnations.Player):boolean{
+  private lookatplayer(owner : Bat, target : GameObjects.Player):boolean{
     let playerisleft = (target.pos.x + target.hitbox.w/2) < (owner.pos.x + owner.hitbox.w/2);
-    if(playerisleft && owner.actions.swoosh.state < Incarnations.actionStates.enabled){
+    if(playerisleft && owner.actions.swoosh.state < T.RunSwitch.enabled){
       owner.dir = Dir.left;
     } else {
       owner.dir = Dir.right;
@@ -126,7 +116,7 @@ export default class Bat extends Incarnations.Fauna {
   }
 
   private swoosh(owner : Bat, target : Incarnations.Fauna):boolean{
-    if(owner.actions.swoosh.state < Incarnations.actionStates.enabled){
+    if(owner.actions.swoosh.state < T.RunSwitch.enabled){
       // owner.switchanimation(AniSt.fly);
       owner.actions.swoosh.enabled = ()=>{
 

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Buildless Vanilla Strudel REPL</title>
+  </head>
+
+  <style>
+
+    #gobutton {
+      position: relative;
+      border-radius:50%;
+      background: red;
+      z-index: 5;
+      aspect-ratio: 1/1;
+      width: 50%;
+      font-size: 10vh;
+      left: 50%;
+      transform: translate(-50%,0);
+      visibility: hidden;
+    }
+
+    #gobutton > p {
+      position: relative;
+      top: 50%;
+      transform: translate(0,-50%);
+      text-shadow: 2px 2px 10px black;
+    }
+
+  </style>
+  <body style="margin: 0; background: #222">
+    <div class="container">
+      <div id="ui">
+        <div id="instructions" style="pointer-events: none;"></div>
+        <div id="gobutton"><p>GO</p></div>
+
+      </div>
+    </div>
+    <canvas id="canvas"></canvas>
+    <div id="clickables">
+      <div id="sword"><img src="./_assets/swordicon.png"/></div>
+    </div>
+    <pre id="strudcode" style="display:block;color:white;z-index:4;"><!--stack(
+  s("bd ~ [<bd,bd> bd] sd"))-->
+    </pre>
+    <script src="https://unpkg.com/@strudel/web@1.0.3"></script>
+        <button id="play">play</button>
+    <script>
+      strudel.initStrudel({
+        prebake: () => samples('github:tidalcycles/dirt-samples'),
+      });
+
+      function thinkitthrough(){
+        evaluate(document.getElementById('strudcode').innerHTML.substring(4,document.getElementById('strudcode').innerHTML.length-3)),
+        setTimeout(thinkitthrough, 500);
+      }
+
+      document.getElementById('play').addEventListener('click', () =>
+        thinkitthrough()
+      );
+
+    </script>
+    <script src="./web.bundle.js"></script>
+  </body>
+</html>

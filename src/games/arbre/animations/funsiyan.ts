@@ -1,4 +1,5 @@
-import {Composite} from "../../../engine/render/composite"
+import {Composite} from 'TEWOU'
+// import {Composite} from '../../../engine/source/render/composite';
 
 // export namespace Anims {
 export default class FunSiYan {

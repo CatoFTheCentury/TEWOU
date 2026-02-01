@@ -1,20 +1,33 @@
-# HAI!
-Typescript again!
+![GitHub](https://img.shields.io/github/languages/top/CatoFTheCentury/TEWOU)
 
-# Features
+# TEWOU Game Engine
+TEWOU is a 49kb WebGL-powered 2D game engine meant to be usable for all types of game projects. Built entirely in Typescript, it is meant to be extended with a game, sideloaded on a webpage. API exposed to the window object, accessible through the `TEWOU` namespace.
+
+TEWOU features animated sprites, hitbox collision detection and layered tile-based levels. Rendering that has a shader-ready pipeline, rotation, scaling and custom GLSL effects out of the box. 
 
 
-# HOW TO
-## First setup the environment
-[Node.js](https://nodejs.org/)
+## Features
 
-[Python](https://www.python.org/) (preferably in your path) 
+Game engine:
+  - entities
+    - animated
+    - hitboxes
+  - tiling
+    - layered
+  - render
+    - rotation
+    - scale
+    - shaders
 
-## Now time to have fun:
-```
->> npm install --save-dev
->> python startServing
->> npx webpack --watch
->> start chrome http://localhost:8003/html/z.html
-```
+and more..!
 
+Console:
+  - Some commands
+  - Crude window managements
+
+## 📚 [Documentation](docs/API.md)
+
+## 🚀 [Quick Example](releases/v0.0.1_GrawlEdition/game/example.js)
+
+## 😺
+A release version is coming but for now the usable version of the engine is found [here](releases/v0.0.1_GrawlEdition/engine/engine.js).

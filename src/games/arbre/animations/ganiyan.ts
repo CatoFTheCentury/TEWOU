@@ -1,18 +1,13 @@
-import Assets from "../../../engine/render/assets";
-import {Composite} from "../../../engine/render/composite"
-import GaniParser from "../../../engine/parsers/ganiParser";
+import {Animation, ActionGame} from 'TEWOU'
 
-// export namespace Anims {
 export default class GaniYan {
-  public idle: Array<Composite.Animation>;
-  public sword: Array<Composite.Animation>;
-  public walk: Array<Composite.Animation>;
+  public idle: Array<Animation> = new Array(4);
+  public sword: Array<Animation> = new Array(4);
+  public walk: Array<Animation> = new Array(4);
 
-  constructor(){
-    this.idle = GaniParser.parse(Assets.getText("_assets/arbre/idle.gani")).animations;
-    this.walk = GaniParser.parse(Assets.getText("_assets/arbre/walk.gani")).animations;
-    this.sword = GaniParser.parse(Assets.getText("_assets/arbre/sword.gani")).animations;
-
-    // console.log(this.idle)
+  constructor(game : ActionGame){
+    this.idle  = game.parseGani("_assets/arbre/idle.gani");
+    this.walk  = game.parseGani("_assets/arbre/walk.gani");
+    this.sword = game.parseGani("_assets/arbre/sword.gani");
   }
 }

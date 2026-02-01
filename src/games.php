@@ -38,9 +38,65 @@
 </div>
 <canvas id="canvas"></canvas>
     <div id="clickables">
-      <!-- <div id="sword"><img src="./_assets/swordicon.png"/></div> -->
+      <div id="sword"><img src="./_assets/swordicon.png"/></div>
     </div>
-     <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+    <pre id="strudcode" style="display:block;color:white;z-index:4;"><!--stack(
+s("bd ~ [<bd,bd> bd] sd").bank('RolandTR909'))-->
+    </pre>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/eruda"></script> -->
     <script>//eruda.init();</script>
-    <script src="./web.bundle.js"></script>
+    <script type="module">
+      import { controls, repl, evalScope } from 'https://cdn.skypack.dev/@strudel/core@0.11.0';
+      import { mini } from 'https://cdn.skypack.dev/@strudel/mini@0.11.0';
+      import { transpiler } from 'https://cdn.skypack.dev/@strudel/transpiler@0.11.0';
+      import {
+        getAudioContext,
+        webaudioOutput,
+        initAudioOnFirstClick,
+        registerSynthSounds,
+        // audioWorklet,
+      } from 'https://cdn.skypack.dev/@strudel/webaudio@0.11.0';
+      const ctx = getAudioContext();
+      
+      const loadModules = evalScope(
+          controls,
+          import('https://cdn.skypack.dev/@strudel/core@0.11.0'),
+          import('https://cdn.skypack.dev/@strudel/mini@0.11.0'),
+          import('https://cdn.skypack.dev/@strudel/tonal@0.11.0'),
+          import('https://cdn.skypack.dev/@strudel/webaudio@0.11.0'),
+        );
+      const initAudio = Promise.all([initAudioOnFirstClick(), registerSynthSounds()]);
+
+      const { evaluate } = repl({
+        defaultOutput: webaudioOutput,
+        getTime: () => ctx.currentTime,
+        transpiler,
+      });
+
+//       let tttmusic = false;
+      
+      document.getElementById('sword').addEventListener('click',async ()=>{
+        await loadModules;
+        // console.log(document.getElementById('strudcode').innerHTML.slice(4,document.getElementById('strudcode').innerHTML.length-8));
+        await initAudio;
+        // evaluate(document.getElementById('strudcode').innerHTML.slice(4,document.getElementById('strudcode').innerHTML.length-8));)
+        // console.log("FDS")
+        // tttmusic = true;
+      })
+
+      // async function thinkitthrough(){
+      //   // if(tttmusic){
+      //   await loadModules;
+      //   await initAudio;
+      //     evaluate(document.getElementById('strudcode').innerHTML)
+      //   // }
+      //   console.log("////")
+      //   // setTimeout(thinkitthrough, 2000);
+      // }
+
+      // await thinkitthrough();
+
+
+    </script>
+    <!-- <script src="./web.bundle.js"></script> -->
     

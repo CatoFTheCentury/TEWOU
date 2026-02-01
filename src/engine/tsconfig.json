@@ -1,0 +1,45 @@
+{
+  "compilerOptions": {
+    "module": "esnext",
+    "target": "esnext",
+    "lib": [ "esnext", "dom"],
+    "types":[],
+
+    "outDir": "./dist",
+    "rootDir": "./",
+    "skipLibCheck": true,
+    "allowJs": true,
+    // "strict":true,
+    // "strictPropertyInitialization":true,
+    "sourceMap": true,
+
+    "experimentalDecorators": true,
+    "noImplicitAny": false,
+    "allowUnreachableCode": false,
+    "declaration": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": false,
+    "pretty": true,
+    // "esModuleInterop": true,
+    // "types": ["webgl2"],
+
+    // "downlevelIteration": true,
+    // "allowSyntheticDefaultImports": true,
+    // "types": [
+      // add node as an option
+      // "node"
+    // ],
+    // "moduleResolution": "node",
+    // "baseUrl": "./",
+    // "paths": {}
+  },
+  "files": [
+    "./source/api.ts",
+  ],
+  "include": [
+    "./source/"
+  ],
+  "exclude": ["build-types", "build", "dist", "out"]
+
+  // "exclude":["node_modules", "dist"]
+}

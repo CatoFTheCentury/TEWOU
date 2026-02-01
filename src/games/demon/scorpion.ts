@@ -1,15 +1,4 @@
-import {Bodies} from '../../engine/alacrity/_bodies'
-import { Composite } from '../../engine/render/composite';
-import { GameAnimations } from './animations'
-import * as T from '../../engine/_type'
-import Game from './game'
-import { Incarnations } from '../../engine/alacrity/_incarnations';
-import Physics from '../../engine/systems/physics';
-import * as C from "../../engine/physics/states"
-import NPCCollision from '../../engine/physics/npcCollision';
-import { Time } from '../../engine/alacrity/time';
-import Capture from '../../engine/physics/capture';
-
+import { Bodies, Composite, T, Incarnations, C, NPCCollision, Time, Capture, Games, GameObjects } from "TEWOU"
 
 enum AniSt {
   idle   = 0,
@@ -27,7 +16,6 @@ enum Dir {
 
 export default class Scorpion extends Incarnations.Fauna{
   public static index : number = 538; //540
-  protected dir : number;
   protected jumpgravity   : Bodies.Velocity = {strength:.1,x:0,y:-1};
 
   protected actions : {[key:string]:Incarnations.action} = {
@@ -36,22 +24,22 @@ export default class Scorpion extends Incarnations.Fauna{
         if(Math.random() * 100 < 10) this.dir = this.dir == Dir.left ? Dir.right : Dir.left;
         if(Math.random() * 100 < 30) this.switchaction('wander')
         },
-      enabled:()=>{this.switchanimation(AniSt.idle)},
+      enabled:()=>{this.switchanimation("idle", 0)},
       timer: new Time.Timeout([200],'stay'),
-      state:Incarnations.actionStates.off
+      state:T.RunSwitch.off
     },
     wander : {
       elapsed:()=>{if(Math.random()*100 < 90) this.switchaction('stay')},
       running:()=>{this.movementvector.x = this.dir == Dir.left? -1 : 1},
-      enabled:()=>{this.switchanimation(AniSt.walk)},
+      enabled:()=>{this.switchanimation("walk", 0)},
       timer: new Time.Timeout([1000],'wander'),
-      state:Incarnations.actionStates.off
+      state:T.RunSwitch.off
     },
     panic : {
       enabled:()=>{
         // this.actions.panic.timer?.restart();
         this.velocity.add(this.jumpgravity);
-        this.switchanimation(AniSt.jump);
+        this.switchanimation("jump", 0);
       },
       running:()=>{
         this.movementvector.x = this.dir == Dir.left? 1 : -1;
@@ -60,7 +48,7 @@ export default class Scorpion extends Incarnations.Fauna{
         if(ticks>=500) this.switchaction('stay');
       },
       timer: new Time.Timeout([Infinity],'panic'),
-      state:Incarnations.actionStates.off
+      state:T.RunSwitch.off
     }
   }
 
@@ -73,12 +61,9 @@ export default class Scorpion extends Incarnations.Fauna{
   protected action: string = 'stay';
 
 
-  constructor(pos: T.Point){
-    new GameAnimations.Scorpion();
-    let anims = GameAnimations.Scorpion.fullscorpions[
-      GameAnimations.Scorpion.scorpions.green
-    ]
-    super(new Composite.Frame([anims[AniSt.idle]]));
+  constructor(game:Games.Action, pos: T.Point){
+    let anims = game.animationsobject.animations["scorpions"]["green"];
+    super(new Composite.Frame(game.glContext, game.shadercontext, [anims["idle"][0]]));
 
     this.switchaction(this.action);
 
@@ -89,17 +74,18 @@ export default class Scorpion extends Incarnations.Fauna{
     this.speed = 0.075;
     
     this.hitbox = {x:0,y:0,w:16,h:16}
-    Game.self.gamephysics.collisionpool.push(new NPCCollision(this, 
+    game.gamephysics.collisionpool.push(new NPCCollision(this, 
       C.CollideLayers.npc,
       C.CollideLayers.grid | C.CollideLayers.player | C.CollideLayers.npc,
       C.CollideTypes.block));
     
-    Game.self.gamephysics.collisionpool.push(new Capture(
+    game.gamephysics.collisionpool.push(new Capture(
       C.CollideLayers.interactable,
       C.CollideLayers.player,
       C.CollideTypes.interact,
       this,this.awarenessbounds, this.panic));
     
+      game.alacritypool.push(this);
   }
 
   private panic(owner:Scorpion,target):boolean{

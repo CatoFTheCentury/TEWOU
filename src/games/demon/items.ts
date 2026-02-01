@@ -1,23 +1,16 @@
-import Items from "./_items"
-import Capture from "../../engine/physics/capture";
-import * as C from "../../engine/physics/states"
-import Physics from '../../engine/systems/physics';
-import * as T from '../../engine/_type';
-import NPCCollision from "../../engine/physics/npcCollision";
-import Assets from "../../engine/render/assets";
-import { Time } from "../../engine/alacrity/time";
-import Game from './game'
+import { Capture, C, T, NPCCollision, Assets, Time, Games } from "TEWOU"
 
+import Items from "./_items"
 
 export class Death extends Items {
   public static index = 2686;
-  constructor(pos: T.Point){
-    super(Items.relics.skull.skull, pos);
+  constructor(game: Games.Action, pos: T.Point){
+    super(game, Items.relics.skull.skull, pos);
     this.hitbox = {x:0,y:0,w:16,h:16};
-    Game.self.gamephysics.collisionpool.push(new NPCCollision(
+    game.gamephysics.collisionpool.push(new NPCCollision(
       this, C.CollideLayers.npc, C.CollideLayers.player, C.CollideTypes.block
     ))
-    Game.self.gamephysics.collisionpool.push(new Capture(
+    game.gamephysics.collisionpool.push(new Capture(
       C.CollideLayers.interactable,
       C.CollideLayers.player,
       C.CollideTypes.interact,
@@ -34,14 +27,14 @@ export class Door extends Items {
   public static index = 2326;
   public myCollision: NPCCollision;
 
-  constructor(pos: T.Point){
-    super(Items.locks.keyhole.gold, pos);
+  constructor(game: Games.Action, pos: T.Point){
+    super(game, Items.locks.keyhole.gold, pos);
     this.hitbox = {x:0,y:0,w:16,h:16};
     this.myCollision = new NPCCollision(
       this, C.CollideLayers.npc, C.CollideLayers.player, C.CollideTypes.block
     )
-    Game.self.gamephysics.collisionpool.push(this.myCollision);
-    Game.self.gamephysics.collisionpool.push(new Capture(
+    game.gamephysics.collisionpool.push(this.myCollision);
+    game.gamephysics.collisionpool.push(new Capture(
       C.CollideLayers.interactable,
       C.CollideLayers.player,
       C.CollideTypes.interact,
@@ -59,14 +52,14 @@ export class RustDoor extends Items {
   public static index = 2328;
   public myCollision: NPCCollision;
 
-  constructor(pos: T.Point){
-    super(Items.locks.keyhole.rust, pos);
+  constructor(game: Games.Action, pos: T.Point){
+    super(game, Items.locks.keyhole.rust, pos);
     this.hitbox = {x:0,y:0,w:16,h:16};
     this.myCollision = new NPCCollision(
       this, C.CollideLayers.npc, C.CollideLayers.player, C.CollideTypes.block
     )
-    Game.self.gamephysics.collisionpool.push(this.myCollision);
-    Game.self.gamephysics.collisionpool.push(new Capture(
+    game.gamephysics.collisionpool.push(this.myCollision);
+    game.gamephysics.collisionpool.push(new Capture(
       C.CollideLayers.interactable,
       C.CollideLayers.player,
       C.CollideTypes.interact,
@@ -82,9 +75,9 @@ export class RustDoor extends Items {
 
 export class Key extends Items {
   public static index = 2276;
-  constructor(pos: T.Point){
-    super(Items.locks.key.gold, pos);
-    Game.self.gamephysics.collisionpool.push(new Capture(
+  constructor(game: Games.Action, pos: T.Point){
+    super(game, Items.locks.key.gold, pos);
+    game.gamephysics.collisionpool.push(new Capture(
     C.CollideLayers.interactable,
     C.CollideLayers.player,
     C.CollideTypes.interact,
@@ -102,9 +95,9 @@ export class Key extends Items {
 
 export class SkullKey extends Items {
   public static index = 2278;
-  constructor(pos: T.Point){
-    super(Items.locks.key.rust, pos);
-    Game.self.gamephysics.collisionpool.push(new Capture(
+  constructor(game: Games.Action, pos: T.Point){
+    super(game, Items.locks.key.rust, pos);
+    game.gamephysics.collisionpool.push(new Capture(
     C.CollideLayers.interactable,
     C.CollideLayers.player,
     C.CollideTypes.interact,
@@ -122,9 +115,9 @@ export class SkullKey extends Items {
 
 export class Idol extends Items {
   public static index = 2635;
-  constructor(pos: T.Point){
-    super(Items.relics.idol.silver, pos);
-    Game.self.gamephysics.collisionpool.push(new Capture(
+  constructor(game: Games.Action, pos: T.Point){
+    super(game, Items.relics.idol.silver, pos);
+    game.gamephysics.collisionpool.push(new Capture(
       C.CollideLayers.interactable,
       C.CollideLayers.player,
       C.CollideTypes.interact,
@@ -133,7 +126,6 @@ export class Idol extends Items {
 
   private grab(owner, target): boolean{
     Assets.playSound('_assets/demon/finish.mp3')
-    target.react('stoptimer', [1])
     owner.destroy();
     return true;
   }
@@ -141,9 +133,9 @@ export class Idol extends Items {
 
 export class RedIdol extends Items {
   public static index = 2634;
-  constructor(pos: T.Point){
-    super(Items.relics.idol.ruby, pos);
-    Game.self.gamephysics.collisionpool.push(new Capture(
+  constructor(game: Games.Action, pos: T.Point){
+    super(game, Items.relics.idol.ruby, pos);
+    game.gamephysics.collisionpool.push(new Capture(
       C.CollideLayers.interactable,
       C.CollideLayers.player,
       C.CollideTypes.interact,
@@ -161,9 +153,9 @@ export class RedIdol extends Items {
 
 export class Banana extends Items {
   public static index = 791;
-  constructor(position: T.Point){
-    super(Items.foods.fruit.banana, position);
-    Game.self.gamephysics.collisionpool.push(new Capture(
+  constructor(game: Games.Action, position: T.Point){
+    super(game, Items.foods.fruit.banana, position);
+    game.gamephysics.collisionpool.push(new Capture(
       C.CollideLayers.interactable,
       C.CollideLayers.player,
       C.CollideTypes.interact,
@@ -180,9 +172,9 @@ export class Banana extends Items {
 
 export class Apple extends Items {
   public static index = 826;
-  constructor(position: T.Point){
-    super(Items.foods.fruit.apple.red, position);
-    Game.self.gamephysics.collisionpool.push(new Capture(
+  constructor(game: Games.Action, position: T.Point){
+    super(game, Items.foods.fruit.apple.red, position);
+    game.gamephysics.collisionpool.push(new Capture(
       C.CollideLayers.interactable,
       C.CollideLayers.player,
       C.CollideTypes.interact,
@@ -199,9 +191,9 @@ export class Apple extends Items {
 
 export class Chicken extends Items {
   public static index = 979;
-  constructor(position: T.Point){
-    super(Items.foods.meat.chicken, position);
-    Game.self.gamephysics.collisionpool.push(new Capture(
+  constructor(game: Games.Action, position: T.Point){
+    super(game, Items.foods.meat.chicken, position);
+    game.gamephysics.collisionpool.push(new Capture(
       C.CollideLayers.interactable,
       C.CollideLayers.player,
       C.CollideTypes.interact,
@@ -223,10 +215,10 @@ export class SmallBlueBall extends Items {
   private delay : Time.Timeout;
   private move  : boolean = false;
 
-  constructor(pos: T.Point){
-    super(Items.heals.blue.orbs.small, pos);
+  constructor(game: Games.Action, pos: T.Point){
+    super(game, Items.heals.blue.orbs.small, pos);
     this.ogpos = pos;
-    Game.self.gamephysics.collisionpool.push(new Capture(
+    game.gamephysics.collisionpool.push(new Capture(
       C.CollideLayers.interactable,
       C.CollideLayers.player,
       C.CollideTypes.interact,

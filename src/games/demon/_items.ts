@@ -1,8 +1,4 @@
-import { Bodies } from "../../engine/alacrity/_bodies"
-import { Composite } from "../../engine/render/composite";
-import * as T from '../../engine/_type';
-
-
+import { Bodies, Composite, T, Games } from "TEWOU"
 
 export default class Items extends Bodies.Embodiment {
     public static index = 0;
@@ -579,13 +575,14 @@ export default class Items extends Bodies.Embodiment {
         skull    : {x:36,y:53},
       }
     }
-  constructor(item: T.Point, position: T.Point){
-    let img = new Composite.Snap([new Composite.Image(
+  constructor(game:Games.Action, item: T.Point, position: T.Point){
+    let img = new Composite.Snap(game.glContext, game.shadercontext, [new Composite.Image(
+      game.glContext,game.shadercontext,
       "_assets/demon/tileset_16x16_5A5268.png", 
       {x:item.x*16, y:item.y*16,w:16,h:16},
       {x:0,y:0,w:16,h:16})]);
 
-    super(new Composite.Frame([img]));
+    super(new Composite.Frame(game.glContext,game.shadercontext,[img]));
     this.pos.x = position.x;
     this.pos.y = position.y;
 
