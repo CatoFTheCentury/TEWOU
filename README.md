@@ -28,3 +28,6 @@ Console:
 ## 📚 [Documentation](docs/API.md)
 
 ## 🚀 [Quick Example](releases/v0.0.1_GrawlEdition/game/example.js)
+
+## 😺
+A release version is coming but for now the usable version of the engine is found [here](releases/v0.0.1_GrawlEdition/engine/engine.js).
