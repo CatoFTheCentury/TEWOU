@@ -2,7 +2,7 @@ const path = require('path');
 const { node } = require('webpack');
 
 module.exports = {
-  mode: 'development',
+  mode: 'production',
   // module: 'commonjs',
   // target: 'node',
   // type: "commonjs",
