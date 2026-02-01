@@ -1,6 +1,6 @@
 {
   "name": "tewou",
-  "version" : "1.0.0",
+  "version" : "0.96.0",
   "description" : "Typescript game engine. Graphics, shaders, movement, collision in one package.",
   "license" : "GPL-3.0-only",
   "author"  : "CatoFTheCentury",
