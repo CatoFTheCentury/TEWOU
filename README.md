@@ -3,7 +3,7 @@ TEWOU is a 161kb WebGL-powered 2D game engine meant to be usable for all types o
 
 TEWOU features animated sprites, hitbox collision detection and layered tile-based levels. Rendering that has a shader-ready pipeline, rotation, scaling and custom GLSL effects out of the box. 
 ![GitHub](https://img.shields.io/github/license/CatoFTheCentury/TEWOU)
-
+![GitHub](https://img.shields.io/github/languages/top/CatoFTheCentury/TEWOU)
 # Features
 
 Game engine:
