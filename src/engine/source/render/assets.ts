@@ -11,7 +11,7 @@ export class Assets {
   private static imgExts: Array<string> = ['png','jpg','gif', 'jpeg']
   private static txtExts: Array<string> = ['nw','txt', 'vert', 'frag', 'gani', 'csv']
   private static sndExts: Array<string> = ['wav','mp3']
-  public static audioContext: AudioContext;
+  private static audioContext: AudioContext;
   private static placeholder : string   = "_assets/blocking.png";
 
   public static setprefix(prefix: string) {

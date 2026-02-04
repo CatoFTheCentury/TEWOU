@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Pong - TEWOU</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne+Mono&display=swap" rel="stylesheet">
+  </head>
+  <style>
+    html {
+      background-color: #000000;
+    }
+    body {
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: 'Syne Mono', monospace;
+      color: #ffffff;
+    }
+    #canvas {
+      border: 3px solid #ffffff;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    }
+    .controls {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 14px;
+    }
+    .controls div {
+      margin: 5px 0;
+    }
+    h1 {
+      margin-bottom: 10px;
+      font-size: 32px;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+  </style>
+  <body>
+    <h1>PONG</h1>
+    <canvas id="canvas"></canvas>
+    <div class="controls">
+      <div>Player 1: W (Up) / S (Down)</div>
+      <div>Player 2: Arrow Up / Arrow Down</div>
+      <div>Press R to Reset | First to 5 wins!</div>
+    </div>
+    <script src="./engine/dist/engine.js"></script>
+    <script src="./games/pong/main.js"></script>
+  </body>
+</html>

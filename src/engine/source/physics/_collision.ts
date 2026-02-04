@@ -5,7 +5,7 @@ import {CollideLayers, CollideTypes} from "./states"
 
 
 export default abstract class Collision {
-  protected abstract intersect(bd : Bodies.Embodiment) : void;
+  protected abstract intersect(target : Bodies.Embodiment) : void;
 
   public deleteMe : boolean = false;
 
@@ -15,12 +15,12 @@ export default abstract class Collision {
   public type   : CollideTypes ;
   public self   : Bodies.Embodiment;
 
-  public offY   : number;
-  public offX   : number;
-  public width  : number;
-  public height : number;
+  // public offY   : number;
+  // public offX   : number;
+  // public width  : number;
+  // public height : number;
 
-  public ogBounds : T.Bounds = {x:0, y:0, w:0,h:0};
+  // public ogBounds : T.Bounds = {x:0, y:0, w:0,h:0};
 
 
   protected padding : T.Point = {x:1,y:1};
@@ -48,13 +48,13 @@ export default abstract class Collision {
 
 
 
-  protected computeCollidePoints(bd : T.Bounds, padding : T.Point = {x:1,y:1}, res : T.Box = {w:1,h:1}, sizeBit : number = 0) :
+  protected computeCollidePoints(bd : T.Bounds, padding : T.Point = {x:1,y:1}, res : T.Box = {w:1,h:1}, bitcount : number = 0) :
   Array<Array<Array<number>>>{
-    let mercy = [[
- /* [0][0] */   Math.max(0,Math.floor(           (bd.x + padding.x * 2)        / res.w)) >>> sizeBit,
- /* [0][1] */   Math.max(0,Math.floor(           (bd.x)                        / res.w)) >>> sizeBit,
- /* [0][2] */   Math.max(0,Math.floor(           (bd.x + bd.w - padding.x * 2) / res.w)) >>> sizeBit,
- /* [0][3] */   Math.max(0,Math.floor(           (bd.x + bd.w)                 / res.w)) >>> sizeBit
+    let cornerindices = [[
+ /* [0][0] */   Math.max(0,Math.floor(           (bd.x + padding.x * 2)        / res.w)) >>> bitcount,
+ /* [0][1] */   Math.max(0,Math.floor(           (bd.x)                        / res.w)) >>> bitcount,
+ /* [0][2] */   Math.max(0,Math.floor(           (bd.x + bd.w - padding.x * 2) / res.w)) >>> bitcount,
+ /* [0][3] */   Math.max(0,Math.floor(           (bd.x + bd.w)                 / res.w)) >>> bitcount
     ],[
  /* [1][0] */   Math.max(0,Math.floor(           (bd.y + padding.y * 2)        / res.h)),
  /* [1][1] */   Math.max(0,Math.floor(           (bd.y)                        / res.h)),
@@ -63,10 +63,10 @@ export default abstract class Collision {
     ]]
     // [dir][xy][pt#]
     return [
-        [[mercy[0][0],mercy[0][2]],[mercy[1][1],mercy[1][1]]],
-        [[mercy[0][1],mercy[0][1]],[mercy[1][0],mercy[1][2]]],
-        [[mercy[0][0],mercy[0][2]],[mercy[1][3],mercy[1][3]]],
-        [[mercy[0][3],mercy[0][3]],[mercy[1][0],mercy[1][2]]]
+        [[cornerindices[0][0],cornerindices[0][2]],[cornerindices[1][1],cornerindices[1][1]]],
+        [[cornerindices[0][1],cornerindices[0][1]],[cornerindices[1][0],cornerindices[1][2]]],
+        [[cornerindices[0][0],cornerindices[0][2]],[cornerindices[1][3],cornerindices[1][3]]],
+        [[cornerindices[0][3],cornerindices[0][3]],[cornerindices[1][0],cornerindices[1][2]]]
       ]
   }
 }

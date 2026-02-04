@@ -134,18 +134,18 @@ class Player extends window.TEWOU.Player {
     this.pos.x = 90;
     this.pos.y = 580;
 
-    this.registerkey('a', {
+    this.registerKey('a', {
       keypressed : ()=>{
         this.movementvector.x = -1;
       }
     })
-    this.registerkey('d', {
+    this.registerKey('d', {
       keypressed : ()=>{
         this.movementvector.x = 1;
       }
     })
 
-    this.registerkey(' ', {
+    this.registerKey(' ', {
       keydown : ()=>{
         new Bullet(this.pos.x+8,this.pos.y-20)
       }

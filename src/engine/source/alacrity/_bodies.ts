@@ -21,30 +21,11 @@ export namespace Bodies {
     }
  
     public finalize(){}
-    public resetmovementvector(){}
+    public resetMovementVector(){}
 
-    public static refresh(pool:Array<Alacrity>){
-      let rpool = pool.filter((e)=>!e.delete);
-      for(let i = 0; i < rpool.length; i++){
-        rpool[i].update();
-      }
-      for(let i = 0; i < rpool.length; i++){
-        rpool[i].finalize();
-      }
-    }
-
-    public static refreshsome(some: Array<Alacrity>){
-      for(let i = 0; i < some.length; i++){
-        some[i].update();
-      }
-      for(let i = 0; i < some.length; i++){
-        some[i].finalize();
-      }
-    }
-
-    public static resetallmovements(pool: Array<Alacrity>){
+    public static resetAllMovements(pool: Array<Alacrity>){
       for(let a of pool){
-        a.resetmovementvector();
+        a.resetMovementVector();
       }
     }
 
@@ -186,7 +167,7 @@ export namespace Bodies {
         }
       
     }
-    public resetmovementvector(){
+    public resetMovementVector(){
       this.movementvector = {x:0,y:0};
     }
 

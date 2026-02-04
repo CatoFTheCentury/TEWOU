@@ -4,8 +4,9 @@ import {System} from "./_system"
 import * as C from "../physics/states"
 
 export class Physics extends System {
-  public static physicspool  : Physics[] = [];
   public collisionpool : Array<Collision> = [];
+  private static physicspool  : Physics[] = [];
+  
   constructor(){
     super();
     Physics.physicspool.push(this);

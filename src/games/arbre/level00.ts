@@ -14,7 +14,7 @@ export default class GameLevel extends LevelFactory{
 
   // can'T build from game here because incarnations would import game
   public async build(game: ActionGame, firstLevel:boolean = false):Promise<void>{
-    await this.buildCell(game.rootFolder+this.ininame,game.glContext,game.shadercontext)
+    await this.buildCell(game.rootfolder+this.ininame,game.glContext,game.shadercontext)
     game.cellbuild = this.cellbuild;
 
     await API.preloadText("_assets/arbre/00/tree.csv");

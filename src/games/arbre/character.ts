@@ -60,11 +60,11 @@ export default class Character extends Player {
     ]
 
     let props : CaptureProperties = {
-      cwith: CollideLayers.npc,
+      collideswith: CollideLayers.npc,
       owner: this,
       type: CollideTypes.hurt,
       hitbox: hurtpos[this.dir],
-      call: (owner,target) => {
+      oncollision: (owner,target) => {
         target.triggers.push({name:"attacked"})
         return true;
       }
@@ -74,7 +74,7 @@ export default class Character extends Player {
   }
 
   private registercommands(){
-    this.registerkey('ArrowUp', {
+    this.registerKey('ArrowUp', {
       keyup: ()=>{
         this.character.walk[this.dir].currentFrame = 0;
         this.myFrame.frame = [this.character.idle[this.dir]];
@@ -86,7 +86,7 @@ export default class Character extends Player {
       }
     });
 
-    this.registerkey('ArrowLeft', {
+    this.registerKey('ArrowLeft', {
       keyup: ()=>{
         this.character.walk[this.dir].currentFrame = 0;
         this.myFrame.frame = [this.character.idle[this.dir]];
@@ -98,7 +98,7 @@ export default class Character extends Player {
       }
     });
 
-    this.registerkey('ArrowDown', {
+    this.registerKey('ArrowDown', {
       keyup: ()=>{
         this.character.walk[this.dir].currentFrame = 0;
         this.myFrame.frame = [this.character.idle[this.dir]];
@@ -110,7 +110,7 @@ export default class Character extends Player {
       }
     });
 
-    this.registerkey('ArrowRight', {
+    this.registerKey('ArrowRight', {
       keyup: ()=>{
         this.character.walk[this.dir].currentFrame = 0;
         this.myFrame.frame = [this.character.idle[this.dir]];
@@ -122,7 +122,7 @@ export default class Character extends Player {
       }
     });
 
-    this.registerkey('s', {
+    this.registerKey('s', {
       keydown: ()=>{
         this.slash();
       }

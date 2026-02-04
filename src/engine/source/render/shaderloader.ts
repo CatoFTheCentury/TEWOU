@@ -7,7 +7,7 @@ import {Normal} from './shaders/normal'
 import {WhiteTransparent} from './shaders/whitetransparent'
 
 export class ShaderLoader extends Shader {
-  public shaderts : Array<ShaderTemplate>;
+  private shaderts : Array<ShaderTemplate>;
 
   constructor(gl: WebGL2RenderingContext, shaderts : Array<ShaderTemplate> = [new Normal(), new Reverser(), new WhiteTransparent()]){
     super(gl);

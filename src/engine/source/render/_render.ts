@@ -7,14 +7,14 @@ import ShaderTemplate from "./shaders/template"
 export namespace Render {
 
   export class Info {
-    public static MAXLAYERS : number = 256;
+    // public static MAXLAYERS : nu«mber = 256;
     // public static contextPool : Array<T.glContext> = [];
     // protected static vbuffer: WebGLBuffer;
     // protected static Rframebuffer : WebGLFramebuffer;
     // protected static framebuffer : WebGLFramebuffer;
     // protected static renderbuffer : WebGLRenderbuffer;
     // static gl: WebGL2RenderingContext;
-    static textcanvas: HTMLCanvasElement = //(document.getElementById('bob') as HTMLCanvasElement);
+    protected static textcanvas: HTMLCanvasElement = //(document.getElementById('bob') as HTMLCanvasElement);
     (()=>{
       let cnv = document.createElement('canvas');
       // cnv.style.display = "none";
@@ -24,19 +24,19 @@ export namespace Render {
       // document.body.prepend(cnv);
       return cnv;
     })()
-    static textcontext : CanvasRenderingContext2D = Info.textcanvas.getContext('2d');
+    protected static textcontext : CanvasRenderingContext2D = Info.textcanvas.getContext('2d');
     protected static contextCounter : number = -1;
     
   }
 
   export class GLContext extends Info {
-    public vbuffer: WebGLBuffer;
-    public Rframebuffer : WebGLFramebuffer;
     public framebuffer : WebGLFramebuffer;
-    public renderbuffer : WebGLRenderbuffer;
     public gl: WebGL2RenderingContext;
-    public id: string;
     public textures: {[id:string]:WebGLTexture};
+    // public id: string;
+    private vbuffer: WebGLBuffer;
+    private Rframebuffer : WebGLFramebuffer;
+    private renderbuffer : WebGLRenderbuffer;
 
     constructor(
       canvas:HTMLCanvasElement,width: string, height: string
@@ -89,7 +89,7 @@ export namespace Render {
           this.renderbuffer = gl.createRenderbuffer();
           this.vbuffer      = gl.createBuffer()      ;
           this.gl           = gl;
-          this.id           = String(Info.contextCounter);
+          // this.id           = String(Info.contextCounter);
           this.textures     = {};
           // contextID    : Info.contextCounter
         // }

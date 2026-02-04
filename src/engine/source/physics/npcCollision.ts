@@ -7,17 +7,17 @@ import Collision from "./_collision"
 
 export class NPCCollision extends Collision {
 
-  constructor(self: Bodies.Embodiment, from : C.CollideLayers, cwith : C.CollideLayers, types : C.CollideTypes){
+  constructor(self: Bodies.Embodiment, from : C.CollideLayers, collideswith : C.CollideLayers, types : C.CollideTypes){
 
-    super(from, cwith, types);
+    super(from, collideswith, types);
     this.self = self;
     this.padding = {x:8,y:8};
     self.collisions.push(this)
 
   }
 
-public intersect(bd: Bodies.Embodiment): void {
-    const body: T.Bounds = { x: bd.pos.x + bd.hitbox.x, y: bd.pos.y + bd.hitbox.y, w: bd.hitbox.w, h: bd.hitbox.h }
+public intersect(target: Bodies.Embodiment): void {
+    const body: T.Bounds = { x: target.pos.x + target.hitbox.x, y: target.pos.y + target.hitbox.y, w: target.hitbox.w, h: target.hitbox.h }
     const collidePoints = this.computeCollidePoints(
         body,
         this.padding
@@ -53,7 +53,7 @@ public intersect(bd: Bodies.Embodiment): void {
 
     // Apply effects
     for (let i = 0; i < 4; i++) {
-        bd.activeeffects[i] |= applyEffects[i];
+        target.activeeffects[i] |= applyEffects[i];
     }
 }
 

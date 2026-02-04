@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Grawl Snake - TEWOU</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne+Mono&display=swap" rel="stylesheet">
+  </head>
+  <style>
+    html {
+      background-color: #0a1a0a;
+    }
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    #canvas {
+      border: 3px solid #00ff00;
+      box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+    }
+  </style>
+  <body>
+    <canvas id="canvas"></canvas>
+    <script src="./engine/dist/engine.js"></script>
+    <script src="./games/grawlsnake/main.js"></script>
+  </body>
+</html>

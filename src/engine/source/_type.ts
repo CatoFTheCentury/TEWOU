@@ -51,12 +51,12 @@ export type RenderProperties = {
 
 }
 
-export type shaderPass = (
+export type ShaderPass = (
   rprops: RenderProperties,
 ) => void
 
 export type CellBuild = {
-  tiles       : Array<tilesLayer>,
+  tiles       : Array<TilesLayer>,
   npcs        : string,
   collisions  : Array<Array<Array<boolean>>>,
   tileset     : string,
@@ -67,13 +67,8 @@ export type CellBuild = {
   grid        : Box
 }
 
-export type tilesLayer = {
+export type TilesLayer = {
   tileYX: Array<Array<number>>
-}
-
-export type React = {
-  name: string,
-  parameters : Array<any>
 }
 
 export enum RunSwitch {

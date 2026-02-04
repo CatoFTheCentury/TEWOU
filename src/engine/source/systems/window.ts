@@ -5,7 +5,7 @@ export class Window {
   public source : Render.GLContext;
   public target : HTMLCanvasElement | null;
 
-  public frm : Composite.Frame;
+  public frame : Composite.Frame;
   private static windows : Array<Window> = [];
 
   /**
@@ -23,7 +23,7 @@ export class Window {
   }
   
   public update(){
-    this.frm.compose();
+    this.frame.compose();
     
     
     if(this.target!=null){
@@ -37,9 +37,9 @@ export class Window {
       
       gl.clear(gl.COLOR_BUFFER_BIT);
       
-      gl.bindTexture(gl.TEXTURE_2D, this.frm.texture)
-      let focus = Composite.Frame.createFocus(this.frm.frame)
-      this.frm.shadercontext.passShader(this.frm, {x:focus.x,y:focus.y,w:gl.canvas.width,h:gl.canvas.height});
+      gl.bindTexture(gl.TEXTURE_2D, this.frame.texture)
+      let focus = Composite.Frame.createFocus(this.frame.frame)
+      this.frame.shadercontext.passShader(this.frame, {x:focus.x,y:focus.y,w:gl.canvas.width,h:gl.canvas.height});
       
       gl.drawArrays(gl.TRIANGLES, 0, 6);
     }

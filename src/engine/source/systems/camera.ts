@@ -34,12 +34,12 @@ export default class Camera extends System {
 
   }
 
-  public setbounds(bounds:T.Bounds){
+  public setBounds(bounds:T.Bounds){
     this.bounds = bounds;
   }
 
   // old and may not work
-  public worldtoscreen(actor: Bodies.Embodiment): T.Point{
+  public worldToScreen(actor: Bodies.Embodiment): T.Point{
     return {x:actor.pos.x - this.viewport.x, y:actor.pos.y - this.viewport.y};
   }
 

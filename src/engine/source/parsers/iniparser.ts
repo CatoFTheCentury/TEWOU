@@ -8,7 +8,7 @@ export class IniParser {
 
   public static async loadIni (iniFileName: string) : Promise<T.CellBuild> {
 
-    let tiles       : Array<T.tilesLayer> = [];
+    let tiles       : Array<T.TilesLayer> = [];
     let npcs        : string = "";
     let collisions  : Array<Array<Array<boolean>>> = [];
     let tileset     : string;

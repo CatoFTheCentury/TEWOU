@@ -20,7 +20,7 @@ export class Tiled {
 
         const cellWidth  =  cellbuild.square.w     * layer.tileYX[0].length;
         const cellHeight =  cellbuild.square.h     * layer.tileYX.length   ;
-        const tilesetTW  = (cellbuild.tilesetwidth  / cellbuild.square.w    );
+        const tilesperrow  = (cellbuild.tilesetwidth  / cellbuild.square.w    );
 
         let cellTex : WebGLTexture = Textures.createTexToBlitOn(glContext, cellWidth, cellHeight);
 
@@ -33,8 +33,8 @@ export class Tiled {
               x * cellbuild.square.w,
               y * cellbuild.square.h,
               // 0,
-              layer.tileYX[y][x] % tilesetTW * cellbuild.square.w,
-              Math.floor(layer.tileYX[y][x] / tilesetTW) * cellbuild.square.h, 
+              layer.tileYX[y][x] % tilesperrow * cellbuild.square.w,
+              Math.floor(layer.tileYX[y][x] / tilesperrow) * cellbuild.square.h, 
               cellbuild.square.w, cellbuild.square.h)
           }
         }

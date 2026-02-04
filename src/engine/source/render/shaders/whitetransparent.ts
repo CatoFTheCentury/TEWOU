@@ -9,9 +9,9 @@ import Template from "./template"
 export class WhiteTransparent extends Template {
   public program : WebGLProgram;
   public name : string = "whitetransparent";
-  public matrixLocation : WebGLUniformLocation;
-  public textureMatrixLocation : WebGLUniformLocation;
-  public texture : WebGLUniformLocation;
+  private matrixLocation : WebGLUniformLocation;
+  private textureMatrixLocation : WebGLUniformLocation;
+  // public texture : WebGLUniformLocation;
   
     public second : Array<()=>void> = [
       () => {}]
@@ -34,38 +34,23 @@ export class WhiteTransparent extends Template {
         (ctx:WebGL2RenderingContext, cmp: Composite.Image, plane: T.Box, extraarguments : T.ExtraShaderArguments) => {
           let gl = ctx;
 
-        let funtimes = new Float32Array(
+        let positionmatrix = new Float32Array(
           [cmp.rprops.dstrect.w,0,0,0,
             0,cmp.rprops.dstrect.h,0,0,
             0,0,1,0,
             cmp.rprops.dstrect.x, plane.h-cmp.rprops.dstrect.y-cmp.rprops.dstrect.h,0,1]
         )
 
-        if(cmp.rprops.angle!=0){ 
-          // TODO: rotate around a point
-          let twomat : Array<number> = [];
-          twomat[0] = ( Math.cos(-cmp.rprops.angle) * funtimes[0]);
-          twomat[1] = (-Math.sin(-cmp.rprops.angle) * funtimes[0]);
-          twomat[3] = ( Math.sin(-cmp.rprops.angle) * funtimes[5]);
-          twomat[4] = ( Math.cos(-cmp.rprops.angle) * funtimes[5]);
-          
-          funtimes[0] = twomat[0];
-          funtimes[1] = twomat[1];
-          funtimes[4] = twomat[3];
-          funtimes[5] = twomat[4];
-        }
-
-
         
-        funtimes[0]  *=  2/plane.w;
-        funtimes[1]  *=  2/plane.w;
-        funtimes[4]  *=  -2/plane.h;
-        funtimes[5]  *= -2/plane.h;
-        funtimes[12]  =  (funtimes[12]*(2/plane.w))-1;
-        funtimes[13]  = -(funtimes[13]*(2/plane.h))+1;
+        positionmatrix[0]  *=  2/plane.w;
+        positionmatrix[1]  *=  2/plane.w;
+        positionmatrix[4]  *=  -2/plane.h;
+        positionmatrix[5]  *= -2/plane.h;
+        positionmatrix[12]  =  (positionmatrix[12]*(2/plane.w))-1;
+        positionmatrix[13]  = -(positionmatrix[13]*(2/plane.h))+1;
         
         
-        gl.uniformMatrix4fv(this.matrixLocation, false, funtimes);
+        gl.uniformMatrix4fv(this.matrixLocation, false, positionmatrix);
 
         if(this.textureMatrixLocation != null){
           let texMatrix = Matrix.orthographic(-1, 1, -1,1,  -1,1);

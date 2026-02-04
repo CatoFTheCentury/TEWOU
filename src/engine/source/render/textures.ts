@@ -47,17 +47,17 @@ export default class Textures extends Render.Info {
     return targetTexture;
   }
 
-  public static nextPowerOfTwo(n) {
-      if (n==2||n==4||n==8||n==16||n==32||n==64||n==128||n==256||n==512||n==1024 ||n==2048/*||n==4096 */)return n;
-      if (n>2048) return 2048;
-      if (n <= 0) return 1; // Handle edge case for non-positive numbers
-      n--;
-      n |= n >> 1;
-      n |= n >> 2;
-      n |= n >> 4;
-      n |= n >> 8;
-      n |= n >> 16;
-      return n + 1;
-  }
+  // public static nextPowerOfTwo(n) {
+  //     if (n==2||n==4||n==8||n==16||n==32||n==64||n==128||n==256||n==512||n==1024 ||n==2048/*||n==4096 */)return n;
+  //     if (n>2048) return 2048;
+  //     if (n <= 0) return 1; // Handle edge case for non-positive numbers
+  //     n--;
+  //     n |= n >> 1;
+  //     n |= n >> 2;
+  //     n |= n >> 4;
+  //     n |= n >> 8;
+  //     n |= n >> 16;
+  //     return n + 1;
+  // }
 
 }

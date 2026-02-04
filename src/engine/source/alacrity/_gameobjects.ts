@@ -21,11 +21,11 @@ export namespace GameObjects {
 
   export abstract class Level {
     public bodies : Bodies.Embodiment[] = [];
-    public abstract ininame : string;
     public representation : Composite.Snap[];
     public levelsize  : T.Box;
     public grids : Array<CollisionGrid>;
     public cellbuild : T.CellBuild;
+    protected abstract ininame : string;
     
     public async load(){
       this.cellbuild = await IniParser.loadIni("_assets/"+this.ininame);
@@ -75,11 +75,11 @@ export namespace GameObjects {
 
     private keyboardactions : {[id:string]:T.KeyboardAction} = {};
 
-    public registerkey(key:string, actions:T.KeyboardAction){
+    public registerKey(key:string, actions:T.KeyboardAction){
       this.keyboardactions[key] = actions;
     }
 
-    public updatekeys(){
+    private updateKeys(){
       for(let k in this.keyboardactions){
         let keyactions = this.keyboardactions[k];
         if(Keyboard.keys[k]!=undefined){
@@ -103,7 +103,7 @@ export namespace GameObjects {
     }
     public update(){
       super.update();
-      this.updatekeys();
+      this.updateKeys();
     }
   }
 

@@ -27,7 +27,7 @@ export class Game extends ActionGame {
   // public currentLevel : LevelFactory | undefined = undefined;
 
   
-  public gamename   : string   = "arbre";
+  public gamefolder   : string   = "arbre";
   protected srcview = {w:300,h:300};
 
   constructor(target:HTMLCanvasElement){
@@ -43,7 +43,7 @@ export class Game extends ActionGame {
     this.displayLevel(this.currentLevel);
     this.gameframe.camera.cameraman.actor = this.player;
 
-    this.window.frm.frame.push(this.gameframe);
+    this.window.frame.frame.push(this.gameframe);
 
     
     return;

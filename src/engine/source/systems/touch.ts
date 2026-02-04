@@ -19,11 +19,11 @@ type Touches = {
 export class Touch {
 
   public  static view       : T.Box;
-  public  static ckables    : Array<Clickable> = [];
   public  static clicked    : Array<string> = [];
-  public  static touches    : Array<Touches> = [];
-  private static init       : boolean = false;
   public  static clickables : {[id:string]:number} = {};
+  private static ckables    : Array<Clickable> = [];
+  private static touches    : Array<Touches> = [];
+  private static init       : boolean = false;
   
   constructor(){
     if(!Touch.init){
@@ -115,11 +115,11 @@ export class Touch {
     Touch.clickables[name] = 0;
   }
 
-  public static registeruielement(name:string, element: Bodies.UIElement){
+  public static registerUIElement(name:string, element: Bodies.UIElement){
 
   }
 
-  public static inBounds(x:number, y:number, bounds : T.Bounds){
+  private static inBounds(x:number, y:number, bounds : T.Bounds){
     return  x > bounds.x &&
             x < bounds.x + bounds.w &&
             y > bounds.y &&

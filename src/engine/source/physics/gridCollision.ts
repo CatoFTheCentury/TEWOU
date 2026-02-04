@@ -6,23 +6,23 @@ import Collision from "./_collision"
 
 export class CollisionGrid extends Collision{
   
-  public padding : T.Point = {x:2,y:2};
+  // private padding : T.Point = {x:2,y:2};
 
   public resolution : number = 16;
 
   private walls : Array<Array<number>> = []; // walls[y][x]
 
-  private static sizeBit : number = 5; //32 bit
-  private static bitSize : number = 1 << this.sizeBit;
+  private static bitcount : number = 5; //32 bit
+  private static chunksize : number = 1 << this.bitcount;
   private ylimit : number;
   private xlimit : number;
 
   
-  constructor(boolArr : Array<Array<boolean>>, resolution: number, cwith : C.CollideLayers, type : C.CollideTypes){
-    super(C.CollideLayers.grid, cwith, type);
+  constructor(boolArr : Array<Array<boolean>>, resolution: number, collideswith : C.CollideLayers, type : C.CollideTypes){
+    super(C.CollideLayers.grid, collideswith, type);
     this.ylimit = boolArr.length;
     let gridwidth: number = boolArr[0].length;
-    this.xlimit = Math.ceil(boolArr[0].length / CollisionGrid.bitSize);
+    this.xlimit = Math.ceil(boolArr[0].length / CollisionGrid.chunksize);
     let flatArr = boolArr.flat(Infinity);
     let passes = 0;
 
@@ -32,11 +32,11 @@ export class CollisionGrid extends Collision{
       this.walls.push(Array<number>());
 
       
-      for(let i = 0; i < gridwidth; i+= CollisionGrid.bitSize){
+      for(let i = 0; i < gridwidth; i+= CollisionGrid.chunksize){
         let stuff : number = 0;
 
 
-        for(let bAidx = 0; bAidx < CollisionGrid.bitSize; bAidx++){
+        for(let bAidx = 0; bAidx < CollisionGrid.chunksize; bAidx++){
           if(i+bAidx >= gridwidth) break;
           if (flatArr[idx+i+bAidx] == true){
             stuff |= 1 << bAidx;
@@ -55,7 +55,7 @@ export class CollisionGrid extends Collision{
     let yIndex : number = gYbd;
     if(yIndex >= this.ylimit || yIndex < 0) return false;
 
-    const bitX : number = Math.floor(((bdX) / this.resolution)) % (CollisionGrid.bitSize);//CollisionGrid.sizeBit;
+    const bitX : number = Math.floor(((bdX) / this.resolution)) % (CollisionGrid.chunksize);//CollisionGrid.sizeBit;
     let bShift : number = bitX;
     let checkX : number = 1 << bShift;
 
@@ -65,7 +65,7 @@ export class CollisionGrid extends Collision{
 
   public testWall(point: T.Point){
     return this.againstGrid
-    (Math.floor(point.x/this.resolution) >>> CollisionGrid.sizeBit,
+    (Math.floor(point.x/this.resolution) >>> CollisionGrid.bitcount,
     Math.floor(point.y/this.resolution),
     point.x);
   }
@@ -79,7 +79,7 @@ export class CollisionGrid extends Collision{
     
     const collidePoints : Array<Array<Array<number>>> = this.computeCollidePoints(
       {x: bd.pos.x + bd.hitbox.x, y: bd.pos.y + bd.hitbox.y, w: bd.hitbox.w, h: bd.hitbox.h}, this.padding, 
-      {w:this.resolution, h: this.resolution}, CollisionGrid.sizeBit);
+      {w:this.resolution, h: this.resolution}, CollisionGrid.bitcount);
 
 
     //check top

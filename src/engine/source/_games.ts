@@ -32,9 +32,9 @@ export namespace Games{
     public systempool  : Array<System> = [];
     public abstract start(): void;
     public paused : boolean = false;
-    public rootFolder : string = "_assets/";
+    public rootfolder : string = "_assets/";
     public cellbuild : T.CellBuild;
-    public abstract gamename   : string;
+    protected abstract gamefolder   : string;
     protected abstract levels : GameObjects.Level[];
     protected fileextensions : string[] = ["png","gani","wav","csv"];
     public gameframe: Composite.Frame;
@@ -46,7 +46,7 @@ export namespace Games{
     public shadercontext: ShaderLoader;
     public static gamespool : Array<Generic> = [];
     public remoteobjects : {[owner:string]:GameObjects.SharedObject} = {};
-    private loadedobjquant : number = 0;
+    private loadedobjcount : number = 0;
     public animationsobject : GameObjects.GameAnimations;
 
 
@@ -58,9 +58,9 @@ export namespace Games{
       Generic.gamespool.push(this);
       this.gameid = Generic.gamespool.length-1;
       this.window = new Window(this.glContext)
-      this.window.frm = new Composite.Frame(this.glContext, this.shadercontext, []);
-      this.window.frm.rprops.srcrect = {x:0,y:0, w:this.glContext.gl.canvas.width,h:this.glContext.gl.canvas.height};
-      this.window.frm.rprops.shaderID = "reverser";
+      this.window.frame = new Composite.Frame(this.glContext, this.shadercontext, []);
+      this.window.frame.rprops.srcrect = {x:0,y:0, w:this.glContext.gl.canvas.width,h:this.glContext.gl.canvas.height};
+      this.window.frame.rprops.shaderID = "reverser";
 
     }
 
@@ -69,14 +69,17 @@ export namespace Games{
 
     protected async initialize(keyboard:boolean=true,touch:boolean=true){
       if(keyboard) new Keyboard();
-      if(this.gamename == undefined || this.gamename == "") await Promise.all(await Assets.loadAllExtInFolder(this.rootFolder, this.fileextensions));
-      else await Promise.all(await Assets.loadAllExtInFolder(this.rootFolder+this.gamename+'/', this.fileextensions));
-      await Promise.all(await Assets.loadAllExtInFolder(this.rootFolder+'_debug/', this.fileextensions));
+      // console.log(this.fileextensions);
+      if(this.fileextensions.length > 0){
+        if(this.gamefolder == undefined || this.gamefolder == "") await Promise.all(await Assets.loadAllExtInFolder(this.rootfolder, this.fileextensions));
+        else await Promise.all(await Assets.loadAllExtInFolder(this.rootfolder+this.gamefolder+'/', this.fileextensions));
+        await Promise.all(await Assets.loadAllExtInFolder(this.rootfolder+'_debug/', this.fileextensions));
+      }
       await this.shadercontext.init();
     }
 
     public run(sharedobjects:Array<T.SharedBlueprint>){
-      for(let i = this.loadedobjquant; i < sharedobjects.length; i++){
+      for(let i = this.loadedobjcount; i < sharedobjects.length; i++){
         let newobj : T.SharedBlueprint = sharedobjects[i];
         if(newobj.owner.id == this.gameid) continue;
         let invocation : GameObjects.SharedObject = new GameObjects.SharedObject(newobj);
@@ -84,27 +87,27 @@ export namespace Games{
         invocation.presence.pos = invocation.pos;
         invocation.presence.dir = invocation.dir;
         invocation.presence.anims = this.loadAnims(invocation.anisrc);
-        invocation.presence.switchanimation(invocation.currentani)
+        invocation.presence.switchAnimation(invocation.currentani)
         this.remoteobjects[sharedobjects[i].id] = invocation;
         this.gameframe.frame.push(invocation.presence.myFrame);
       }
-      this.loadedobjquant = sharedobjects.length;
+      this.loadedobjcount = sharedobjects.length;
       for(let s of this.systempool){
         s.refresh();
       }
       for(let o of sharedobjects){
         let tomod = this.remoteobjects[o.id];
         if(tomod){
-          tomod.presence.switchanimation(o.currentani);
+          tomod.presence.switchAnimation(o.currentani);
           tomod.presence.dir = o.dir;
           tomod.presence.myFrame.rprops.pos = o.pos;
         }
       }
-      if(!this.paused) this.refreshalacrities();
-      Bodies.Alacrity.resetallmovements(this.alacritypool);
+      if(!this.paused) this.refreshAlacrities();
+      Bodies.Alacrity.resetAllMovements(this.alacritypool);
     }
 
-    private refreshalacrities(){
+    private refreshAlacrities(){
       this.alacritypool = this.alacritypool.filter((a)=>!a.delete)
       for(let i = 0; i < this.alacritypool.length; i++){
         this.alacritypool[i].update();
@@ -129,7 +132,7 @@ export namespace Games{
       return animations;
     }
 
-    public async newTiledLevel(leveln:number):Promise<GameObjects.Level>{
+    public async newTiledLevel(levelindex:number):Promise<GameObjects.Level>{
       if(this.currentLevel !== undefined){
         for(let r of this.currentLevel.representation){
           r.rprops.delete = true;
@@ -138,7 +141,7 @@ export namespace Games{
           b.myFrame.rprops.delete = true;
         }
       }
-      let level = this.levels[leveln];
+      let level = this.levels[levelindex];
       await level.load();
 
       return level;
@@ -155,8 +158,8 @@ export namespace Games{
         );
         this.gameframe.camera = new Camera(this.srcview, {x:0,y:0,...level.levelsize});
       } else {
-        this.gameframe.camera.setbounds({x:0,y:0,...level.levelsize});
-        this.gameframe.addtocomposition(
+        this.gameframe.camera.setBounds({x:0,y:0,...level.levelsize});
+        this.gameframe.addToComposition(
           [
             ...level.representation,
             ...level.bodies.map((a)=>a.myFrame),
@@ -204,7 +207,7 @@ export namespace Games{
       return new Composite.Text(this.glContext,this.shadercontext,text,properties);
     }
 
-    public registerEntity(entity:Bodies.Embodiment, frame: Composite.Frame = this.window.frm){
+    public registerEntity(entity:Bodies.Embodiment, frame: Composite.Frame = this.window.frame){
       this.alacritypool.push(entity);
       frame.frame.push(entity.myFrame)
     }
@@ -212,7 +215,7 @@ export namespace Games{
   }
 
   abstract class Physical extends Generic {
-    public gamephysics : Physics;
+    protected gamephysics : Physics;
     
     protected async initialize(keyboard:boolean=true,touch:boolean=true){
       await super.initialize(keyboard,touch);
@@ -228,11 +231,11 @@ export namespace Games{
     public addCapture(captureProperties : CaptureProperties){
       this.gamephysics.collisionpool.push(
         new Capture(
-          captureProperties.cwith,
+          captureProperties.collideswith,
           captureProperties.type,
           captureProperties.owner,
           captureProperties.hitbox,
-          captureProperties.call)
+          captureProperties.oncollision)
       )
     }
 

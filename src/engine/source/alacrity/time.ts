@@ -16,7 +16,6 @@ export namespace Time {
   }
   
   export class Delta {
-    public static firstTick: number = 0;
     public static delta = 16;
     public static refresh(){
       Watch.currTick = Date.now();

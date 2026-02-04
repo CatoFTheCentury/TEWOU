@@ -38,47 +38,47 @@ export namespace Composite {
       }
     }
 
-    public getclientbounds():T.Bounds{
+    public getClientBounds():T.Bounds{
       return {
-        x: this.getclientleft(),
-        y: this.getclienttop(),
-        w: this.getclientwidth(),
-        h: this.getclientheight()
+        x: this.getClientLeft(),
+        y: this.getClientTop(),
+        w: this.getClientWidth(),
+        h: this.getClientHeight()
       }
     }
     
     // add "add" methods to Snap, animation, frame (or simply composite?) 
     //// so parent is updated at addition (instead of pushing directly)
 
-    public getclientleft():number{
+    public getClientLeft():number{
       if(!this.parent){
-        return this.rprops.pos.x * this.getwidthratio();
+        return this.rprops.pos.x * this.getWidthRatio();
       }
-      return (this.rprops.pos.x + this.parent.getclientleft()) * this.getwidthratio();
+      return (this.rprops.pos.x + this.parent.getClientLeft()) * this.getWidthRatio();
     }
   
-    public getclienttop():number{
-      return (this.rprops.pos.y + (this.parent==undefined?0:this.parent.getclienttop())) * this.getwidthratio();
+    public getClientTop():number{
+      return (this.rprops.pos.y + (this.parent==undefined?0:this.parent.getClientTop())) * this.getWidthRatio();
     }
 
-    public getclientwidth(dstrect: T.Bounds = this.rprops.dstrect):number{
-      return dstrect.w * this.getwidthratio();
+    public getClientWidth(dstrect: T.Bounds = this.rprops.dstrect):number{
+      return dstrect.w * this.getWidthRatio();
     }
 
-    public getclientheight(dstrect: T.Bounds = this.rprops.dstrect):number{
-      return dstrect.h * this.getheightratio();;
+    public getClientHeight(dstrect: T.Bounds = this.rprops.dstrect):number{
+      return dstrect.h * this.getHeightRatio();;
     }
 
-    private getwidthratio():number{
+    private getWidthRatio():number{
       if(this.parent!=undefined){
-        return (this.rprops.dstrect.w / this.rprops.srcrect.w) * this.parent.getwidthratio();
+        return (this.rprops.dstrect.w / this.rprops.srcrect.w) * this.parent.getWidthRatio();
       }
       return this.rprops.dstrect.w / this.rprops.srcrect.w;
     }
 
-    private getheightratio():number{
+    private getHeightRatio():number{
       if(this.parent!=undefined){
-        return (this.rprops.dstrect.h / this.rprops.srcrect.h) * this.parent.getheightratio();
+        return (this.rprops.dstrect.h / this.rprops.srcrect.h) * this.parent.getHeightRatio();
       }
       return this.rprops.dstrect.h / this.rprops.srcrect.h;
     }
@@ -261,7 +261,7 @@ export namespace Composite {
   }
 
   class Composite extends Renderable {
-    public remove           : boolean;
+    // public remove           : boolean;
     public dynamic          : boolean = false;
     public bg               : WebGLTexture;
     public mask             : WebGLTexture;
@@ -367,18 +367,18 @@ export namespace Composite {
     // add "add" methods to Snap, animation, frame (or simply composite?) 
     //// so parent is updated at addition (instead of pushing directly)
     // need to refresh camera for viewport to have the camera modifications
-    public getclientleft():number{
+    public getClientLeft():number{
       if(!this.parent){
         return this.rprops.pos.x - this.viewport.x;
       }
-      return this.rprops.pos.x + this.parent.getclientleft() - this.viewport.x;
+      return this.rprops.pos.x + this.parent.getClientLeft() - this.viewport.x;
     }
 
-    public getclienttop():number{
-      return this.rprops.pos.y + (this.parent==undefined?0:this.parent.getclienttop()) - this.viewport.y;
+    public getClientTop():number{
+      return this.rprops.pos.y + (this.parent==undefined?0:this.parent.getClientTop()) - this.viewport.y;
     }
 
-    public addtocomposition(arr:Composite[]){}
+    public addToComposition(arr:Composite[]){}
 
     private static rotateAround(p: T.Point, center: T.Point, angleRad: number): T.Point {
       const cos = Math.cos(angleRad);
@@ -456,7 +456,7 @@ export namespace Composite {
       return this.rprops.delete;
     }
 
-    public addtocomposition(arr: Composite[]): void {
+    public addToComposition(arr: Composite[]): void {
       for(let a of arr){
         a.parent = this;
       }
@@ -486,7 +486,7 @@ export namespace Composite {
         }
         return this.rprops.delete;
       }
-      this.handleframechange();
+      this.handleFrameChange();
       if(this.frames[this.currentFrame].dynamic || !this.frames[this.currentFrame].ready){
         this.frames[this.currentFrame].compose();
       }
@@ -497,7 +497,7 @@ export namespace Composite {
       return this.rprops.delete;
     }
 
-    private handleframechange(){
+    private handleFrameChange(){
       let trig : Time.Trigger = this.timer.test();
       if(trig.state == 'triggered'){
         this.currentFrame += 1;
@@ -523,22 +523,22 @@ export namespace Composite {
     // currently, i need to link every of its frames to the animation's parent position
     // it works but is incorrect and may lead to future malfunctioning
     //
-    public getclientleft():number{
-      return this.parent.getclientleft();    }
+    public getClientLeft():number{
+      return this.parent.getClientLeft();    }
   
-    public getclienttop():number{
-      return this.parent.getclienttop();    }
+    public getClientTop():number{
+      return this.parent.getClientTop();    }
 
     // returns and diminishes once too many?
-    public getclientwidth():number{
-      return super.getclientwidth(this.frames[this.currentFrame].rprops.dstrect)
+    public getClientWidth():number{
+      return super.getClientWidth(this.frames[this.currentFrame].rprops.dstrect)
     }
 
-    public getclientheight():number{
-      return super.getclientheight(this.frames[this.currentFrame].rprops.dstrect)
+    public getClientHeight():number{
+      return super.getClientHeight(this.frames[this.currentFrame].rprops.dstrect)
     }
 
-    public addtocomposition(arr: Composite[]): void {
+    public addToComposition(arr: Composite[]): void {
       for(let a of arr){
         a.parent = this;
       }
@@ -621,7 +621,7 @@ export namespace Composite {
         {crop:{do:true,...crop},...dest,img:undefined,ready:false}
     }
 
-    public addtocomposition(arr: Composite[]): void {
+    public addToComposition(arr: Composite[]): void {
       for(let a of arr){
         a.parent = this;
       }

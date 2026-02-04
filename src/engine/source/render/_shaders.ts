@@ -7,8 +7,8 @@ import Matrix from "./shaders/matrices"
 
 
 export default abstract class Shader {
-  public    shaders        : {[id:string]:ShaderTemplate} = {};
-  public    fallbackShader : string = 'normal';
+  protected fallbackShader : string = 'normal';
+  protected shaders        : {[id:string]:ShaderTemplate} = {};
   protected previousShader : string = "";
   protected currShader     : ShaderTemplate;
 
@@ -27,7 +27,7 @@ export default abstract class Shader {
     return shader;
   }
 
-  public compileShader(type: number, source: string): WebGLShader | null {
+  protected compileShader(type: number, source: string): WebGLShader | null {
     let shader = this.gl.createShader(type) as WebGLShader
     this.gl.shaderSource(shader, source)
     this.gl.compileShader(shader)
@@ -39,7 +39,7 @@ export default abstract class Shader {
     return null;
   }
 
-  public createProgram(vertexShader: WebGLShader, fragmentShader: WebGLShader): WebGLProgram | null {
+  protected createProgram(vertexShader: WebGLShader, fragmentShader: WebGLShader): WebGLProgram | null {
     let program = this.gl.createProgram() as WebGLProgram
     this.gl.attachShader(program, vertexShader)
     this.gl.attachShader(program, fragmentShader)

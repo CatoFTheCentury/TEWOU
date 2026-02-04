@@ -12,7 +12,7 @@ export class Incarnated extends Bodies.Mobility{
   public anims     : {[id:string]:Composite.Animation[]} = {};
   public dir  : number = 2;
 
-  public switchanimation(state: string, direction : number = -1){
+  public switchAnimation(state: string, direction : number = -1){
     let dir = direction == -1 ? this.dir : direction ;
     if(this.state == state ) {
       this.myFrame.frame = [this.anims[this.state][dir]];
@@ -24,7 +24,7 @@ export class Incarnated extends Bodies.Mobility{
   }
 }
 
-export type action = {
+export type Action = {
   disabled?: ()=>void,
   enabled ?: ()=>void,
   running ?: ()=>void,
@@ -34,7 +34,7 @@ export type action = {
 }
 
 export abstract class Fauna extends Incarnated {
-  protected abstract actions : {[key:string]:action};
+  protected abstract actions : {[key:string]:Action};
   protected abstract action : string;
   
   public override update(){
@@ -60,7 +60,7 @@ export abstract class Fauna extends Incarnated {
     }
   }
   
-  protected switchaction(action: string) {
+  protected switchAction(action: string) {
     this.actions[action].timer?.restart();
     this.actions[action].state = T.RunSwitch.enabled;
     if(action == this.action) return;

@@ -7,9 +7,9 @@ import {Composite} from '../composite';
 export class Normal extends Template {
   public program : WebGLProgram;
   public name : string = "normal";
-  public matrixLocation : WebGLUniformLocation;
-  public textureMatrixLocation : WebGLUniformLocation;
-  public texture : WebGLUniformLocation;
+  private matrixLocation : WebGLUniformLocation;
+  private textureMatrixLocation : WebGLUniformLocation;
+  // public texture : WebGLUniformLocation;
   
     public second : Array<()=>void> = [
       () => {}]
