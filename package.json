@@ -1,22 +1,23 @@
 {
   "name": "tewou",
-  "version" : "0.96.0",
-  "description" : "Typescript game engine. Graphics, shaders, movement, collision in one package.",
-  "license" : "GPL-3.0-only",
-  "author"  : "CatoFTheCentury",
+  "version": "0.96.0",
+  "description": "Typescript game engine. Graphics, shaders, movement, collision in one package.",
+  "license": "GPL-3.0-only",
+  "author": "CatoFTheCentury",
   "repository": {
-    "type" : "git",
+    "type": "git",
     "url": "https://github.com/CatoFTheCentury/TEWOU.git"
   },
-  "keywords" : ["game-engine", "webgl", "typescript", "2d-engine"],
-
+  "keywords": [
+    "game-engine",
+    "webgl",
+    "typescript",
+    "2d-engine"
+  ],
   "scripts": {
     "build:engine": "cd src/engine && webpack"
   },
-
-
   "devDependencies": {
-    "@types/node": "^25.0.3",
     "dts-bundle-generator": "^9.5.1",
     "ts-loader": "^9.2.6",
     "typescript": "^4.5.5",
