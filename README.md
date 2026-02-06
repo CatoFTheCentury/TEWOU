@@ -44,6 +44,7 @@ Some performance tests have been written with the help of Claude.ai and half-ass
     - Timeouts are virtually free but more than 100 on an entity could start slowing it down a bit.
     - Destroying entities is basically free
     - Creating entities is close to free at 1000 entities in 0.8ms
+    - 5000 plain entities can coexist with no framedrop.
 
 **What is SLOW**
   - Render + Entities
