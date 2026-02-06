@@ -34,17 +34,17 @@ Some performance tests have been written with the help of Claude.ai and half-ass
 
 **What is FAST**
   - Rendering is cool, fast enough for a project.
-    - Renders 2000 rectangles in 5ms, 100 rectangles in .335ms
-    - Renders 100 Text objects in .9ms
+    - Creates 2000 rectangles in 5ms, 100 rectangles in .335ms
+    - Creates 100 Text objects in .9ms
     - Composing a composite of 500 already composed parts in 1.3ms (a regular amount of parts should be 10, which takes 0.03ms).
-    - Renders 100 objects with shader switching in between each in .43ms (fast, but shader switching should be scarce anyway)
+    - Switches shader 100 times in .43ms (fast, but shader switching should be scarce anyway)
   
   - Entities
     - Updating an Entity that has no override on update or finalize is virtually free since these are mostly empty out of the box.
     - Timeouts are virtually free but more than 100 on an entity could start slowing it down a bit.
     - Destroying entities is basically free
-    - Creating entities is close to free at 1000 entities in 0.8ms
-    - 5000 plain entities can coexist with no framedrop.
+    - Creating entities is close to free at 1000 entities in 0.8ms (and faster than creating a rectangle!)
+    - 5000 plain entities can coexist with no framedrop. (is this, in fact, slow?)
 
 **What is SLOW**
   - Render + Entities
