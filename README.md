@@ -32,7 +32,7 @@ Console:
 ## Performance Review
 Some performance tests have been written with the help of Claude.ai and half-assedly reviewed. The benchmark reports here takes into account that most ill-formed or incomplete objects are skipped and should reflect the engine's performance.
 **What is FAST**
-  - Rendering is cool, fast enough for a project. Animations need to be tested (how many rotating sprites can i have before i have a framedrop?).
+  - Rendering is cool, fast enough for a project.
     - Renders 2000 rectangles in 5ms, 100 rectangles in .335ms
     - Renders 100 Text objects in .9ms
     - Composing a composite of 500 already composed parts in 1.3ms (a regular amount of parts should be 10, which takes 0.03ms).
@@ -46,7 +46,7 @@ Some performance tests have been written with the help of Claude.ai and half-ass
 
 **What is SLOW**
   - Render + Entities
-    - 200 rotating entities at 2.7ms per refresh is quite slow. 10 takes .26ms per refresh. Way too slow. Must find ways to cut some processing here and there.
+    - 200 rotating entities at 2.7ms per refresh is quite slow. 10 takes .26ms per refresh. Way too slow. Must find ways to cut some processing here and there. Up to 50 times slower than plain rectangle drawing.
   - Physics are slow, spatial partitioning is required.
     - Once physics have 100 objects, it will take an whopping average of 2ms to loop through them all. This is due to every object verifying collision on every object. Some filters are present but quadtree collision would be necessary.
     - An empty physics system apparently takes 2ms to refresh???
