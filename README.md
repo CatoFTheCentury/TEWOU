@@ -31,6 +31,7 @@ Console:
 
 ## Performance Review
 Some performance tests have been written with the help of Claude.ai and half-assedly reviewed. The benchmark reports here takes into account that most ill-formed or incomplete objects are skipped and should reflect the engine's performance.
+
 **What is FAST**
   - Rendering is cool, fast enough for a project.
     - Renders 2000 rectangles in 5ms, 100 rectangles in .335ms
