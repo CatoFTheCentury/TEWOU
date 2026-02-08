@@ -33,11 +33,7 @@ Console:
 Some performance tests have been written with the help of Claude.ai and reviewed in surface. The benchmark reports here takes into account that most ill-formed or incomplete objects are skipped and should reflect the engine's performance. Benchmark tests reporting extremely fast speeds were turned down as skipping the whole thing.
 
 **What is FAST**
-  - Rendering itself is blazing fast cool, benchmarks have shown very high efficiency creating rectangles, doing transformations and composing image.
-  
-  - Entities
-    - Updating an Entity that has no override on update or finalize is virtually free since these are mostly empty out of the box.
-    - Timeouts are virtually free but more than 100 on an entity could start slowing it down a bit.
+  - Rendering itself is "blazing fast", benchmarks have shown very high efficiency creating rectangles, doing transformations and composing image.
 
 **What is SLOW**
   - Render + Entities
