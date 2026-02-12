@@ -10,14 +10,17 @@ import { ShaderLoader } from "./shaderloader"
 export namespace Composite {
   export abstract class Renderable extends Render.Info {
     public rprops   : T.RenderProperties;
-    public texture  : WebGLTexture;
+    public texture  : WebGLTexture = undefined;
     protected file  : string;
     public ready    : boolean;
     public abstract compose() : boolean;
-    public parent : Renderable = undefined;
+    public parent : Composite = undefined;
     public glContext : Render.GLContext;
     public shadercontext : ShaderLoader;
     public offset           : T.Point = {x:0,y:0};
+    public dirty : boolean = true;
+    public usecount : number = 0;
+    public localcorners : Array<T.Point> = [{x:0,y:0},{x:0,y:0},{x:0,y:0},{x:0,y:0}];
 
     constructor(glContext: Render.GLContext, shadercontext: ShaderLoader){
       super();
@@ -25,10 +28,10 @@ export namespace Composite {
       this.shadercontext = shadercontext;
       this.rprops = {
         srcrect    : undefined,
-        dstrect    : {x:0,y:0,w:0,h:0},
+        dstrect    : {x:0,y:0,w:0,h:0}, // overwritten for snap and frame; use for text,image,rectangle inside those
         rotcenter  : {x:0,y:0},
         scalecenter: {x:0,y:0},
-        pos        : {x:0,y:0},
+        pos        : {x:0,y:0}, // affects only frame and snap
         flip       : {flipx:false,flipy:false},
         angle      : 0,
         scale      : {x:1,y:1},
@@ -46,7 +49,74 @@ export namespace Composite {
         h: this.getClientHeight()
       }
     }
+
+    public translate(offset:T.Point){
+      this.rprops.dstrect.x += offset.x;
+      this.rprops.dstrect.y += offset.y;
+      this.setDirty();
+    }
+    public translateX(offset:number){
+      this.rprops.dstrect.x += offset;
+      this.setDirty();
+    }
+    public translateY(offset:number){
+      this.rprops.dstrect.y += offset;
+      this.setDirty();
+    }
+
+    public setPosition(position:T.Point){
+      this.rprops.dstrect.x = position.x;
+      this.rprops.dstrect.y = position.y;
+      this.setDirty();
+    }
+    public setPositionX(position:number){
+      this.rprops.dstrect.x = position;
+      this.setDirty();
+    }
+    public setPositionY(position:number){
+      this.rprops.dstrect.y = position;
+      this.setDirty();
+    }
+
+    public setFlipX(flip:boolean){
+      this.rprops.flip.flipx = flip;
+      this.setDirty();
+    }
+
+    public setFlipY(flip:boolean){
+      this.rprops.flip.flipy = flip;
+      this.setDirty();
+    }
+
+    public setScaleX(scale:number){
+      this.rprops.scale.x = scale;
+      this.setDirty();
+    }
+
+    public setScaleY(scale:number){
+      this.rprops.scale.y = scale;
+      this.setDirty();
+    }
+
+    public setAngle(angle:number){
+      this.rprops.angle = angle;
+      this.setDirty();
+    }
+
+    public rotateBy(angle:number){
+      this.rprops.angle += angle;
+      this.setDirty();
+    }
+
+    public setLayer(layer:number){
+      this.rprops.layer = layer;
+      if(this.parent) this.parent.setDirty();
+    }
     
+    public setDirty(){
+      this.dirty = true;
+      if(this.parent) this.parent.setDirty();
+    }
     // add "add" methods to Snap, animation, frame (or simply composite?) 
     //// so parent is updated at addition (instead of pushing directly)
 
@@ -96,7 +166,8 @@ export namespace Composite {
   export class Text extends Renderable {
     private text : string;
     private properties : T.TextProperties = {};
-    public size : T.Box = {w:0,h:0};
+    private size : T.Box = {w:0,h:0};
+    private supersample : number = 2;
 
     constructor(glContext : Render.GLContext, shadercontext: ShaderLoader, text:string, textproperties: T.TextProperties = {}){
       super(glContext,shadercontext)
@@ -106,59 +177,72 @@ export namespace Composite {
       Text.textcontext.textBaseline = "top"
       Text.textcontext.font = this.properties.size + "px " + this.properties.font;
 
-      this.size.w = Text.textcontext.measureText(this.text).width;
+      this.rprops.dstrect.w = Text.textcontext.measureText(this.text).width;
       // this.size.h = 
     }
 
     public compose(){
-      if(!this.ready){
-        // let textcanvas : HTMLCanvasElement = (document.getElementById('bob') as HTMLCanvasElement)
+      if(this.rprops.delete) {
+        if(this.texture !== undefined) this.glContext.gl.deleteTexture(this.texture);
+        return true;
+      }
+
+      if(this.dirty){
+        // console.log("HALP")
+        if(this.texture !== undefined) this.glContext.gl.deleteTexture(this.texture);
+
+        // Measure text first
         let textcontext = Text.textcontext;
-        textcontext.clearRect(0, 0, textcontext.canvas.width, textcontext.canvas.height)
-        
-        textcontext.fillStyle = "rgba("+ 
-        this.properties.color.r +","+
-        this.properties.color.g +","+
-        this.properties.color.b +","+
-        this.properties.color.a +")"
-
-        textcontext.textAlign = "left";
-        textcontext.textBaseline = "top"
         textcontext.font = this.properties.size + "px " + this.properties.font;
-
-        this.rprops.dstrect.w = textcontext.measureText(this.text).width;
+        this.rprops.dstrect.w = Math.ceil(textcontext.measureText(this.text).width);
         this.rprops.dstrect.h = this.properties.size;
-        this.size.w = this.rprops.dstrect.w;
-        this.size.h = this.rprops.dstrect.h;
+        this.size.w = this.rprops.dstrect.w * this.supersample;
+        this.size.h = this.rprops.dstrect.h * this.supersample;
 
-        textcontext.fillText(this.text,0,0);
+        // Clear region on shared canvas
+        textcontext.clearRect(0, 0, this.size.w, this.size.h);
 
+        // Set font properties
+        textcontext.textAlign = "left";
+        textcontext.textBaseline = "top";
+        textcontext.font = this.properties.size * this.supersample + "px " + this.properties.font;
+        textcontext.fillStyle = "rgba("+
+          this.properties.color.r +","+
+          this.properties.color.g +","+
+          this.properties.color.b +","+
+          this.properties.color.a +")";
+
+        // Render text
+        textcontext.fillText(this.text, 0, 0);
+
+        // Upload to WebGL
         let gl = this.glContext.gl;
-
-        let spr : WebGLTexture = Textures.createTexToBlitOn(this.glContext, Text.textcanvas.width, Text.textcanvas.height);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, this.glContext.framebuffer);
+        let spr : WebGLTexture = Textures.createTexToBlitOn(this.glContext, this.size.w, this.size.h);
         gl.bindTexture(gl.TEXTURE_2D, spr);
-        
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.size.w, this.size.h, 0, gl.RGBA, gl.UNSIGNED_BYTE, Text.textcanvas);      
+        // Use LINEAR filtering for smooth text antialiasing
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.size.w, this.size.h, 0, gl.RGBA, gl.UNSIGNED_BYTE, Text.textcanvas);
+
         this.texture = spr;
-        this.ready = true;
+        this.dirty = false;
 
       }
-      if(this.rprops.delete) this.glContext.gl.deleteTexture(this.texture);
-      return this.rprops.delete;
+      return false;
     }
 
     public setText(text:string){
-      if(this.ready) this.glContext.gl.deleteTexture(this.texture);
+      // if(this.ready) this.glContext.gl.deleteTexture(this.texture);
       this.text = text;
-      this.size.w = Text.textcontext.measureText(this.text).width;
-      this.ready = false;
+      this.rprops.dstrect.w = Text.textcontext.measureText(this.text).width;
+      this.setDirty();
+    }
+
+    public getWidth(){
+      return this.rprops.dstrect.w;
     }
 
     public setProperties(textproperties: T.TextProperties){
-      if(this.ready) this.glContext.gl.deleteTexture(this.texture);
-      this.ready = false;
-      
       if(textproperties.size != undefined) {
         this.properties.size = textproperties.size;
       } else if(this.properties.size == undefined) {
@@ -178,19 +262,18 @@ export namespace Composite {
         this.properties.font = "monospace"
       }
 
+      this.setDirty()
     }
     
     public setColor(color: T.Color){
-      if(this.ready) this.glContext.gl.deleteTexture(this.texture);
       this.properties.color = color;
-      this.ready = false;
+      this.setDirty();
     }
     
     public setSize(size: number){
-      if(this.ready) this.glContext.gl.deleteTexture(this.texture);
       this.properties.size = size;
       this.size.h = this.properties.size;
-      this.ready = false;
+      this.setDirty();
     }
   }
 
@@ -203,22 +286,29 @@ export namespace Composite {
     }
 
     public compose(){
-      if(!this.ready){
+      if(this.rprops.delete) {
+        if(this.texture !== undefined) this.glContext.gl.deleteTexture(this.texture);
+        return true;
+      }
+
+      if(this.dirty){
+        if(this.texture !== undefined) this.glContext.gl.deleteTexture(this.texture);
         let gl = this.glContext.gl;
 
         let spr : WebGLTexture = Textures.createTexToBlitOn(this.glContext, 1, 1);
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.glContext.framebuffer);
         gl.bindTexture(gl.TEXTURE_2D, spr);
-        
+
+        gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
           new Uint8Array([this.rprops.colorize.r,this.rprops.colorize.g,this.rprops.colorize.b,this.rprops.colorize.a]));
-        
+        gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+
         this.texture = spr;
-        this.ready = true;
+        this.dirty = false;
       }
 
-      if(this.rprops.delete) this.glContext.gl.deleteTexture(this.texture);
-      return this.rprops.delete;
+      return false;
     }
   }
 
@@ -232,13 +322,13 @@ export namespace Composite {
     }
     
     public compose(){
-      // console.log(this.file);
-      // if(this.ready){
-      //   Image.gl.deleteTexture(this.texture);
-      //   this.ready = false;
-      // }
-
-      if(!this.ready/*  && Assets.getTexture(this.file) */){
+      if(this.rprops.delete && this.texture){
+        if(this.texture !== undefined) this.glContext.gl.deleteTexture(this.texture);
+        return true;
+      }
+      
+      if(this.dirty){
+        if(this.texture !== undefined) this.glContext.gl.deleteTexture(this.texture);
         let gl = this.glContext.gl;
         let spr : WebGLTexture = Textures.createTexToBlitOn(this.glContext, this.rprops.srcrect.w, this.rprops.srcrect.h);
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.glContext.framebuffer);
@@ -250,11 +340,10 @@ export namespace Composite {
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     
         this.texture = spr;
-        this.ready = true;
+        this.dirty = false;
       }
 
-      if(this.rprops.delete && this.texture) this.glContext.gl.deleteTexture(this.texture);
-      return this.rprops.delete;
+      return false;
     }
 
 
@@ -262,10 +351,11 @@ export namespace Composite {
 
   class Composite extends Renderable {
     // public remove           : boolean;
-    public dynamic          : boolean = false;
+    // public dynamic          : boolean = false;
     public bg               : WebGLTexture;
     public mask             : WebGLTexture;
     protected viewport      : T.Bounds;
+    protected focus         : T.Bounds;
 
 
     private applyBg(){}
@@ -277,6 +367,34 @@ export namespace Composite {
       this.viewport = {x:0,y:0,w:glContext.gl.canvas.width,h:glContext.gl.canvas.height};
     }
 
+    public translate(offset:T.Point){
+      this.rprops.pos.x += offset.x;
+      this.rprops.pos.y += offset.y;
+      this.setDirty();
+    }
+    public translateX(offset:number){
+      this.rprops.pos.x += offset;
+      this.setDirty();
+    }
+    public translateY(offset:number){
+      this.rprops.pos.y += offset;
+      this.setDirty();
+    }
+
+    public setPosition(position:T.Point){
+      this.rprops.pos.x = position.x;
+      this.rprops.pos.y = position.y;
+      this.setDirty();
+    }
+    public setPositionX(position:number){
+      this.rprops.pos.x = position;
+      this.setDirty();
+    }
+    public setPositionY(position:number){
+      this.rprops.pos.y = position;
+      this.setDirty();
+    }
+
     public static createFocus(rd: Array<Renderable>): T.Bounds{
       let minX = Infinity;
       let minY = Infinity;
@@ -286,23 +404,32 @@ export namespace Composite {
       for (const r of rd) {
         const originX = r.rprops.dstrect.x;
         const originY = r.rprops.dstrect.y;
+        let localcorners : Array<T.Point>;
+        // if(r.dirty){
+          localcorners = [
+            { x: 0, y: 0 },
+            { x: r.rprops.dstrect.w, y: 0 },
+            { x: 0, y: r.rprops.dstrect.h },
+            { x: r.rprops.dstrect.w, y: r.rprops.dstrect.h },
+          ];
+        // } else {
+        //   localcorners = r.localcorners;
+        // }
 
-        const localCorners = [
-          { x: 0, y: 0 },
-          { x: r.rprops.dstrect.w, y: 0 },
-          { x: 0, y: r.rprops.dstrect.h },
-          { x: r.rprops.dstrect.w, y: r.rprops.dstrect.h },
-        ];
-
-        for (let i = 0; i < localCorners.length; i++) {
-          const localCorner = localCorners[i];
-          const transformed = Composite.scaleThenRotatePreserveOriginalRotation(
-            localCorner,
-            r.rprops.scalecenter || { x: 0, y: 0 },
-            r.rprops.scale || { x: 1, y: 1 },
-            r.rprops.rotcenter || { x: 0, y: 0 },
-            -r.rprops.angle || 0
-          );
+        for (let i = 0; i < localcorners.length; i++) {
+          let transformed;
+          // if(r.dirty){
+            transformed = Composite.scaleThenRotatePreserveOriginalRotation(
+              localcorners[i],
+              r.rprops.scalecenter || { x: 0, y: 0 },
+              r.rprops.scale || { x: 1, y: 1 },
+              r.rprops.rotcenter || { x: 0, y: 0 },
+              -r.rprops.angle || 0
+            );
+            r.localcorners[i] = transformed;
+          // } else {
+          //   transformed = localcorners[i];
+          // }
 
           const absoluteX = originX + transformed.x;
           const absoluteY = originY + transformed.y;
@@ -322,11 +449,16 @@ export namespace Composite {
       };
     }
 
+    public setDirty(){
+      this.dirty = true;
+      if(this.parent) this.parent.setDirty();
+    }
+
     protected generateComposite(rd : Array<Renderable>, focusRect: T.Bounds){
       let toDraw : Array<Renderable> = rd.filter((r)=>{return !r?.rprops.hidden});
         if(toDraw.length > 0){
           toDraw.sort((a,b)=>a.rprops.layer - b.rprops.layer);
-          for(let i = 0; i < toDraw.length; i++) toDraw[i].compose();
+          // for(let i = 0; i < toDraw.length; i++) toDraw[i].compose();
 
         this.offset.x = focusRect.x;
         this.offset.y = focusRect.y;
@@ -343,9 +475,13 @@ export namespace Composite {
 
         this.texture = Textures.createTexToBlitOn(this.glContext, focusRect.w, focusRect.h);
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.texture, 0);
-      // gl.clear(gl.COLOR_BUFFER_BIT);
 
         gl.viewport(0,0, focusRect.w, focusRect.h);
+
+              gl.clearColor(1,0,0,.1);
+
+      gl.clear(gl.COLOR_BUFFER_BIT);
+
 
         for(let i = 0; i < toDraw.length; i++){
           this.glContext.gl.bindTexture(gl.TEXTURE_2D, toDraw[i].texture);
@@ -408,16 +544,26 @@ export namespace Composite {
       angleRad: number
     ): T.Point {
       // 1) scale the point
-      const scaledPoint = Composite.scaleAround(p, scaleCenter, scale);
+      let scaledpoint = p;
+      let compensatedRotationCenter = rotationCenter;
 
-      // 2) compensate the rotation center
-      const compensatedRotationCenter: T.Point = {
-        x: scaleCenter.x + (rotationCenter.x - scaleCenter.x) * scale.x,
-        y: scaleCenter.y + (rotationCenter.y - scaleCenter.y) * scale.y,
-      };
+      if(scale.x != 1 || scale.y != 1){
+
+        scaledpoint = Composite.scaleAround(p, scaleCenter, scale);
+        
+        // 2) compensate the rotation center
+        compensatedRotationCenter = {
+          x: scaleCenter.x + (rotationCenter.x - scaleCenter.x) * scale.x,
+          y: scaleCenter.y + (rotationCenter.y - scaleCenter.y) * scale.y,
+        };
+      }
 
       // 3) rotate around the compensated center
-      return Composite.rotateAround(scaledPoint, compensatedRotationCenter, angleRad);
+      if(angleRad!=0){
+        return Composite.rotateAround(scaledpoint, compensatedRotationCenter, angleRad);
+      }
+
+      return scaledpoint;
     }
 
   }
@@ -427,37 +573,42 @@ export namespace Composite {
 
     constructor(glContext: Render.GLContext, shadercontext: ShaderLoader, parts : Array<Renderable>){
       super(glContext, shadercontext);
-      for(let p of parts) p.parent = this;
+      for(let p of parts) {
+        p.parent = this;
+        p.usecount += 1;
+      }
       this.parts = parts;
     }
 
     public compose():boolean{
       if(this.rprops.delete) {
-        if(this.ready) this.glContext.gl.deleteTexture(this.texture);
+        if(this.texture !== undefined) this.glContext.gl.deleteTexture(this.texture);
         for(let f of this.parts){
-          f.rprops.delete = true;
-          f.compose();
+          f.usecount -= 1;
+          if(f.usecount <= 0){
+            f.rprops.delete = true;
+            f.compose();
+          }
         }
-        return this.rprops.delete;
+        return true;
       }
 
-      if(this.dynamic){
-        if(this.ready){
-          this.glContext.gl.deleteTexture(this.texture);
-        }
-        this.ready = false;
-      }
-      if(!this.ready){
+      if(this.dirty){
+        if(this.texture !== undefined) this.glContext.gl.deleteTexture(this.texture);
+
         this.parts = this.parts.filter((f)=>f!=undefined && !f.compose());
+        this.focus = Snap.createFocus(this.parts);
 
-        let focusRect: T.Bounds = Snap.createFocus(this.parts);
-        this.generateComposite(this.parts, focusRect);
+        this.generateComposite(this.parts, this.focus);
+
+        this.dirty = false;
       }
-      return this.rprops.delete;
+      return false;
     }
 
-    public addToComposition(arr: Composite[]): void {
+    public addToComposition(arr: Renderable[]): void {
       for(let a of arr){
+        a.usecount += 1;
         a.parent = this;
       }
       this.parts.push(...arr)
@@ -472,29 +623,36 @@ export namespace Composite {
 
     constructor(glContext: Render.GLContext, shadercontext:ShaderLoader, frames : Array<Snap>, timings: number[] = [200]){
       super(glContext, shadercontext);
-      this.dynamic = true;
+      // this.dynamic = true;
       this.timer = new Time.Timeout(timings, "framechange");
       this.frames = frames;
-      for(let f of frames) f.parent = this;
+      for(let f of frames) {
+        f.usecount += 1;
+        f.parent = this;
+      }
     }
 
     public compose():boolean{
       if(this.rprops.delete) {
+        if(this.texture !== undefined) this.glContext.gl.deleteTexture(this.texture);
         for(let f of this.frames){
-          f.rprops.delete = true;
-          f.compose();
+          f.usecount -= 1;
+          if(f.usecount <= 0){
+            f.rprops.delete = true;
+            f.compose();
+          }
         }
-        return this.rprops.delete;
+        return true;
       }
       this.handleFrameChange();
-      if(this.frames[this.currentFrame].dynamic || !this.frames[this.currentFrame].ready){
+      if(this.frames[this.currentFrame].dirty){
         this.frames[this.currentFrame].compose();
       }
       this.texture = this.frames[this.currentFrame].texture;
       this.rprops = this.frames[this.currentFrame].rprops;
 
-      this.ready = this.frames[this.currentFrame].ready;
-      return this.rprops.delete;
+      this.dirty = this.frames[this.currentFrame].dirty;
+      return false;
     }
 
     private handleFrameChange(){
@@ -556,10 +714,13 @@ export namespace Composite {
     constructor(glContext: Render.GLContext, shadercontext: ShaderLoader, frame: Array<Renderable>, size: T.Box = {w:0,h:0}){
       super(glContext, shadercontext);
       this.frame = frame;
-      this.dynamic = true;
+      // this.dynamic = true;
       this.rprops.dstrect.w = size.w;
       this.rprops.dstrect.h = size.h;
-      for(let f of frame) f.parent = this;
+      for(let f of frame) {
+        f.usecount += 1;
+        f.parent = this;
+      }
     }
 
     public compose():boolean {
@@ -569,17 +730,25 @@ export namespace Composite {
         return true;
       }
 
-      if(this.dynamic || this.rprops.delete){
-        if((this.rprops.delete && this.ready) || this.ready){
-          this.glContext.gl.deleteTexture(this.texture);
+      if(this.rprops.delete) {
+        if(this.texture !== undefined) this.glContext.gl.deleteTexture(this.texture);
+        for(let f of this.frame){
+          f.usecount -= 1;
+          if(f.usecount <= 0){
+            f.rprops.delete = true;
+            f.compose();
+          }
         }
-        this.ready = false;
+        return true;
       }
-      if(!this.ready){
-        this.frame = this.frame.filter((f)=>f!=undefined && !f.compose());
 
-        let parts : Array<Renderable> = this.frame.filter((f)=>{return f.ready});
-        let focusRect: T.Bounds = Snap.createFocus(parts);
+      if(this.dirty){
+        if(this.texture !== undefined) this.glContext.gl.deleteTexture(this.texture);
+        
+        this.frame = this.frame.filter((f)=>f!=undefined && !f.compose());
+        let focusRect: T.Bounds = Snap.createFocus(this.frame.filter((f)=>f!=undefined && !f.rprops.delete && !f.rprops.hidden));
+
+        let parts : Array<Renderable> = this.frame;
 
         this.rprops.dstrect.x = this.rprops.pos.x;
         this.rprops.dstrect.y = this.rprops.pos.y;
@@ -591,9 +760,9 @@ export namespace Composite {
         }
         if(parts.length>0) this.generateComposite(parts, focusRect);
         if(this.picture.crop.do)this.crop();
-        this.ready = true;
+        this.dirty = false;
       }
-      return this.rprops.delete;
+      return false;
     }
 
     private crop(){
@@ -626,6 +795,7 @@ export namespace Composite {
         a.parent = this;
       }
       this.frame.push(...arr)
+      this.setDirty();
     }
 
 
