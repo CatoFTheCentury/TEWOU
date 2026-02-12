@@ -21,10 +21,15 @@ export namespace Render {
       cnv.width = 2048;
       cnv.height = 2048;
 
+      // Enable smooth antialiasing for better text rendering
+      (cnv.style as any).fontSmooth = 'always';
+      (cnv.style as any).webkitFontSmoothing = 'antialiased';
+      (cnv.style as any).mozOsxFontSmoothing = 'grayscale';
+
       // document.body.prepend(cnv);
       return cnv;
     })()
-    protected static textcontext : CanvasRenderingContext2D = Info.textcanvas.getContext('2d');
+    protected static textcontext : CanvasRenderingContext2D = Info.textcanvas.getContext('2d', { alpha: true, willReadFrequently: false });
     protected static contextCounter : number = -1;
     
   }
@@ -72,13 +77,15 @@ export namespace Render {
           // document.getElementById("canvas")!.setAttribute("height", height)
           let ctx = canvas.
           getContext("webgl2",
-          {premultipliedAlpha: false,
+          {premultipliedAlpha: true,
+            alpha: true,
             antialias: false
           }
           )
 
           ctx.enable(ctx.BLEND);
-          ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE_MINUS_SRC_ALPHA);
+          // Premultiplied alpha blending: source RGB is already multiplied by alpha
+          ctx.blendFunc(ctx.ONE, ctx.ONE_MINUS_SRC_ALPHA);
           return ctx
         })()
         
