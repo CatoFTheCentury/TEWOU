@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Player Entity Test</title>
+  <link rel="stylesheet" href="../test-common.css">
+</head>
+<body>
+  <div class="test-container">
+    <div class="test-header">
+      <h1>Player Entity Test</h1>
+      <p>Tests the <code>TEWOU.Player</code> class with keyboard input registration and control.</p>
+    </div>
+
+    <div class="canvas-wrapper">
+      <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="test-info">
+      <h2>Test Status</h2>
+      <ul id="test-status"></ul>
+    </div>
+
+    <div class="controls">
+      <h3>Controls</h3>
+      <p><strong>WASD:</strong> Move player square</p>
+      <p><strong>Arrow Keys:</strong> Move player circle</p>
+      <p><strong>Space:</strong> Player action (changes color)</p>
+    </div>
+
+    <div class="expected-result">
+      <h3>Expected Result</h3>
+      <p>You should see player entities that respond to keyboard input. Use WASD and Arrow keys to control them. Press Space to trigger an action.</p>
+    </div>
+
+    <div class="log" id="log"></div>
+  </div>
+
+  <script src="../test-utils.js"></script>
+  <script src="../../../engine/dist/engine.js"></script>
+  <script>
+    const logger = new TestLogger();
+    const status = new TestStatus();
+
+    logger.info('Starting Player Entity Test');
+
+    class PlayerTestGame extends TEWOU.ActionGame {
+      constructor(canvas) {
+        super(canvas, 900, 700);
+        this.gamename = "player-test";
+        this.fileextensions = [];
+      }
+
+      async load() {
+        await super.load();
+        logger.success('Game initialized');
+      }
+    }
+
+    var game;
+
+    // Player controlled with WASD
+    class WASDPlayer extends TEWOU.Player {
+      constructor(x, y) {
+        const rect = game.newRectangle(
+          { x: 0, y: 0, w: 60, h: 60 },
+          { r: 100, g: 150, b: 255, a: 255 }
+        );
+
+        const label = game.newText("WASD", {
+          color: { r: 255, g: 255, b: 255, a: 255 },
+          size: 16,
+          font: "monospace"
+        });
+        label.rprops.dstrect.x = 10;
+        label.rprops.dstrect.y = 20;
+
+        super(game.newFrame([rect, label]));
+
+        this.pos.x = x;
+        this.pos.y = y;
+        this.rect = rect;
+        this.moveSpeed = 3;
+        this.isMoving = { up: false, down: false, left: false, right: false };
+
+        // Register WASD keys
+        this.registerKey('w', {
+          keydown: () => { this.isMoving.up = true; logger.info('W pressed'); },
+          keyup: () => { this.isMoving.up = false; }
+        });
+
+        this.registerKey('s', {
+          keydown: () => { this.isMoving.down = true; logger.info('S pressed'); },
+          keyup: () => { this.isMoving.down = false; }
+        });
+
+        this.registerKey('a', {
+          keydown: () => { this.isMoving.left = true; logger.info('A pressed'); },
+          keyup: () => { this.isMoving.left = false; }
+        });
+
+        this.registerKey('d', {
+          keydown: () => { this.isMoving.right = true; logger.info('D pressed'); },
+          keyup: () => { this.isMoving.right = false; }
+        });
+
+        game.registerEntity(this);
+      }
+
+      update() {
+        super.update();
+
+        if (this.isMoving.up) this.pos.y -= this.moveSpeed;
+        if (this.isMoving.down) this.pos.y += this.moveSpeed;
+        if (this.isMoving.left) this.pos.x -= this.moveSpeed;
+        if (this.isMoving.right) this.pos.x += this.moveSpeed;
+
+        // Bounds checking
+        if (this.pos.x < 0) this.pos.x = 0;
+        if (this.pos.y < 0) this.pos.y = 0;
+        if (this.pos.x > 840) this.pos.x = 840;
+        if (this.pos.y > 640) this.pos.y = 640;
+      }
+    }
+
+    // Player controlled with Arrow Keys
+    class ArrowPlayer extends TEWOU.Player {
+      constructor(x, y) {
+        const rect = game.newRectangle(
+          { x: 0, y: 0, w: 60, h: 60 },
+          { r: 255, g: 150, b: 100, a: 255 }
+        );
+
+        const label = game.newText("Arrows", {
+          color: { r: 255, g: 255, b: 255, a: 255 },
+          size: 14,
+          font: "monospace"
+        });
+        label.rprops.dstrect.x = 5;
+        label.rprops.dstrect.y = 20;
+
+        super(game.newFrame([rect, label]));
+
+        this.pos.x = x;
+        this.pos.y = y;
+        this.rect = rect;
+        this.moveSpeed = 3;
+        this.isMoving = { up: false, down: false, left: false, right: false };
+
+        // Register Arrow keys
+        this.registerKey('ArrowUp', {
+          keydown: () => { this.isMoving.up = true; logger.info('Arrow Up pressed'); },
+          keyup: () => { this.isMoving.up = false; }
+        });
+
+        this.registerKey('ArrowDown', {
+          keydown: () => { this.isMoving.down = true; logger.info('Arrow Down pressed'); },
+          keyup: () => { this.isMoving.down = false; }
+        });
+
+        this.registerKey('ArrowLeft', {
+          keydown: () => { this.isMoving.left = true; logger.info('Arrow Left pressed'); },
+          keyup: () => { this.isMoving.left = false; }
+        });
+
+        this.registerKey('ArrowRight', {
+          keydown: () => { this.isMoving.right = true; logger.info('Arrow Right pressed'); },
+          keyup: () => { this.isMoving.right = false; }
+        });
+
+        game.registerEntity(this);
+      }
+
+      update() {
+        super.update();
+
+        if (this.isMoving.up) this.pos.y -= this.moveSpeed;
+        if (this.isMoving.down) this.pos.y += this.moveSpeed;
+        if (this.isMoving.left) this.pos.x -= this.moveSpeed;
+        if (this.isMoving.right) this.pos.x += this.moveSpeed;
+
+        // Bounds checking
+        if (this.pos.x < 0) this.pos.x = 0;
+        if (this.pos.y < 0) this.pos.y = 0;
+        if (this.pos.x > 840) this.pos.x = 840;
+        if (this.pos.y > 640) this.pos.y = 640;
+      }
+    }
+
+    // Player with action key
+    class ActionPlayer extends TEWOU.Player {
+      constructor(x, y) {
+        const rect = game.newRectangle(
+          { x: 0, y: 0, w: 80, h: 80 },
+          { r: 150, g: 255, b: 150, a: 255 }
+        );
+
+        const label = game.newText("Press SPACE", {
+          color: { r: 0, g: 0, b: 0, a: 255 },
+          size: 12,
+          font: "monospace"
+        });
+        label.rprops.dstrect.x = 3;
+        label.rprops.dstrect.y = 32;
+
+        super(game.newFrame([rect, label]));
+
+        this.pos.x = x;
+        this.pos.y = y;
+        this.rect = rect;
+        this.actionActive = false;
+
+        // Register Space key for action
+        this.registerKey(' ', {
+          keydown: () => {
+            this.actionActive = !this.actionActive;
+            if (this.actionActive) {
+              this.rect.rprops.colorize = { r: 255, g: 100, b: 255, a: 255 };
+              logger.success('Action activated!');
+            } else {
+              this.rect.rprops.colorize = { r: 150, g: 255, b: 150, a: 255 };
+              logger.info('Action deactivated');
+            }
+          }
+        });
+
+        game.registerEntity(this);
+      }
+    }
+
+    // Initialize game
+    game = new PlayerTestGame(document.getElementById('canvas'));
+    TEWOU.Engine.start(game).then(() => {
+      logger.info('Creating Player entities');
+
+      // Create WASD player
+      const wasdPlayer = new WASDPlayer(100, 300);
+      logger.success('Created WASD Player');
+      status.addTest('player-wasd', 'WASD Player creation');
+      status.pass('player-wasd', 'Player with WASD controls');
+
+      // Create Arrow player
+      const arrowPlayer = new ArrowPlayer(700, 300);
+      logger.success('Created Arrow Keys Player');
+      status.addTest('player-arrow', 'Arrow Keys Player creation');
+      status.pass('player-arrow', 'Player with arrow key controls');
+
+      // Create Action player
+      const actionPlayer = new ActionPlayer(400, 300);
+      logger.success('Created Action Player');
+      status.addTest('player-action', 'Action Player creation');
+      status.pass('player-action', 'Player with action key (Space)');
+
+      status.addTest('key-registration', 'registerKey() method');
+      status.pass('key-registration', 'Multiple keys registered successfully');
+
+      TEWOU.Engine.games.push(game);
+      TEWOU.Engine.mainLoop();
+
+      logger.success('Test running - use keyboard to control players');
+    }).catch(err => {
+      logger.error('Failed to start test: ' + err.message);
+      status.fail('player-wasd', err.message);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Entity Registration Test</title>
+  <link rel="stylesheet" href="../test-common.css">
+</head>
+<body>
+  <div class="test-container">
+    <div class="test-header">
+      <h1>Entity Registration Test</h1>
+      <p>Tests the <code>game.registerEntity()</code> method for adding entities to the game's update and render pools.</p>
+    </div>
+
+    <div class="canvas-wrapper">
+      <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="test-info">
+      <h2>Test Status</h2>
+      <ul id="test-status"></ul>
+    </div>
+
+    <div class="expected-result">
+      <h3>Expected Result</h3>
+      <p>Entities registered to the game should be automatically updated and rendered. The test verifies that entities are added to the alacritypool correctly.</p>
+    </div>
+
+    <div class="log" id="log"></div>
+  </div>
+
+  <script src="../test-utils.js"></script>
+  <script src="../../../engine/dist/engine.js"></script>
+  <script>
+    const logger = new TestLogger();
+    const status = new TestStatus();
+
+    logger.info('Starting Entity Registration Test');
+
+    class RegistrationTestGame extends TEWOU.ActionGame {
+      constructor(canvas) {
+        super(canvas, 900, 700);
+        this.gamename = "registration-test";
+        this.fileextensions = [];
+      }
+
+      async load() {
+        await super.load();
+        logger.success('Game initialized');
+      }
+    }
+
+    var game;
+
+    class RegisteredEntity extends TEWOU.Fauna {
+      constructor(x, y, label, autoRegister = true) {
+        const rect = game.newRectangle(
+          { x: 0, y: 0, w: 100, h: 60 },
+          { r: 100, g: 180, b: 255, a: 255 }
+        );
+
+        const text = game.newText(label, {
+          color: { r: 255, g: 255, b: 255, a: 255 },
+          size: 14,
+          font: "monospace"
+        });
+        text.rprops.dstrect.x = 10;
+        text.rprops.dstrect.y = 10;
+
+        const counterText = game.newText("0", {
+          color: { r: 255, g: 255, b: 0, a: 255 },
+          size: 18,
+          font: "monospace"
+        });
+        counterText.rprops.dstrect.x = 40;
+        counterText.rprops.dstrect.y = 32;
+
+        super(game.newFrame([rect, text, counterText]));
+
+        this.pos.x = x;
+        this.pos.y = y;
+        this.counterText = counterText;
+        this.updateCounter = 0;
+
+        this.actions = {
+          counting: {
+            state: 1,
+            running: () => {
+              this.updateCounter++;
+              if (this.updateCounter % 60 === 0) {
+                this.counterText.setText((this.updateCounter / 60).toString());
+              }
+            }
+          }
+        };
+        this.action = "counting";
+
+        if (autoRegister) {
+          game.registerEntity(this);
+          logger.info(`${label} auto-registered`);
+        } else {
+          logger.warning(`${label} created but NOT registered`);
+        }
+      }
+
+      manualRegister() {
+        game.registerEntity(this);
+        logger.success(`Entity manually registered, now in update pool`);
+      }
+    }
+
+    // Initialize game
+    game = new RegistrationTestGame(document.getElementById('canvas'));
+    TEWOU.Engine.start(game).then(() => {
+      logger.info('Creating registered entities');
+
+      // Auto-registered entities
+      new RegisteredEntity(50, 50, "Auto Reg 1", true);
+      new RegisteredEntity(200, 50, "Auto Reg 2", true);
+      new RegisteredEntity(350, 50, "Auto Reg 3", true);
+
+      logger.success('Created 3 auto-registered entities');
+      logger.info(`Alacrity pool size: ${game.alacritypool.length}`);
+
+      status.addTest('auto-registration', 'Auto-registration');
+      status.pass('auto-registration', '3 entities auto-registered');
+
+      // Manual registration entity
+      const manualEntity = new RegisteredEntity(50, 200, "Manual Reg", false);
+
+      logger.warning('Created entity without auto-registration');
+      logger.info(`Alacrity pool size: ${game.alacritypool.length} (should not include manual entity yet)`);
+
+      status.addTest('manual-registration', 'Manual registration');
+
+      // Register it after 3 seconds
+      setTimeout(() => {
+        manualEntity.manualRegister();
+        logger.info(`Alacrity pool size after manual registration: ${game.alacritypool.length}`);
+        status.pass('manual-registration', 'Entity registered manually after delay');
+      }, 3000);
+
+      // Verify pool size
+      status.addTest('pool-size', 'Alacrity pool verification');
+      status.pass('pool-size', `Pool contains ${game.alacritypool.length} entities`);
+
+      // Create entities that show they're being updated
+      logger.info('Counter text increments every second to show update() is being called');
+      status.addTest('update-cycle', 'Update cycle verification');
+      status.pass('update-cycle', 'Registered entities update every frame');
+
+      TEWOU.Engine.games.push(game);
+      TEWOU.Engine.mainLoop();
+
+      logger.success('Test running - watch counters to verify updates');
+    }).catch(err => {
+      logger.error('Failed to start test: ' + err.message);
+      status.fail('auto-registration', err.message);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TEWOU Engine Test Suite</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <div class="header">
+        <h1>TEWOU Tests</h1>
+        <p class="subtitle">Engine Test Suite</p>
+      </div>
+
+      <nav class="test-nav">
+        <div class="test-category">
+          <h2>Rendering</h2>
+          <ul>
+            <li><a href="#" data-test="rendering/rectangles.html">Rectangles</a></li>
+            <li><a href="#" data-test="rendering/text.html">Text Rendering</a></li>
+            <li><a href="#" data-test="rendering/transparency.html">Transparency</a></li>
+            <li><a href="#" data-test="rendering/frames.html">Frames</a></li>
+            <li><a href="#" data-test="rendering/snaps.html">Snaps</a></li>
+            <li><a href="#" data-test="rendering/layers.html">Layers & Depth</a></li>
+            <li><a href="#" data-test="rendering/transforms.html">Transformations</a></li>
+          </ul>
+        </div>
+
+        <div class="test-category">
+          <h2>Entities</h2>
+          <ul>
+            <li><a href="#" data-test="entities/fauna.html">Fauna Creation</a></li>
+            <li><a href="#" data-test="entities/player.html">Player Entity</a></li>
+            <li><a href="#" data-test="entities/lifecycle.html">Entity Lifecycle</a></li>
+            <li><a href="#" data-test="entities/registration.html">Entity Registration</a></li>
+          </ul>
+        </div>
+
+        <div class="test-category">
+          <h2>Animation</h2>
+          <ul>
+            <li><a href="#" data-test="animation/basic.html">Basic Animation</a></li>
+            <li><a href="#" data-test="animation/switching.html">Animation Switching</a></li>
+            <li><a href="#" data-test="animation/directions.html">Directional Animations</a></li>
+          </ul>
+        </div>
+
+        <div class="test-category">
+          <h2>Physics</h2>
+          <ul>
+            <li><a href="#" data-test="physics/movement.html">Movement</a></li>
+            <li><a href="#" data-test="physics/velocity.html">Velocity</a></li>
+            <li><a href="#" data-test="physics/collision-basic.html">Basic Collision</a></li>
+            <li><a href="#" data-test="physics/collision-layers.html">Collision Layers</a></li>
+            <li><a href="#" data-test="physics/collision-types.html">Collision Types</a></li>
+            <li><a href="#" data-test="physics/grid-collision.html">Grid Collision</a></li>
+          </ul>
+        </div>
+
+        <div class="test-category">
+          <h2>Input</h2>
+          <ul>
+            <li><a href="#" data-test="input/keyboard.html">Keyboard Input</a></li>
+            <li><a href="#" data-test="input/key-registration.html">Key Registration</a></li>
+            <li><a href="#" data-test="input/key-states.html">Key States</a></li>
+          </ul>
+        </div>
+
+        <div class="test-category">
+          <h2>Time</h2>
+          <ul>
+            <li><a href="#" data-test="time/timeout.html">Timeouts</a></li>
+            <li><a href="#" data-test="time/triggers.html">Triggers</a></li>
+            <li><a href="#" data-test="time/delta.html">Delta Time</a></li>
+          </ul>
+        </div>
+
+        <div class="test-category">
+          <h2>Composition</h2>
+          <ul>
+            <li><a href="#" data-test="composition/frame-nesting.html">Frame Nesting</a></li>
+            <li><a href="#" data-test="composition/snap-composition.html">Snap Composition</a></li>
+            <li><a href="#" data-test="composition/complex-hierarchy.html">Complex Hierarchy</a></li>
+          </ul>
+        </div>
+
+        <div class="test-category">
+          <h2>Integration</h2>
+          <ul>
+            <li><a href="#" data-test="integration/full-game-loop.html">Full Game Loop</a></li>
+            <li><a href="#" data-test="integration/multi-entity.html">Multiple Entities</a></li>
+            <li><a href="#" data-test="integration/stress-test.html">Stress Test</a></li>
+          </ul>
+        </div>
+      </nav>
+    </aside>
+
+    <main class="content">
+      <div class="welcome" id="welcome">
+        <h1>Welcome to TEWOU Engine Test Suite</h1>
+        <p>Select a test from the sidebar to begin testing.</p>
+        <div class="info-grid">
+          <div class="info-card">
+            <h3>Total Tests</h3>
+            <p class="big-number">32</p>
+          </div>
+          <div class="info-card">
+            <h3>Categories</h3>
+            <p class="big-number">8</p>
+          </div>
+          <div class="info-card">
+            <h3>Coverage</h3>
+            <p class="big-number">API-Wide</p>
+          </div>
+        </div>
+        <div class="instructions">
+          <h2>Test Structure</h2>
+          <p>Each test is isolated and demonstrates specific engine functionality:</p>
+          <ul>
+            <li><strong>Rendering:</strong> Visual output, primitives, text, and transformations</li>
+            <li><strong>Entities:</strong> Game objects, Fauna, Player, and lifecycle management</li>
+            <li><strong>Animation:</strong> Frame-based animations and state switching</li>
+            <li><strong>Physics:</strong> Movement, collision detection, and physics systems</li>
+            <li><strong>Input:</strong> Keyboard handling and event registration</li>
+            <li><strong>Time:</strong> Timeout and trigger systems</li>
+            <li><strong>Composition:</strong> Frame and snap hierarchy</li>
+            <li><strong>Integration:</strong> Complete game scenarios</li>
+          </ul>
+        </div>
+      </div>
+      <iframe id="test-frame" style="display: none;"></iframe>
+    </main>
+  </div>
+
+  <script src="hub.js"></script>
+</body>
+</html>

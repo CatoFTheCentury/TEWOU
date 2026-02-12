@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transformation Test</title>
+  <link rel="stylesheet" href="../test-common.css">
+</head>
+<body>
+  <div class="test-container">
+    <div class="test-header">
+      <h1>Transformation Test</h1>
+      <p>Tests transformation methods: <code>setPosition()</code>, <code>setAngle()</code>, <code>setScale()</code>, <code>setFlip()</code>, and <code>translate()</code>.</p>
+    </div>
+
+    <div class="canvas-wrapper">
+      <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="test-info">
+      <h2>Test Status</h2>
+      <ul id="test-status"></ul>
+    </div>
+
+    <div class="expected-result">
+      <h3>Expected Result</h3>
+      <p>You should see rectangles and text with various transformations applied: rotation, scaling, flipping, and translation. Some elements are animated to demonstrate dynamic transformations.</p>
+    </div>
+
+    <div class="log" id="log"></div>
+  </div>
+
+  <script src="../test-utils.js"></script>
+  <script src="../../../engine/dist/engine.js"></script>
+  <script>
+    const logger = new TestLogger();
+    const status = new TestStatus();
+
+    logger.info('Starting Transformation Test');
+
+    class TransformTestGame extends TEWOU.ActionGame {
+      constructor(canvas) {
+        super(canvas, 1000, 700);
+        this.gamename = "transform-test";
+        this.fileextensions = [];
+      }
+
+      async load() {
+        await super.load();
+        logger.success('Game initialized');
+      }
+    }
+
+    var game;
+
+    // Rotating rectangle
+    class RotatingRectangle extends TEWOU.Fauna {
+      constructor(x, y) {
+        const rect = game.newRectangle(
+          { x: -25, y: -25, w: 50, h: 50 },
+          { r: 255, g: 100, b: 100, a: 255 }
+        );
+
+        const text = game.newText("Rotating", {
+          color: { r: 255, g: 255, b: 255, a: 255 },
+          size: 12,
+          font: "monospace"
+        });
+        text.rprops.dstrect.x = -20;
+        text.rprops.dstrect.y = -6;
+
+        super(game.newFrame([rect, text]));
+
+        this.pos.x = x;
+        this.pos.y = y;
+        this.rotation = 0;
+
+        game.registerEntity(this);
+      }
+
+      update() {
+        super.update();
+        this.rotation += 0.02;
+        // this.myFrame.rprops.rotcenter = {x:25,y:25};
+        this.myFrame.setAngle(this.rotation);
+      }
+    }
+
+    // Scaling rectangle
+    class ScalingRectangle extends TEWOU.Fauna {
+      constructor(x, y) {
+        const rect = game.newRectangle(
+          { x: -25, y: -25, w: 50, h: 50 },
+          { r: 100, g: 255, b: 100, a: 255 }
+        );
+
+        const text = game.newText("Scaling", {
+          color: { r: 255, g: 255, b: 255, a: 255 },
+          size: 12,
+          font: "monospace"
+        });
+        text.rprops.dstrect.x = -20;
+        text.rprops.dstrect.y = -6;
+
+        super(game.newFrame([rect, text]));
+
+        this.pos.x = x;
+        this.pos.y = y;
+        this.scaleValue = 1;
+        this.scaleDirection = 1;
+
+        game.registerEntity(this);
+      }
+
+      update() {
+        super.update();
+        this.scaleValue += 0.01 * this.scaleDirection;
+        if (this.scaleValue > 2) this.scaleDirection = -1;
+        if (this.scaleValue < 0.5) this.scaleDirection = 1;
+        this.myFrame.setScaleX(this.scaleValue);
+        this.myFrame.setScaleY(this.scaleValue);
+      }
+    }
+
+    // Static transformed rectangles
+    class StaticTransform extends TEWOU.Fauna {
+      constructor(x, y, w, h, color, angle, scaleX, scaleY, label) {
+        const rect = game.newRectangle(
+          { x: -w/2, y: -h/2, w, h },
+          color
+        );
+
+        const text = game.newText(label, {
+          color: { r: 255, g: 255, b: 255, a: 255 },
+          size: 14,
+          font: "monospace"
+        });
+        text.rprops.dstrect.x = -30;
+        text.rprops.dstrect.y = -7;
+
+        const frame = game.newFrame([rect, text]);
+        frame.setAngle(angle);
+        frame.setScaleX(scaleX);
+        frame.setScaleY(scaleY);
+
+        super(frame);
+
+        this.pos.x = x;
+        this.pos.y = y;
+
+        game.registerEntity(this);
+      }
+    }
+
+    // Flipped rectangle
+    class FlippedRectangle extends TEWOU.Fauna {
+      constructor(x, y, flipX, flipY, label) {
+        const rect = game.newRectangle(
+          { x: 0, y: 0, w: 80, h: 60 },
+          { r: 200, g: 150, b: 255, a: 255 }
+        );
+
+        const arrow = game.newText("→", {
+          color: { r: 255, g: 255, b: 0, a: 255 },
+          size: 32,
+          font: "monospace"
+        });
+        arrow.rprops.dstrect.x = 25;
+        arrow.rprops.dstrect.y = 10;
+
+        const text = game.newText(label, {
+          color: { r: 255, g: 255, b: 255, a: 255 },
+          size: 10,
+          font: "monospace"
+        });
+        text.rprops.dstrect.x = 5;
+        text.rprops.dstrect.y = 45;
+
+        const frame = game.newFrame([rect, arrow, text]);
+        frame.setFlipX(flipX);
+        frame.setFlipY(flipY);
+
+        super(frame);
+
+        this.pos.x = x;
+        this.pos.y = y;
+
+        game.registerEntity(this);
+      }
+    }
+
+    // Translating rectangle
+    class TranslatingRectangle extends TEWOU.Fauna {
+      constructor(x, y) {
+        const rect = game.newRectangle(
+          { x: 0, y: 0, w: 40, h: 40 },
+          { r: 255, g: 255, b: 100, a: 255 }
+        );
+
+        super(rect);
+
+        this.pos.x = x;
+        this.pos.y = y;
+        this.startX = x;
+        this.direction = 1;
+
+        game.registerEntity(this);
+      }
+
+      update() {
+        super.update();
+        this.pos.x += this.direction * 2;
+        if (this.pos.x > this.startX + 100) this.direction = -1;
+        if (this.pos.x < this.startX) this.direction = 1;
+      }
+    }
+
+    // Initialize game
+    game = new TransformTestGame(document.getElementById('canvas'));
+    TEWOU.Engine.start(game).then(() => {
+      logger.info('Creating transformation tests');
+
+      // Rotating rectangles
+      new RotatingRectangle(100, 100);
+      new RotatingRectangle(200, 100);
+      new RotatingRectangle(300, 100);
+
+      logger.success('Created 3 rotating rectangles');
+      status.addTest('rotation', 'Rotation transformation');
+      status.pass('rotation', 'Dynamic rotation with setAngle()');
+
+      // Scaling rectangles
+      new ScalingRectangle(450, 100);
+      new ScalingRectangle(550, 100);
+
+      logger.success('Created 2 scaling rectangles');
+      status.addTest('scaling', 'Scale transformation');
+      status.pass('scaling', 'Dynamic scaling with setScaleX/Y()');
+
+      // Static transforms at various angles
+      new StaticTransform(100, 250, 60, 60, { r: 255, g: 0, b: 0, a: 255 }, 0, 1, 1, "0°");
+      new StaticTransform(200, 250, 60, 60, { r: 255, g: 100, b: 0, a: 255 }, Math.PI / 4, 1, 1, "45°");
+      new StaticTransform(300, 250, 60, 60, { r: 255, g: 200, b: 0, a: 255 }, Math.PI / 2, 1, 1, "90°");
+      new StaticTransform(400, 250, 60, 60, { r: 200, g: 255, b: 0, a: 255 }, Math.PI, 1, 1, "180°");
+
+      logger.success('Created 4 rectangles at different angles');
+      status.addTest('static-rotation', 'Static rotation angles');
+      status.pass('static-rotation', 'Rectangles at 0°, 45°, 90°, 180°');
+
+      // Different scales
+      new StaticTransform(600, 250, 50, 50, { r: 100, g: 200, b: 255, a: 255 }, 0, 0.5, 0.5, "0.5x");
+      new StaticTransform(700, 250, 50, 50, { r: 100, g: 150, b: 255, a: 255 }, 0, 1, 1, "1x");
+      new StaticTransform(800, 250, 50, 50, { r: 100, g: 100, b: 255, a: 255 }, 0, 1.5, 1.5, "1.5x");
+
+      logger.success('Created 3 rectangles at different scales');
+      status.addTest('static-scale', 'Static scale values');
+      status.pass('static-scale', 'Rectangles at 0.5x, 1x, 1.5x scale');
+
+      // Flipped rectangles
+      new FlippedRectangle(100, 400, false, false, "Normal");
+      new FlippedRectangle(200, 400, true, false, "Flip X");
+      new FlippedRectangle(300, 400, false, true, "Flip Y");
+      new FlippedRectangle(400, 400, true, true, "Flip XY");
+
+      logger.success('Created 4 flipped rectangles');
+      status.addTest('flipping', 'Flip transformations');
+      status.pass('flipping', 'Normal, FlipX, FlipY, FlipXY');
+
+      // Translating rectangles
+      new TranslatingRectangle(600, 420);
+      new TranslatingRectangle(600, 480);
+      new TranslatingRectangle(600, 540);
+
+      logger.success('Created 3 translating rectangles');
+      status.addTest('translation', 'Position translation');
+      status.pass('translation', 'Dynamic position updates');
+
+      // Combined transformations
+      class CombinedTransform extends TEWOU.Fauna {
+        constructor(x, y) {
+          const rect = game.newRectangle(
+            { x: -30, y: -30, w: 60, h: 60 },
+            { r: 255, g: 0, b: 255, a: 255 }
+          );
+
+          super(rect);
+
+          this.pos.x = x;
+          this.pos.y = y;
+          this.rotation = 0;
+          this.scale = 1;
+          this.scaleDir = 1;
+
+          game.registerEntity(this);
+        }
+
+        update() {
+          super.update();
+          this.rotation += 0.03;
+          this.scale += 0.01 * this.scaleDir;
+          if (this.scale > 1.5) this.scaleDir = -1;
+          if (this.scale < 0.7) this.scaleDir = 1;
+
+          this.myFrame.setAngle(this.rotation);
+          this.myFrame.setScaleX(this.scale);
+          this.myFrame.setScaleY(this.scale);
+        }
+      }
+
+      new CombinedTransform(850, 450);
+
+      logger.success('Created combined transformation test');
+      status.addTest('combined', 'Combined transformations');
+      status.pass('combined', 'Rotation + scaling together');
+
+      TEWOU.Engine.games.push(game);
+      TEWOU.Engine.mainLoop();
+
+      logger.success('Test running - transformations should be visible');
+    }).catch(err => {
+      logger.error('Failed to start test: ' + err.message);
+      status.fail('rotation', err.message);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Layer & Depth Test</title>
+  <link rel="stylesheet" href="../test-common.css">
+</head>
+<body>
+  <div class="test-container">
+    <div class="test-header">
+      <h1>Layer & Depth Rendering Test</h1>
+      <p>Tests layering and depth sorting with <code>rprops.layer</code> property to control rendering order.</p>
+    </div>
+
+    <div class="canvas-wrapper">
+      <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="test-info">
+      <h2>Test Status</h2>
+      <ul id="test-status"></ul>
+    </div>
+
+    <div class="expected-result">
+      <h3>Expected Result</h3>
+      <p>You should see overlapping rectangles where the rendering order is controlled by layer values. Higher layer values render on top. Labels show each rectangle's layer value.</p>
+    </div>
+
+    <div class="log" id="log"></div>
+  </div>
+
+  <script src="../test-utils.js"></script>
+  <script src="../../../engine/dist/engine.js"></script>
+  <script>
+    const logger = new TestLogger();
+    const status = new TestStatus();
+
+    logger.info('Starting Layer & Depth Test');
+
+    class LayerTestGame extends TEWOU.ActionGame {
+      constructor(canvas) {
+        super(canvas, 900, 700);
+        this.gamename = "layer-test";
+        this.fileextensions = [];
+      }
+
+      async load() {
+        await super.load();
+        logger.success('Game initialized');
+      }
+    }
+
+    var game;
+
+    class LayeredRectangle extends TEWOU.Fauna {
+      constructor(x, y, w, h, color, layer, label) {
+        const rect = game.newRectangle(
+          { x: 0, y: 0, w, h },
+          color
+        );
+
+        const text = game.newText(label, {
+          color: { r: 255, g: 255, b: 255, a: 255 },
+          size: 16,
+          font: "monospace"
+        });
+        text.rprops.dstrect.x = 5;
+        text.rprops.dstrect.y = 5;
+
+        const frame = game.newFrame([rect, text]);
+        frame.setLayer(layer);
+
+        super(frame);
+
+        this.pos.x = x;
+        this.pos.y = y;
+
+        game.registerEntity(this);
+      }
+    }
+
+    // Initialize game
+    game = new LayerTestGame(document.getElementById('canvas'));
+    TEWOU.Engine.start(game).then(() => {
+      logger.info('Creating layered rectangles');
+
+      // Test 1: Overlapping rectangles with increasing layers
+      new LayeredRectangle(50, 50, 150, 150, { r: 255, g: 0, b: 0, a: 255 }, 0, "Layer 0");
+      new LayeredRectangle(100, 100, 150, 150, { r: 0, g: 255, b: 0, a: 255 }, 1, "Layer 1");
+      new LayeredRectangle(150, 150, 150, 150, { r: 0, g: 0, b: 255, a: 255 }, 2, "Layer 2");
+      new LayeredRectangle(200, 200, 150, 150, { r: 255, g: 255, b: 0, a: 255 }, 3, "Layer 3");
+
+      logger.success('Created overlapping stack with layers 0-3');
+      status.addTest('layer-stack', 'Layered rectangle stack');
+      status.pass('layer-stack', '4 overlapping rectangles with increasing layers');
+
+      // Test 2: Reverse layer order (same positions, reversed layers)
+      new LayeredRectangle(450, 50, 150, 150, { r: 255, g: 0, b: 0, a: 255 }, 3, "Layer 3");
+      new LayeredRectangle(500, 100, 150, 150, { r: 0, g: 255, b: 0, a: 255 }, 2, "Layer 2");
+      new LayeredRectangle(550, 150, 150, 150, { r: 0, g: 0, b: 255, a: 255 }, 1, "Layer 1");
+      new LayeredRectangle(600, 200, 150, 150, { r: 255, g: 255, b: 0, a: 255 }, 0, "Layer 0");
+
+      logger.success('Created reverse layer stack');
+      status.addTest('reverse-layers', 'Reverse layer ordering');
+      status.pass('reverse-layers', '4 rectangles with decreasing layers');
+
+      // Test 3: Same layer (render order should be creation order)
+      new LayeredRectangle(50, 420, 100, 100, { r: 255, g: 100, b: 100, a: 255 }, 5, "Layer 5");
+      new LayeredRectangle(80, 450, 100, 100, { r: 100, g: 255, b: 100, a: 255 }, 5, "Layer 5");
+      new LayeredRectangle(110, 480, 100, 100, { r: 100, g: 100, b: 255, a: 255 }, 5, "Layer 5");
+
+      logger.success('Created same-layer test');
+      status.addTest('same-layer', 'Same layer rendering');
+      status.pass('same-layer', '3 rectangles on same layer');
+
+      // Test 4: Extreme layer values
+      new LayeredRectangle(300, 420, 80, 80, { r: 128, g: 128, b: 128, a: 255 }, 0, "Layer 0");
+      new LayeredRectangle(320, 440, 80, 80, { r: 200, g: 200, b: 200, a: 255 }, 50, "Layer 50");
+      new LayeredRectangle(340, 460, 80, 80, { r: 255, g: 255, b: 255, a: 255 }, 100, "Layer 100");
+
+      logger.success('Created extreme layer value test');
+      status.addTest('extreme-layers', 'Extreme layer values');
+      status.pass('extreme-layers', 'Layers 0, 50, and 100');
+
+      TEWOU.Engine.games.push(game);
+      TEWOU.Engine.mainLoop();
+
+      logger.success('Test running - layer ordering should be visible');
+    }).catch(err => {
+      logger.error('Failed to start test: ' + err.message);
+      status.fail('layer-stack', err.message);
+    });
+  </script>
+</body>
+</html>

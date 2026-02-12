@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEWOU Engine Performance Tests</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #4ec9b0;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            color: #9cdcfe;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .controls {
+            background: #252526;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #3e3e42;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: #0e639c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #1177bb;
+        }
+
+        button:active {
+            background: #0d5a91;
+        }
+
+        button:disabled {
+            background: #3e3e42;
+            cursor: not-allowed;
+        }
+
+        .clear-btn {
+            background: #c5c5c5;
+            color: #1e1e1e;
+        }
+
+        .clear-btn:hover {
+            background: #d4d4d4;
+        }
+
+        #output {
+            background: #1e1e1e;
+            border: 1px solid #3e3e42;
+            border-radius: 8px;
+            padding: 20px;
+            font-size: 13px;
+            max-height: 70vh;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        #output:empty::before {
+            content: "Click a button above to run performance tests...";
+            color: #6a6a6a;
+        }
+
+        .test-header {
+            color: #4ec9b0;
+            font-weight: bold;
+            border-bottom: 1px solid #3e3e42;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+
+        .test-result {
+            color: #ce9178;
+        }
+
+        .test-metric {
+            color: #b5cea8;
+        }
+
+        .test-error {
+            color: #f48771;
+        }
+
+        .progress {
+            background: #252526;
+            border: 1px solid #3e3e42;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .progress.active {
+            display: block;
+        }
+
+        .progress-bar {
+            background: #3e3e42;
+            height: 20px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+
+        .progress-fill {
+            background: #0e639c;
+            height: 100%;
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            font-size: 12px;
+            color: #9cdcfe;
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e1e1e;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #3e3e42;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4e4e52;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>TEWOU Engine Performance Tests</h1>
+        <div class="subtitle">Comprehensive performance benchmarking suite</div>
+
+        <div class="controls">
+            <div class="button-group">
+                <button onclick="runAllTests()" id="runAllBtn">Run All Tests</button>
+                <button onclick="runSuite('Render')" id="renderBtn">Render Tests</button>
+                <button onclick="runSuite('Physics')" id="physicsBtn">Physics Tests</button>
+                <button onclick="runSuite('Parser')" id="parserBtn">Parser Tests</button>
+                <button onclick="runSuite('Asset')" id="assetBtn">Asset Tests</button>
+                <button onclick="clearOutput()" class="clear-btn">Clear Output</button>
+                <button onclick="exportResults()">Export Results</button>
+            </div>
+        </div>
+
+        <div class="progress" id="progress">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">Running tests...</div>
+        </div>
+
+        <div id="output"></div>
+    </div>
+
+    <script type="module">
+        // Import test runner from bundled file
+        import { PerformanceTestRunner } from './index.js';
+
+        let isRunning = false;
+        const output = document.getElementById('output');
+        const progress = document.getElementById('progress');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+
+        // Override console.log to display in page
+        const originalLog = console.log;
+        const originalError = console.error;
+
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            appendOutput(args.join(' '), 'log');
+        };
+
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            appendOutput(args.join(' '), 'error');
+        };
+
+        function appendOutput(text, type = 'log') {
+            const line = document.createElement('div');
+
+            if (text.includes('===')) {
+                line.className = 'test-header';
+            } else if (text.includes('Avg:') || text.includes('Min:') || text.includes('Max:')) {
+                line.className = 'test-metric';
+            } else if (type === 'error') {
+                line.className = 'test-error';
+            } else {
+                line.className = 'test-result';
+            }
+
+            line.textContent = text;
+            output.appendChild(line);
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function clearOutput() {
+            output.innerHTML = '';
+        }
+
+        function setButtonsEnabled(enabled) {
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(btn => {
+                if (!btn.classList.contains('clear-btn')) {
+                    btn.disabled = !enabled;
+                }
+            });
+        }
+
+        function showProgress(show) {
+            if (show) {
+                progress.classList.add('active');
+            } else {
+                progress.classList.remove('active');
+            }
+        }
+
+        function updateProgress(percent, text) {
+            progressFill.style.width = percent + '%';
+            progressText.textContent = text;
+        }
+
+        window.runAllTests = async function() {
+            if (isRunning) return;
+
+            isRunning = true;
+            setButtonsEnabled(false);
+            showProgress(true);
+            updateProgress(0, 'Initializing tests...');
+
+            try {
+                const runner = new PerformanceTestRunner();
+                await runner.runAll();
+
+                updateProgress(100, 'Tests completed!');
+            } catch (error) {
+                console.error('Error running tests:', error);
+            } finally {
+                isRunning = false;
+                setButtonsEnabled(true);
+                setTimeout(() => showProgress(false), 2000);
+            }
+        };
+
+        window.runSuite = async function(suiteName) {
+            if (isRunning) return;
+
+            isRunning = true;
+            setButtonsEnabled(false);
+            showProgress(true);
+            updateProgress(0, `Running ${suiteName} tests...`);
+
+            try {
+                const runner = new PerformanceTestRunner();
+                await runner.runSuite(suiteName);
+
+                updateProgress(100, `${suiteName} tests completed!`);
+            } catch (error) {
+                console.error('Error running suite:', error);
+            } finally {
+                isRunning = false;
+                setButtonsEnabled(true);
+                setTimeout(() => showProgress(false), 2000);
+            }
+        };
+
+        window.exportResults = function() {
+            const text = output.innerText;
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `tewou-performance-${Date.now()}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            console.log('Results exported!');
+        };
+
+        // Display welcome message
+        console.log('Performance test runner ready!');
+        console.log('Click a button above to start testing.');
+    </script>
+</body>
+</html>

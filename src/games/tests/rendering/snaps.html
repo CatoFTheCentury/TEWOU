@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Snap Rendering Test</title>
+  <link rel="stylesheet" href="../test-common.css">
+</head>
+<body>
+  <div class="test-container">
+    <div class="test-header">
+      <h1>Snap Rendering Test</h1>
+      <p>Tests the <code>game.newSnap()</code> method for creating composite snapshots of multiple renderables.</p>
+    </div>
+
+    <div class="canvas-wrapper">
+      <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="test-info">
+      <h2>Test Status</h2>
+      <ul id="test-status"></ul>
+    </div>
+
+    <div class="expected-result">
+      <h3>Expected Result</h3>
+      <p>You should see snaps (composite images) made up of multiple elements. Snaps allow you to group renderables into a single composite unit.</p>
+    </div>
+
+    <div class="log" id="log"></div>
+  </div>
+
+  <script src="../test-utils.js"></script>
+  <script src="../../../engine/dist/engine.js"></script>
+  <script>
+    const logger = new TestLogger();
+    const status = new TestStatus();
+
+    logger.info('Starting Snap Rendering Test');
+
+    class SnapTestGame extends TEWOU.ActionGame {
+      constructor(canvas) {
+        super(canvas, 900, 700);
+        this.gamename = "snap-test";
+        this.fileextensions = [];
+      }
+
+      async load() {
+        await super.load();
+        logger.success('Game initialized');
+      }
+    }
+
+    var game;
+
+    // Create a button-like snap
+    class ButtonSnap extends TEWOU.Fauna {
+      constructor(x, y, label) {
+        const bg = game.newRectangle(
+          { x: 0, y: 0, w: 150, h: 50 },
+          { r: 60, g: 90, b: 200, a: 255 }
+        );
+
+        const text = game.newText(label, {
+          color: { r: 255, g: 255, b: 255, a: 255 },
+          size: 20,
+          font: "monospace"
+        });
+        text.setPosition({ x: 10, y: 15 });
+
+        const snap = game.newSnap([bg, text]);
+
+        super(snap);
+
+        this.pos.x = x;
+        this.pos.y = y;
+
+        game.registerEntity(this);
+      }
+    }
+
+    // Create a complex icon snap
+    class IconSnap extends TEWOU.Fauna {
+      constructor(x, y) {
+        // Create a simple icon using rectangles
+        const bg = game.newRectangle(
+          { x: 0, y: 0, w: 80, h: 80 },
+          { r: 40, g: 40, b: 40, a: 255 }
+        );
+
+        const border = game.newRectangle(
+          { x: 2, y: 2, w: 76, h: 76 },
+          { r: 100, g: 200, b: 100, a: 255 }
+        );
+
+        const innerBg = game.newRectangle(
+          { x: 5, y: 5, w: 70, h: 70 },
+          { r: 50, g: 50, b: 50, a: 255 }
+        );
+
+        // Create a simple "star" pattern with rectangles
+        const centerRect = game.newRectangle(
+          { x: 35, y: 35, w: 10, h: 10 },
+          { r: 255, g: 255, b: 0, a: 255 }
+        );
+
+        const topRect = game.newRectangle(
+          { x: 37, y: 20, w: 6, h: 15 },
+          { r: 255, g: 255, b: 0, a: 255 }
+        );
+
+        const bottomRect = game.newRectangle(
+          { x: 37, y: 45, w: 6, h: 15 },
+          { r: 255, g: 255, b: 0, a: 255 }
+        );
+
+        const leftRect = game.newRectangle(
+          { x: 20, y: 37, w: 15, h: 6 },
+          { r: 255, g: 255, b: 0, a: 255 }
+        );
+
+        const rightRect = game.newRectangle(
+          { x: 45, y: 37, w: 15, h: 6 },
+          { r: 255, g: 255, b: 0, a: 255 }
+        );
+
+        const snap = game.newSnap([
+          bg, border, innerBg,
+          centerRect, topRect, bottomRect, leftRect, rightRect
+        ]);
+
+        super(snap);
+
+        this.pos.x = x;
+        this.pos.y = y;
+
+        game.registerEntity(this);
+      }
+    }
+
+    // Create a progress bar snap
+    class ProgressBarSnap extends TEWOU.Fauna {
+      constructor(x, y, progress) {
+        const bgBar = game.newRectangle(
+          { x: 0, y: 0, w: 200, h: 30 },
+          { r: 60, g: 60, b: 60, a: 255 }
+        );
+
+        const fillBar = game.newRectangle(
+          { x: 2, y: 2, w: (196 * progress), h: 26 },
+          { r: 0, g: 200, b: 100, a: 255 }
+        );
+
+        const text = game.newText(Math.round(progress * 100) + "%", {
+          color: { r: 255, g: 255, b: 255, a: 255 },
+          size: 18,
+          font: "monospace"
+        });
+        text.setPosition({ x: 80, y: 6 });
+
+        const snap = game.newSnap([bgBar, fillBar, text]);
+
+        super(snap);
+
+        this.pos.x = x;
+        this.pos.y = y;
+
+        game.registerEntity(this);
+      }
+    }
+
+    // Initialize game
+    game = new SnapTestGame(document.getElementById('canvas'));
+    TEWOU.Engine.start(game).then(() => {
+      logger.info('Creating test snaps');
+
+      // Create button snaps
+      new ButtonSnap(50, 50, "Button 1");
+      new ButtonSnap(220, 50, "Button 2");
+      new ButtonSnap(390, 50, "Button 3");
+      new ButtonSnap(560, 50, "Submit");
+
+      logger.success('Created 4 button snaps');
+      status.addTest('button-snaps', 'Button snap creation');
+      status.pass('button-snaps', '4 button snaps created');
+
+      // Create icon snaps
+      new IconSnap(50, 150);
+      new IconSnap(160, 150);
+      new IconSnap(270, 150);
+      new IconSnap(380, 150);
+      new IconSnap(490, 150);
+
+      logger.success('Created 5 icon snaps');
+      status.addTest('icon-snaps', 'Icon snap creation');
+      status.pass('icon-snaps', '5 icon snaps with complex composition');
+
+      // Create progress bar snaps
+      new ProgressBarSnap(50, 280, 0.25);
+      new ProgressBarSnap(50, 330, 0.50);
+      new ProgressBarSnap(50, 380, 0.75);
+      new ProgressBarSnap(50, 430, 1.0);
+
+      logger.success('Created 4 progress bar snaps');
+      status.addTest('progress-snaps', 'Progress bar snap creation');
+      status.pass('progress-snaps', '4 progress bars at different levels');
+
+      // Create nested snap
+      const innerSnap1 = game.newSnap([
+        game.newRectangle({ x: 0, y: 0, w: 40, h: 40 }, { r: 255, g: 0, b: 0, a: 255 })
+      ]);
+      innerSnap1.setPosition({x:0,y:0});
+      // innerSnap1.setPos()
+
+      const innerSnap2 = game.newSnap([
+        game.newRectangle({ x: 0, y: 0, w: 40, h: 40 }, { r: 0, g: 255, b: 0, a: 255 })
+      ]);
+      innerSnap2.setPosition({x:50,y:0});
+      // innerSnap2.rprops.dstrect.x = 50;
+      // innerSnap2.rprops.dstrect.y = 0;
+
+      const innerSnap3 = game.newSnap([
+        game.newRectangle({ x: 0, y: 0, w: 40, h: 40 }, { r: 0, g: 0, b: 255, a: 255 })
+      ]);
+      innerSnap3.setPosition({x:100,y:0});
+      // innerSnap3.rprops.dstrect.x = 100;
+      // innerSnap3.rprops.dstrect.y = 0;
+
+      class NestedSnap extends TEWOU.Fauna {
+        constructor(x, y) {
+          const outerSnap = game.newSnap([innerSnap1, innerSnap2, innerSnap3]);
+          super(outerSnap);
+          this.pos.x = x;
+          this.pos.y = y;
+          game.registerEntity(this);
+        }
+      }
+
+      new NestedSnap(400, 350);
+
+      logger.success('Created nested snap composition');
+      status.addTest('nested-snaps', 'Nested snap composition');
+      status.pass('nested-snaps', 'Snap containing multiple snaps');
+
+      TEWOU.Engine.games.push(game);
+      TEWOU.Engine.mainLoop();
+
+      logger.success('Test running - snaps should be visible');
+    }).catch(err => {
+      logger.error('Failed to start test: ' + err.message);
+      status.fail('button-snaps', err.message);
+    });
+  </script>
+</body>
+</html>

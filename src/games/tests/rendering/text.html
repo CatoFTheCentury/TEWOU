@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Text Rendering Test</title>
+  <link rel="stylesheet" href="../test-common.css">
+</head>
+<body>
+  <div class="test-container">
+    <div class="test-header">
+      <h1>Text Rendering Test</h1>
+      <p>Tests the <code>game.newText()</code> method with various text properties including colors, sizes, and fonts.</p>
+    </div>
+
+    <div class="canvas-wrapper">
+      <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="test-info">
+      <h2>Test Status</h2>
+      <ul id="test-status"></ul>
+    </div>
+
+    <div class="expected-result">
+      <h3>Expected Result</h3>
+      <p>You should see text rendered in different colors, sizes, and fonts. This tests text creation, color properties, font settings, and text.setText() method.</p>
+    </div>
+
+    <div class="controls">
+      <h3>Controls</h3>
+      <button id="changeTextBtn">Change Text Content</button>
+      <button id="changeColorBtn">Change Text Color</button>
+      <button id="changeSizeBtn">Change Text Size</button>
+    </div>
+
+    <div class="log" id="log"></div>
+  </div>
+
+  <script src="../test-utils.js"></script>
+  <script src="../../../engine/dist/engine.js"></script>
+  <script>
+    const logger = new TestLogger();
+    const status = new TestStatus();
+
+    logger.info('Starting Text Rendering Test');
+
+    class TextTestGame extends TEWOU.ActionGame {
+      constructor(canvas) {
+        super(canvas, 900, 600);
+        this.gamename = "text-test";
+        this.fileextensions = [];
+      }
+
+      async load() {
+        await super.load();
+        logger.success('Game initialized');
+      }
+    }
+
+    var game;
+    var dynamicText;
+    var colorText;
+    var sizeText;
+
+    class TestTexts extends TEWOU.Fauna {
+      constructor() {
+        const texts = [];
+
+        // Title text
+        const title = game.newText("Text Rendering Test", {
+          color: { r: 255, g: 255, b: 255, a: 255 },
+          size: 48,
+          font: "monospace"
+        });
+        title.rprops.dstrect.x = 50;
+        title.rprops.dstrect.y = 30;
+        texts.push(title);
+
+        // Different colors
+        const redText = game.newText("Red Text", {
+          color: { r: 255, g: 0, b: 0, a: 255 },
+          size: 32
+        });
+        redText.rprops.dstrect.x = 50;
+        redText.rprops.dstrect.y = 100;
+        texts.push(redText);
+
+        const greenText = game.newText("Green Text", {
+          color: { r: 0, g: 255, b: 0, a: 255 },
+          size: 32
+        });
+        greenText.rprops.dstrect.x = 50;
+        greenText.rprops.dstrect.y = 150;
+        texts.push(greenText);
+
+        const blueText = game.newText("Blue Text", {
+          color: { r: 0, g: 0, b: 255, a: 255 },
+          size: 32
+        });
+        blueText.rprops.dstrect.x = 50;
+        blueText.rprops.dstrect.y = 200;
+        texts.push(blueText);
+
+        // Different sizes
+        const small = game.newText("Small (20px)", {
+          color: { r: 255, g: 255, b: 0, a: 255 },
+          size: 20
+        });
+        small.rprops.dstrect.x = 50;
+        small.rprops.dstrect.y = 270;
+        texts.push(small);
+
+        const medium = game.newText("Medium (40px)", {
+          color: { r: 255, g: 255, b: 0, a: 255 },
+          size: 40
+        });
+        medium.rprops.dstrect.x = 50;
+        medium.rprops.dstrect.y = 300;
+        texts.push(medium);
+
+        const large = game.newText("Large (60px)", {
+          color: { r: 255, g: 255, b: 0, a: 255 },
+          size: 60
+        });
+        large.rprops.dstrect.x = 50;
+        large.rprops.dstrect.y = 350;
+        texts.push(large);
+
+        // Dynamic text that can be changed
+        dynamicText = game.newText("Click 'Change Text' button", {
+          color: { r: 255, g: 0, b: 255, a: 255 },
+          size: 28
+        });
+        dynamicText.rprops.dstrect.x = 450;
+        dynamicText.rprops.dstrect.y = 100;
+        texts.push(dynamicText);
+
+        // Color changing text
+        colorText = game.newText("Color changing text", {
+          color: { r: 128, g: 128, b: 128, a: 255 },
+          size: 28
+        });
+        colorText.rprops.dstrect.x = 450;
+        colorText.rprops.dstrect.y = 200;
+        texts.push(colorText);
+
+        // Size changing text
+        sizeText = game.newText("Size text", {
+          color: { r: 0, g: 255, b: 255, a: 255 },
+          size: 24
+        });
+        sizeText.rprops.dstrect.x = 450;
+        sizeText.rprops.dstrect.y = 300;
+        texts.push(sizeText);
+
+        super(game.newFrame(texts));
+
+        this.pos.x = 0;
+        this.pos.y = 0;
+
+        game.registerEntity(this);
+        logger.success('Created ' + texts.length + ' text elements');
+        status.addTest('text-creation', 'Text element creation');
+        status.pass('text-creation', texts.length + ' text elements created');
+      }
+    }
+
+    // Initialize game
+    game = new TextTestGame(document.getElementById('canvas'));
+    TEWOU.Engine.start(game).then(() => {
+      logger.info('Creating test texts');
+      const testTexts = new TestTexts();
+
+      TEWOU.Engine.games.push(game);
+      TEWOU.Engine.mainLoop();
+
+      logger.success('Test running - text should be visible');
+      status.addTest('text-display', 'Text display');
+      status.pass('text-display', 'Text rendered successfully');
+    }).catch(err => {
+      logger.error('Failed to start test: ' + err.message);
+      status.fail('text-creation', err.message);
+    });
+
+    // Button handlers
+    document.getElementById('changeTextBtn').addEventListener('click', () => {
+      const texts = [
+        "Text has been changed!",
+        "Another text update",
+        "setText() works!",
+        "Dynamic text rendering"
+      ];
+      const randomText = texts[Math.floor(Math.random() * texts.length)];
+      dynamicText.setText(randomText);
+      logger.info('Changed text to: ' + randomText);
+      status.addTest('text-settext', 'setText() method');
+      status.pass('text-settext', 'Text content updated');
+    });
+
+    document.getElementById('changeColorBtn').addEventListener('click', () => {
+      const r = Math.floor(Math.random() * 256);
+      const g = Math.floor(Math.random() * 256);
+      const b = Math.floor(Math.random() * 256);
+      colorText.setColor({ r, g, b, a: 255 });
+      logger.info(`Changed color to RGB(${r}, ${g}, ${b})`);
+      status.addTest('text-color', 'setColor() method');
+      status.pass('text-color', `Color changed to RGB(${r}, ${g}, ${b})`);
+    });
+
+    document.getElementById('changeSizeBtn').addEventListener('click', () => {
+      const size = 20 + Math.floor(Math.random() * 50);
+      sizeText.setSize(size);
+      logger.info('Changed size to: ' + size + 'px');
+      status.addTest('text-size', 'setSize() method');
+      status.pass('text-size', `Size changed to ${size}px`);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rectangle Rendering Test</title>
+  <link rel="stylesheet" href="../test-common.css">
+</head>
+<body>
+  <div class="test-container">
+    <div class="test-header">
+      <h1>Rectangle Rendering Test</h1>
+      <p>Tests the <code>game.newRectangle()</code> method and basic rectangle rendering with various colors, sizes, and positions.</p>
+    </div>
+
+    <div class="canvas-wrapper">
+      <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="test-info">
+      <h2>Test Status</h2>
+      <ul id="test-status"></ul>
+    </div>
+
+    <div class="expected-result">
+      <h3>Expected Result</h3>
+      <p>You should see multiple colored rectangles of different sizes arranged in a grid pattern. This tests basic rectangle creation, color handling, and positioning.</p>
+    </div>
+
+    <div class="log" id="log"></div>
+  </div>
+
+  <script src="../test-utils.js"></script>
+  <script src="../../../engine/dist/engine.js"></script>
+  <script>
+    const logger = new TestLogger();
+    const status = new TestStatus();
+
+    logger.info('Starting Rectangle Rendering Test');
+
+    class RectangleTestGame extends TEWOU.ActionGame {
+      constructor(canvas) {
+        super(canvas, 800, 600);
+        this.gamename = "rectangle-test";
+        this.fileextensions = [];
+      }
+
+      async load() {
+        await super.load();
+        logger.success('Game initialized');
+      }
+    }
+
+    var game;
+
+    // Test rectangles with different properties
+    class TestRectangles extends TEWOU.Fauna {
+      constructor() {
+        // Create a frame to hold multiple rectangles
+        const rectangles = [
+          // Red square
+          game.newRectangle(
+            { x: 50, y: 50, w: 100, h: 100 },
+            { r: 255, g: 0, b: 0, a: 255 }
+          ),
+          // Green rectangle
+          game.newRectangle(
+            { x: 200, y: 50, w: 150, h: 80 },
+            { r: 0, g: 255, b: 0, a: 255 }
+          ),
+          // Blue tall rectangle
+          game.newRectangle(
+            { x: 400, y: 50, w: 80, h: 200 },
+            { r: 0, g: 0, b: 255, a: 255 }
+          ),
+          // Yellow rectangle
+          game.newRectangle(
+            { x: 50, y: 200, w: 120, h: 120 },
+            { r: 255, g: 255, b: 0, a: 255 }
+          ),
+          // Cyan rectangle
+          game.newRectangle(
+            { x: 220, y: 180, w: 100, h: 50 },
+            { r: 0, g: 255, b: 255, a: 255 }
+          ),
+          // Magenta rectangle
+          game.newRectangle(
+            { x: 220, y: 250, w: 100, h: 50 },
+            { r: 255, g: 0, b: 255, a: 255 }
+          ),
+          // White rectangle
+          game.newRectangle(
+            { x: 500, y: 100, w: 200, h: 100 },
+            { r: 255, g: 255, b: 255, a: 255 }
+          ),
+          // Semi-transparent purple
+          game.newRectangle(
+            { x: 550, y: 150, w: 100, h: 100 },
+            { r: 128, g: 0, b: 128, a: 128 }
+          ),
+          // Gray rectangles of varying sizes
+          game.newRectangle(
+            { x: 50, y: 350, w: 50, h: 50 },
+            { r: 64, g: 64, b: 64, a: 255 }
+          ),
+          game.newRectangle(
+            { x: 120, y: 350, w: 75, h: 75 },
+            { r: 128, g: 128, b: 128, a: 255 }
+          ),
+          game.newRectangle(
+            { x: 215, y: 350, w: 100, h: 100 },
+            { r: 192, g: 192, b: 192, a: 255 }
+          ),
+          // Small rectangles
+          game.newRectangle(
+            { x: 350, y: 350, w: 20, h: 20 },
+            { r: 255, g: 100, b: 100, a: 255 }
+          ),
+          game.newRectangle(
+            { x: 380, y: 350, w: 20, h: 20 },
+            { r: 100, g: 255, b: 100, a: 255 }
+          ),
+          game.newRectangle(
+            { x: 410, y: 350, w: 20, h: 20 },
+            { r: 100, g: 100, b: 255, a: 255 }
+          ),
+        ];
+
+        super(game.newFrame(rectangles));
+
+        this.pos.x = 0;
+        this.pos.y = 0;
+
+        game.registerEntity(this);
+        logger.success('Created ' + rectangles.length + ' rectangles');
+        status.addTest('rectangles', 'Rectangle creation');
+        status.pass('rectangles', rectangles.length + ' rectangles created');
+      }
+    }
+
+    // Initialize game
+    game = new RectangleTestGame(document.getElementById('canvas'));
+    TEWOU.Engine.start(game).then(() => {
+      logger.info('Creating test rectangles');
+      const testRects = new TestRectangles();
+
+      TEWOU.Engine.games.push(game);
+      TEWOU.Engine.mainLoop();
+
+      logger.success('Test running - rectangles should be visible');
+    }).catch(err => {
+      logger.error('Failed to start test: ' + err.message);
+      status.fail('rectangles', err.message);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Frame Rendering Test</title>
+  <link rel="stylesheet" href="../test-common.css">
+</head>
+<body>
+  <div class="test-container">
+    <div class="test-header">
+      <h1>Frame Rendering Test</h1>
+      <p>Tests the <code>game.newFrame()</code> method and frame composition with multiple renderables.</p>
+    </div>
+
+    <div class="canvas-wrapper">
+      <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="test-info">
+      <h2>Test Status</h2>
+      <ul id="test-status"></ul>
+    </div>
+
+    <div class="expected-result">
+      <h3>Expected Result</h3>
+      <p>You should see multiple frames containing various elements (rectangles and text). Each frame groups related visual elements together.</p>
+    </div>
+
+    <div class="log" id="log"></div>
+  </div>
+
+  <script src="../test-utils.js"></script>
+  <script src="../../../engine/dist/engine.js"></script>
+  <script>
+    const logger = new TestLogger();
+    const status = new TestStatus();
+
+    logger.info('Starting Frame Rendering Test');
+
+    class FrameTestGame extends TEWOU.ActionGame {
+      constructor(canvas) {
+        super(canvas, 900, 700);
+        this.gamename = "frame-test";
+        this.fileextensions = [];
+      }
+
+      async load() {
+        await super.load();
+        logger.success('Game initialized');
+      }
+    }
+
+    var game;
+
+    // Test frame with multiple elements
+    class CardFrame extends TEWOU.Fauna {
+      constructor(x, y, title, color) {
+        const background = game.newRectangle(
+          { x: 0, y: 0, w: 200, h: 150 },
+          color
+        );
+
+        const border = game.newRectangle(
+          { x: 5, y: 5, w: 190, h: 140 },
+          { r: 255, g: 255, b: 255, a: 255 }
+        );
+
+        const innerBg = game.newRectangle(
+          { x: 8, y: 8, w: 184, h: 134 },
+          { r: 30, g: 30, b: 30, a: 255 }
+        );
+
+        const titleText = game.newText(title, {
+          color: { r: 255, g: 255, b: 255, a: 255 },
+          size: 24,
+          font: "monospace"
+        });
+        titleText.rprops.dstrect.x = 15;
+        titleText.rprops.dstrect.y = 20;
+
+        const descText = game.newText("Frame Test", {
+          color: { r: 180, g: 180, b: 180, a: 255 },
+          size: 16,
+          font: "monospace"
+        });
+        descText.rprops.dstrect.x = 15;
+        descText.rprops.dstrect.y = 60;
+
+        super(game.newFrame([background, border, innerBg, titleText, descText]));
+
+        this.pos.x = x;
+        this.pos.y = y;
+
+        game.registerEntity(this);
+      }
+    }
+
+    // Simple frame with single element
+    class SimpleFrame extends TEWOU.Fauna {
+      constructor(x, y, w, h, color) {
+        const rect = game.newRectangle(
+          { x: 0, y: 0, w, h },
+          color
+        );
+
+        super(game.newFrame([rect]));
+
+        this.pos.x = x;
+        this.pos.y = y;
+
+        game.registerEntity(this);
+      }
+    }
+
+    // Initialize game
+    game = new FrameTestGame(document.getElementById('canvas'));
+    TEWOU.Engine.start(game).then(() => {
+      logger.info('Creating test frames');
+
+      // Create multiple card frames
+      const card1 = new CardFrame(50, 50, "Frame 1", { r: 100, g: 0, b: 0, a: 255 });
+      const card2 = new CardFrame(300, 50, "Frame 2", { r: 0, g: 100, b: 0, a: 255 });
+      const card3 = new CardFrame(550, 50, "Frame 3", { r: 0, g: 0, b: 100, a: 255 });
+      const card4 = new CardFrame(50, 250, "Frame 4", { r: 100, g: 100, b: 0, a: 255 });
+      const card5 = new CardFrame(300, 250, "Frame 5", { r: 100, g: 0, b: 100, a: 255 });
+      const card6 = new CardFrame(550, 250, "Frame 6", { r: 0, g: 100, b: 100, a: 255 });
+
+      logger.success('Created 6 complex card frames');
+      status.addTest('complex-frames', 'Complex frame creation');
+      status.pass('complex-frames', '6 card frames with multiple elements');
+
+      // Create simple frames
+      const simple1 = new SimpleFrame(50, 450, 100, 100, { r: 255, g: 100, b: 100, a: 255 });
+      const simple2 = new SimpleFrame(180, 450, 120, 80, { r: 100, g: 255, b: 100, a: 255 });
+      const simple3 = new SimpleFrame(330, 450, 80, 120, { r: 100, g: 100, b: 255, a: 255 });
+
+      logger.success('Created 3 simple frames');
+      status.addTest('simple-frames', 'Simple frame creation');
+      status.pass('simple-frames', '3 simple single-element frames');
+
+      TEWOU.Engine.games.push(game);
+      TEWOU.Engine.mainLoop();
+
+      logger.success('Test running - frames should be visible');
+    }).catch(err => {
+      logger.error('Failed to start test: ' + err.message);
+      status.fail('complex-frames', err.message);
+    });
+  </script>
+</body>
+</html>

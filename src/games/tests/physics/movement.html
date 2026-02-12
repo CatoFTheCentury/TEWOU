@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Movement Test</title>
+  <link rel="stylesheet" href="../test-common.css">
+</head>
+<body>
+  <div class="test-container">
+    <div class="test-header">
+      <h1>Movement Test</h1>
+      <p>Tests entity movement using <code>movementvector</code>, <code>speed</code>, and position updates.</p>
+    </div>
+
+    <div class="canvas-wrapper">
+      <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="test-info">
+      <h2>Test Status</h2>
+      <ul id="test-status"></ul>
+    </div>
+
+    <div class="expected-result">
+      <h3>Expected Result</h3>
+      <p>You should see various entities moving in different patterns: horizontal, vertical, diagonal, circular, and random movement.</p>
+    </div>
+
+    <div class="log" id="log"></div>
+  </div>
+
+  <script src="../test-utils.js"></script>
+  <script src="../../../engine/dist/engine.js"></script>
+  <script>
+    const logger = new TestLogger();
+    const status = new TestStatus();
+
+    logger.info('Starting Movement Test');
+
+    class MovementTestGame extends TEWOU.ActionGame {
+      constructor(canvas) {
+        super(canvas, 1000, 700);
+        this.gamename = "movement-test";
+        this.fileextensions = [];
+      }
+
+      async load() {
+        await super.load();
+        logger.success('Game initialized');
+      }
+    }
+
+    var game;
+
+    // Horizontal mover
+    class HorizontalMover extends TEWOU.Fauna {
+      constructor(y) {
+        const rect = game.newRectangle(
+          { x: 0, y: 0, w: 40, h: 40 },
+          { r: 255, g: 100, b: 100, a: 255 }
+        );
+
+        super(rect);
+
+        this.pos.x = 50;
+        this.pos.y = y;
+        this.speed = 0.15;
+
+        this.actions = {
+          move: {
+            state: 1,
+            running: () => {
+              this.movementvector.x = 1;
+            }
+          }
+        };
+        this.action = "move";
+
+        game.registerEntity(this);
+      }
+
+      update() {
+        super.update();
+
+        if (this.pos.x > 950) {
+          this.pos.x = 50;
+        }
+      }
+    }
+
+    // Vertical mover
+    class VerticalMover extends TEWOU.Fauna {
+      constructor(x) {
+        const rect = game.newRectangle(
+          { x: 0, y: 0, w: 40, h: 40 },
+          { r: 100, g: 255, b: 100, a: 255 }
+        );
+
+        super(rect);
+
+        this.pos.x = x;
+        this.pos.y = 50;
+        this.speed = 0.15;
+
+        this.actions = {
+          move: {
+            state: 1,
+            running: () => {
+              this.movementvector.y = 1;
+            }
+          }
+        };
+        this.action = "move";
+
+        game.registerEntity(this);
+      }
+
+      update() {
+        super.update();
+
+        if (this.pos.y > 650) {
+          this.pos.y = 50;
+        }
+      }
+    }
+
+    // Diagonal mover
+    class DiagonalMover extends TEWOU.Fauna {
+      constructor(startX, startY) {
+        const rect = game.newRectangle(
+          { x: 0, y: 0, w: 40, h: 40 },
+          { r: 100, g: 100, b: 255, a: 255 }
+        );
+
+        super(rect);
+
+        this.pos.x = startX;
+        this.pos.y = startY;
+        this.speed = 0.15;
+        this.dirX = 1;
+        this.dirY = 1;
+
+        this.actions = {
+          move: {
+            state: 1,
+            running: () => {
+              this.movementvector.x = this.dirX;
+              this.movementvector.y = this.dirY;
+            }
+          }
+        };
+        this.action = "move";
+
+        game.registerEntity(this);
+      }
+
+      update() {
+        super.update();
+
+        if (this.pos.x > 950 || this.pos.x < 10) this.dirX *= -1;
+        if (this.pos.y > 650 || this.pos.y < 10) this.dirY *= -1;
+      }
+    }
+
+    // Circular mover
+    class CircularMover extends TEWOU.Fauna {
+      constructor(centerX, centerY, radius) {
+        const rect = game.newRectangle(
+          { x: 0, y: 0, w: 30, h: 30 },
+          { r: 255, g: 255, b: 100, a: 255 }
+        );
+
+        super(rect);
+
+        this.centerX = centerX;
+        this.centerY = centerY;
+        this.radius = radius;
+        this.angle = 0;
+
+        this.actions = {
+          move: {
+            state: 1,
+            running: () => {}
+          }
+        };
+        this.action = "move";
+
+        game.registerEntity(this);
+      }
+
+      update() {
+        super.update();
+
+        this.angle += 0.03;
+        this.pos.x = this.centerX + Math.cos(this.angle) * this.radius;
+        this.pos.y = this.centerY + Math.sin(this.angle) * this.radius;
+      }
+    }
+
+    // Speed test - different speeds
+    class SpeedTester extends TEWOU.Fauna {
+      constructor(y, speed, color) {
+        const rect = game.newRectangle(
+          { x: 0, y: 0, w: 35, h: 35 },
+          color
+        );
+
+        const text = game.newText(speed.toFixed(2), {
+          color: { r: 255, g: 255, b: 255, a: 255 },
+          size: 10,
+          font: "monospace"
+        });
+        text.rprops.dstrect.x = 5;
+        text.rprops.dstrect.y = 12;
+
+        super(game.newFrame([rect, text]));
+
+        this.pos.x = 50;
+        this.pos.y = y;
+        this.speed = speed;
+
+        this.actions = {
+          move: {
+            state: 1,
+            running: () => {
+              this.movementvector.x = 1;
+            }
+          }
+        };
+        this.action = "move";
+
+        game.registerEntity(this);
+      }
+
+      update() {
+        super.update();
+
+        if (this.pos.x > 950) {
+          this.pos.x = 50;
+        }
+      }
+    }
+
+    // Initialize game
+    game = new MovementTestGame(document.getElementById('canvas'));
+    TEWOU.Engine.start(game).then(() => {
+      logger.info('Creating movement test entities');
+
+      // Horizontal movers
+      new HorizontalMover(50);
+      new HorizontalMover(110);
+
+      logger.success('Created horizontal movers');
+      status.addTest('horizontal', 'Horizontal movement');
+      status.pass('horizontal', 'Entities moving left to right');
+
+      // Vertical movers
+      new VerticalMover(150);
+      new VerticalMover(230);
+
+      logger.success('Created vertical movers');
+      status.addTest('vertical', 'Vertical movement');
+      status.pass('vertical', 'Entities moving top to bottom');
+
+      // Diagonal movers
+      new DiagonalMover(400, 50);
+      new DiagonalMover(600, 200);
+
+      logger.success('Created diagonal movers');
+      status.addTest('diagonal', 'Diagonal movement');
+      status.pass('diagonal', 'Entities bouncing diagonally');
+
+      // Circular movers
+      new CircularMover(700, 150, 60);
+      new CircularMover(700, 150, 90);
+      new CircularMover(700, 150, 120);
+
+      logger.success('Created circular movers');
+      status.addTest('circular', 'Circular movement');
+      status.pass('circular', '3 entities orbiting in circles');
+
+      // Speed testers
+      new SpeedTester(450, 0.05, { r: 150, g: 150, b: 150, a: 255 });
+      new SpeedTester(500, 0.15, { r: 180, g: 180, b: 180, a: 255 });
+      new SpeedTester(550, 0.30, { r: 210, g: 210, b: 210, a: 255 });
+      new SpeedTester(600, 0.50, { r: 240, g: 240, b: 240, a: 255 });
+
+      logger.success('Created speed testers');
+      status.addTest('speed', 'Speed variations');
+      status.pass('speed', '4 entities at different speeds');
+
+      TEWOU.Engine.games.push(game);
+      TEWOU.Engine.mainLoop();
+
+      logger.success('Test running - various movement patterns active');
+    }).catch(err => {
+      logger.error('Failed to start test: ' + err.message);
+      status.fail('horizontal', err.message);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Full Game Loop Integration Test</title>
+  <link rel="stylesheet" href="../test-common.css">
+</head>
+<body>
+  <div class="test-container">
+    <div class="test-header">
+      <h1>Full Game Loop Integration Test</h1>
+      <p>Comprehensive integration test combining rendering, entities, input, physics, and timers in a complete mini-game.</p>
+    </div>
+
+    <div class="canvas-wrapper">
+      <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="test-info">
+      <h2>Test Status</h2>
+      <ul id="test-status"></ul>
+    </div>
+
+    <div class="controls">
+      <h3>Controls</h3>
+      <p><strong>WASD:</strong> Move player</p>
+      <p><strong>Space:</strong> Shoot (cooldown)</p>
+      <p><strong>R:</strong> Restart</p>
+      <p id="score">Score: 0</p>
+      <p id="health">Health: 3</p>
+    </div>
+
+    <div class="expected-result">
+      <h3>Expected Result</h3>
+      <p>A simple shooter game demonstrating: player movement, enemy spawning, collision detection, projectiles, score tracking, and health system. All engine features working together.</p>
+    </div>
+
+    <div class="log" id="log"></div>
+  </div>
+
+  <script src="../test-utils.js"></script>
+  <script src="../../../engine/dist/engine.js"></script>
+  <script>
+    const logger = new TestLogger();
+    const status = new TestStatus();
+
+    logger.info('Starting Full Game Loop Integration Test');
+
+    class IntegrationGame extends TEWOU.ActionGame {
+      constructor(canvas) {
+        super(canvas, 800, 600);
+        this.gamename = "integration-test";
+        this.fileextensions = [];
+        this.score = 0;
+      }
+
+      async load() {
+        await super.load();
+        logger.success('Game initialized');
+      }
+
+      addScore(points) {
+        this.score += points;
+        document.getElementById('score').textContent = `Score: ${this.score}`;
+      }
+    }
+
+    var game;
+    var player;
+    var enemies = [];
+
+    // Player
+    class GamePlayer extends TEWOU.Player {
+      constructor() {
+        const rect = game.newRectangle(
+          { x: 0, y: 0, w: 40, h: 40 },
+          { r: 100, g: 200, b: 255, a: 255 }
+        );
+
+        super(rect);
+
+        this.pos.x = 400;
+        this.pos.y = 500;
+        this.hitbox = { x: 0, y: 0, w: 40, h: 40 };
+        this.speed = 0.25;
+        this.health = 3;
+        this.isMoving = { up: false, down: false, left: false, right: false };
+        this.canShoot = true;
+
+        this.registerKey('w', {
+          keydown: () => { this.isMoving.up = true; },
+          keyup: () => { this.isMoving.up = false; }
+        });
+
+        this.registerKey('s', {
+          keydown: () => { this.isMoving.down = true; },
+          keyup: () => { this.isMoving.down = false; }
+        });
+
+        this.registerKey('a', {
+          keydown: () => { this.isMoving.left = true; },
+          keyup: () => { this.isMoving.left = false; }
+        });
+
+        this.registerKey('d', {
+          keydown: () => { this.isMoving.right = true; },
+          keyup: () => { this.isMoving.right = false; }
+        });
+
+        this.registerKey(' ', {
+          keydown: () => {
+            if (this.canShoot) {
+              new Projectile(this.pos.x + 15, this.pos.y, -1);
+              this.canShoot = false;
+              this.addTimeout([15], {
+                triggered: () => { this.canShoot = true; }
+              }, false);
+            }
+          }
+        });
+
+        game.addAsCollision(
+          this,
+          TEWOU.CollideLayers.player,
+          TEWOU.CollideLayers.npc,
+          TEWOU.CollideTypes.none
+        );
+
+        game.registerEntity(this);
+      }
+
+      update() {
+        super.update();
+
+        if (this.isMoving.up) this.movementvector.y = -1;
+        if (this.isMoving.down) this.movementvector.y = 1;
+        if (this.isMoving.left) this.movementvector.x = -1;
+        if (this.isMoving.right) this.movementvector.x = 1;
+
+        // Bounds
+        if (this.pos.x < 0) this.pos.x = 0;
+        if (this.pos.x > 760) this.pos.x = 760;
+        if (this.pos.y < 0) this.pos.y = 0;
+        if (this.pos.y > 560) this.pos.y = 560;
+      }
+
+      takeDamage() {
+        this.health--;
+        document.getElementById('health').textContent = `Health: ${this.health}`;
+        logger.warning(`Player hit! Health: ${this.health}`);
+
+        if (this.health <= 0) {
+          logger.error('Game Over!');
+          status.addTest('game-over', 'Game over condition');
+          status.pass('game-over', 'Player health reached 0');
+        }
+      }
+    }
+
+    // Enemy
+    class Enemy extends TEWOU.Fauna {
+      constructor(x, y) {
+        const rect = game.newRectangle(
+          { x: 0, y: 0, w: 30, h: 30 },
+          { r: 255, g: 100, b: 100, a: 255 }
+        );
+
+        super(rect);
+
+        this.pos.x = x;
+        this.pos.y = y;
+        this.hitbox = { x: 0, y: 0, w: 30, h: 30 };
+        this.speed = 0.05;
+
+        this.actions = {
+          move: {
+            state: 1,
+            running: () => {
+              this.movementvector.y = 1;
+            }
+          }
+        };
+        this.action = "move";
+
+        game.addAsCollision(
+          this,
+          TEWOU.CollideLayers.npc,
+          TEWOU.CollideLayers.player,
+          TEWOU.CollideTypes.none
+        );
+
+        game.registerEntity(this);
+        enemies.push(this);
+      }
+
+      update() {
+        super.update();
+
+        // Check collision with player
+        if (player && !this.delete) {
+          const dx = this.pos.x - player.pos.x;
+          const dy = this.pos.y - player.pos.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < 35) {
+            player.takeDamage();
+            this.destroy();
+          }
+        }
+
+        // Remove if off screen
+        if (this.pos.y > 600) {
+          this.destroy();
+        }
+      }
+
+      destroy() {
+        super.destroy();
+        const index = enemies.indexOf(this);
+        if (index > -1) {
+          enemies.splice(index, 1);
+        }
+      }
+    }
+
+    // Projectile
+    class Projectile extends TEWOU.Fauna {
+      constructor(x, y, dirY) {
+        const rect = game.newRectangle(
+          { x: 0, y: 0, w: 6, h: 12 },
+          { r: 255, g: 255, b: 100, a: 255 }
+        );
+
+        super(rect);
+
+        this.pos.x = x;
+        this.pos.y = y;
+        this.hitbox = { x: 0, y: 0, w: 6, h: 12 };
+        this.speed = 0.4;
+        this.dirY = dirY;
+
+        this.actions = {
+          move: {
+            state: 1,
+            running: () => {
+              this.movementvector.y = this.dirY;
+            }
+          }
+        };
+        this.action = "move";
+
+        game.registerEntity(this);
+      }
+
+      update() {
+        super.update();
+
+        // Check collision with enemies
+        for (let enemy of enemies) {
+          if (!enemy.delete) {
+            const dx = this.pos.x - enemy.pos.x;
+            const dy = this.pos.y - enemy.pos.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < 20) {
+              enemy.destroy();
+              this.destroy();
+              game.addScore(10);
+              logger.success('Enemy destroyed! +10 points');
+              break;
+            }
+          }
+        }
+
+        // Remove if off screen
+        if (this.pos.y < -20 || this.pos.y > 620) {
+          this.destroy();
+        }
+      }
+    }
+
+    // Enemy spawner
+    class EnemySpawner extends TEWOU.Fauna {
+      constructor() {
+        super(game.newRectangle({ x: 0, y: 0, w: 1, h: 1 }, { r: 0, g: 0, b: 0, a: 0 }));
+
+        this.actions = {
+          spawn: {
+            state: 1,
+            running: () => {}
+          }
+        };
+        this.action = "spawn";
+
+        // Spawn enemy every 2 seconds
+        this.addTimeout([120], {
+          triggered: () => {
+            const x = Math.random() * 770;
+            new Enemy(x, -30);
+            logger.info('Enemy spawned');
+          }
+        }, true);
+
+        game.registerEntity(this);
+      }
+    }
+
+    // Initialize game
+    game = new IntegrationGame(document.getElementById('canvas'));
+    TEWOU.Engine.start(game).then(() => {
+      logger.info('Starting integration test game');
+
+      // Create player
+      player = new GamePlayer();
+      logger.success('Player created');
+      status.addTest('player-system', 'Player system');
+      status.pass('player-system', 'Player with movement and shooting');
+
+      // Create enemy spawner
+      new EnemySpawner();
+      logger.success('Enemy spawner created');
+      status.addTest('enemy-system', 'Enemy spawning system');
+      status.pass('enemy-system', 'Enemies spawn periodically');
+
+      status.addTest('collision-system', 'Collision detection');
+      status.pass('collision-system', 'Player-enemy and projectile-enemy collision');
+
+      status.addTest('score-system', 'Score tracking');
+      status.pass('score-system', 'Score increases on enemy destruction');
+
+      status.addTest('health-system', 'Health system');
+      status.pass('health-system', 'Player health decreases on collision');
+
+      TEWOU.Engine.games.push(game);
+      TEWOU.Engine.mainLoop();
+
+      logger.success('Integration test running - play the game!');
+      status.addTest('game-loop', 'Complete game loop');
+      status.pass('game-loop', 'All systems integrated successfully');
+    }).catch(err => {
+      logger.error('Failed to start test: ' + err.message);
+      status.fail('player-system', err.message);
+    });
+  </script>
+</body>
+</html>

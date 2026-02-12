@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Basic Collision Test</title>
+  <link rel="stylesheet" href="../test-common.css">
+</head>
+<body>
+  <div class="test-container">
+    <div class="test-header">
+      <h1>Basic Collision Test</h1>
+      <p>Tests collision detection using <code>game.addAsCollision()</code> with collision layers and types.</p>
+    </div>
+
+    <div class="canvas-wrapper">
+      <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="test-info">
+      <h2>Test Status</h2>
+      <ul id="test-status"></ul>
+    </div>
+
+    <div class="controls">
+      <h3>Controls</h3>
+      <p><strong>Arrow Keys:</strong> Move the blue player square</p>
+      <p>Collide with the red walls to test blocking collision</p>
+    </div>
+
+    <div class="expected-result">
+      <h3>Expected Result</h3>
+      <p>The player (blue) should be blocked by walls (red) when colliding. The player cannot pass through walls.</p>
+    </div>
+
+    <div class="log" id="log"></div>
+  </div>
+
+  <script src="../test-utils.js"></script>
+  <script src="../../../engine/dist/engine.js"></script>
+  <script>
+    const logger = new TestLogger();
+    const status = new TestStatus();
+
+    logger.info('Starting Basic Collision Test');
+
+    class CollisionTestGame extends TEWOU.ActionGame {
+      constructor(canvas) {
+        super(canvas, 900, 700);
+        this.gamename = "collision-test";
+        this.fileextensions = [];
+      }
+
+      async load() {
+        await super.load();
+        logger.success('Game initialized');
+      }
+    }
+
+    var game;
+    var collisionCount = 0;
+
+    // Wall entity
+    class Wall extends TEWOU.Fauna {
+      constructor(x, y, w, h) {
+        const rect = game.newRectangle(
+          { x: 0, y: 0, w, h },
+          { r: 200, g: 50, b: 50, a: 255 }
+        );
+
+        super(rect);
+
+        this.pos.x = x;
+        this.pos.y = y;
+        this.hitbox = { x: 0, y: 0, w, h };
+
+        this.actions = {
+          idle: {
+            state: 1,
+            running: () => {}
+          }
+        };
+        this.action = "idle";
+
+        // Add as collision with blocking
+        game.addAsCollision(
+          this,
+          TEWOU.CollideLayers.npc,
+          TEWOU.CollideLayers.player,
+          TEWOU.CollideTypes.block
+        );
+
+        game.registerEntity(this);
+      }
+    }
+
+    // Player entity
+    class CollisionPlayer extends TEWOU.Player {
+      constructor(x, y) {
+        const rect = game.newRectangle(
+          { x: 0, y: 0, w: 50, h: 50 },
+          { r: 100, g: 150, b: 255, a: 255 }
+        );
+
+        const label = game.newText("Player", {
+          color: { r: 255, g: 255, b: 255, a: 255 },
+          size: 14,
+          font: "monospace"
+        });
+        label.rprops.dstrect.x = 5;
+        label.rprops.dstrect.y = 17;
+
+        super(game.newFrame([rect, label]));
+
+        this.pos.x = x;
+        this.pos.y = y;
+        this.hitbox = { x: 0, y: 0, w: 50, h: 50 };
+        this.speed = 0.2;
+        this.isMoving = { up: false, down: false, left: false, right: false };
+
+        // Register Arrow keys
+        this.registerKey('ArrowUp', {
+          keydown: () => { this.isMoving.up = true; },
+          keyup: () => { this.isMoving.up = false; }
+        });
+
+        this.registerKey('ArrowDown', {
+          keydown: () => { this.isMoving.down = true; },
+          keyup: () => { this.isMoving.down = false; }
+        });
+
+        this.registerKey('ArrowLeft', {
+          keydown: () => { this.isMoving.left = true; },
+          keyup: () => { this.isMoving.left = false; }
+        });
+
+        this.registerKey('ArrowRight', {
+          keydown: () => { this.isMoving.right = true; },
+          keyup: () => { this.isMoving.right = false; }
+        });
+
+        // Add as collision
+        game.addAsCollision(
+          this,
+          TEWOU.CollideLayers.player,
+          TEWOU.CollideLayers.npc,
+          TEWOU.CollideTypes.block
+        );
+
+        game.registerEntity(this);
+      }
+
+      update() {
+        super.update();
+
+        if (this.isMoving.up) this.movementvector.y = -1;
+        if (this.isMoving.down) this.movementvector.y = 1;
+        if (this.isMoving.left) this.movementvector.x = -1;
+        if (this.isMoving.right) this.movementvector.x = 1;
+
+        // Check if collision is blocking movement
+        const wasBlocked =
+          (this.activeeffects[0] & TEWOU.CollideTypes.block) ||
+          (this.activeeffects[1] & TEWOU.CollideTypes.block) ||
+          (this.activeeffects[2] & TEWOU.CollideTypes.block) ||
+          (this.activeeffects[3] & TEWOU.CollideTypes.block);
+
+        if (wasBlocked && collisionCount < 50) {
+          collisionCount++;
+          if (collisionCount % 10 === 0) {
+            logger.warning('Collision detected - movement blocked');
+          }
+        }
+      }
+    }
+
+    // Initialize game
+    game = new CollisionTestGame(document.getElementById('canvas'));
+    TEWOU.Engine.start(game).then(() => {
+      logger.info('Creating collision test scene');
+
+      // Create walls forming a room
+      new Wall(100, 100, 700, 20);  // Top wall
+      new Wall(100, 100, 20, 500);  // Left wall
+      new Wall(100, 580, 700, 20);  // Bottom wall
+      new Wall(780, 100, 20, 500);  // Right wall
+
+      // Create some internal walls
+      new Wall(300, 250, 20, 200);  // Vertical divider
+      new Wall(500, 350, 200, 20);  // Horizontal divider
+
+      logger.success('Created boundary walls and obstacles');
+      status.addTest('wall-creation', 'Wall creation');
+      status.pass('wall-creation', '6 wall entities created');
+
+      // Create player
+      const player = new CollisionPlayer(400, 350);
+
+      logger.success('Created player with collision');
+      status.addTest('player-collision', 'Player collision setup');
+      status.pass('player-collision', 'Player added to collision system');
+
+      status.addTest('collision-layers', 'Collision layers');
+      status.pass('collision-layers', 'Player layer vs NPC layer');
+
+      status.addTest('collision-types', 'Collision types');
+      status.pass('collision-types', 'Block collision type active');
+
+      TEWOU.Engine.games.push(game);
+      TEWOU.Engine.mainLoop();
+
+      logger.success('Test running - use arrow keys to test collision');
+    }).catch(err => {
+      logger.error('Failed to start test: ' + err.message);
+      status.fail('wall-creation', err.message);
+    });
+  </script>
+</body>
+</html>

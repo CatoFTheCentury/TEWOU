@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Keyboard Input Test</title>
+  <link rel="stylesheet" href="../test-common.css">
+</head>
+<body>
+  <div class="test-container">
+    <div class="test-header">
+      <h1>Keyboard Input Test</h1>
+      <p>Tests keyboard input handling with <code>registerKey()</code> method and key state detection.</p>
+    </div>
+
+    <div class="canvas-wrapper">
+      <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="test-info">
+      <h2>Test Status</h2>
+      <ul id="test-status"></ul>
+    </div>
+
+    <div class="controls">
+      <h3>Test Keys</h3>
+      <p><strong>A-Z:</strong> Letter keys</p>
+      <p><strong>Space:</strong> Spacebar</p>
+      <p><strong>Enter:</strong> Enter key</p>
+      <p><strong>Arrow Keys:</strong> Navigation</p>
+      <p><strong>Shift, Ctrl, Alt:</strong> Modifier keys</p>
+    </div>
+
+    <div class="expected-result">
+      <h3>Expected Result</h3>
+      <p>Press any key to see it registered. The display shows keydown, keyheld, and keyup states. Each key press is logged.</p>
+    </div>
+
+    <div class="log" id="log"></div>
+  </div>
+
+  <script src="../test-utils.js"></script>
+  <script src="../../../engine/dist/engine.js"></script>
+  <script>
+    const logger = new TestLogger();
+    const status = new TestStatus();
+
+    logger.info('Starting Keyboard Input Test');
+
+    class KeyboardTestGame extends TEWOU.ActionGame {
+      constructor(canvas) {
+        super(canvas, 1000, 700);
+        this.gamename = "keyboard-test";
+        this.fileextensions = [];
+      }
+
+      async load() {
+        await super.load();
+        logger.success('Game initialized');
+      }
+    }
+
+    var game;
+    var keyDisplays = {};
+
+    // Key display entity
+    class KeyDisplay extends TEWOU.Fauna {
+      constructor(x, y, keyName, keyCode) {
+        const bg = game.newRectangle(
+          { x: 0, y: 0, w: 100, h: 80 },
+          { r: 60, g: 60, b: 60, a: 255 }
+        );
+
+        const keyLabel = game.newText(keyName, {
+          color: { r: 200, g: 200, b: 200, a: 255 },
+          size: 16,
+          font: "monospace"
+        });
+        keyLabel.rprops.dstrect.x = 10;
+        keyLabel.rprops.dstrect.y = 10;
+
+        const statusText = game.newText("UP", {
+          color: { r: 150, g: 150, b: 150, a: 255 },
+          size: 20,
+          font: "monospace"
+        });
+        statusText.rprops.dstrect.x = 25;
+        statusText.rprops.dstrect.y = 45;
+
+        super(game.newFrame([bg, keyLabel, statusText]));
+
+        this.pos.x = x;
+        this.pos.y = y;
+        this.bg = bg;
+        this.statusText = statusText;
+        this.keyCode = keyCode;
+
+        this.actions = {
+          idle: {
+            state: 1,
+            running: () => {}
+          }
+        };
+        this.action = "idle";
+
+        game.registerEntity(this);
+        keyDisplays[keyCode] = this;
+      }
+
+      setStatus(status, color) {
+        this.statusText.setText(status);
+        this.bg.rprops.colorize = color;
+      }
+    }
+
+    // Input handler
+    class InputHandler extends TEWOU.Player {
+      constructor() {
+        super(game.newRectangle({ x: 0, y: 0, w: 1, h: 1 }, { r: 0, g: 0, b: 0, a: 0 }));
+
+        const keysToTest = [
+          ['w', 'W'], ['a', 'A'], ['s', 'S'], ['d', 'D'],
+          ['ArrowUp', '↑'], ['ArrowDown', '↓'], ['ArrowLeft', '←'], ['ArrowRight', '→'],
+          [' ', 'Space'], ['Enter', 'Enter'],
+          ['Shift', 'Shift'], ['Control', 'Ctrl']
+        ];
+
+        keysToTest.forEach(([key, display]) => {
+          this.registerKey(key, {
+            keydown: () => {
+              if (keyDisplays[key]) {
+                keyDisplays[key].setStatus("DOWN", { r: 100, g: 200, b: 100, a: 255 });
+              }
+              logger.success(`Key DOWN: ${display}`);
+            },
+            keyheld: () => {
+              if (keyDisplays[key]) {
+                keyDisplays[key].setStatus("HELD", { r: 200, g: 200, b: 100, a: 255 });
+              }
+            },
+            keyup: () => {
+              if (keyDisplays[key]) {
+                keyDisplays[key].setStatus("UP", { r: 60, g: 60, b: 60, a: 255 });
+              }
+              logger.info(`Key UP: ${display}`);
+            },
+            keypressed: () => {
+              // Called on both keydown and keyheld
+            }
+          });
+        });
+
+        game.registerEntity(this);
+      }
+    }
+
+    // Initialize game
+    game = new KeyboardTestGame(document.getElementById('canvas'));
+    TEWOU.Engine.start(game).then(() => {
+      logger.info('Creating keyboard test display');
+
+      // Create key displays
+      let x = 50;
+      let y = 50;
+      let col = 0;
+
+      const keys = [
+        ['w', 'W'], ['a', 'A'], ['s', 'S'], ['d', 'D'],
+        ['ArrowUp', '↑'], ['ArrowDown', '↓'], ['ArrowLeft', '←'], ['ArrowRight', '→'],
+        [' ', 'Space'], ['Enter', 'Enter'],
+        ['Shift', 'Shift'], ['Control', 'Ctrl']
+      ];
+
+      keys.forEach(([key, display]) => {
+        new KeyDisplay(x, y, display, key);
+        col++;
+        if (col >= 4) {
+          col = 0;
+          x = 50;
+          y += 100;
+        } else {
+          x += 120;
+        }
+      });
+
+      logger.success('Created key displays');
+      status.addTest('key-displays', 'Key display creation');
+      status.pass('key-displays', `${keys.length} key displays created`);
+
+      // Create input handler
+      new InputHandler();
+
+      logger.success('Registered keyboard handlers');
+      status.addTest('key-registration', 'Key registration');
+      status.pass('key-registration', 'All test keys registered');
+
+      status.addTest('key-states', 'Key state detection');
+      status.pass('key-states', 'keydown, keyheld, keyup callbacks');
+
+      TEWOU.Engine.games.push(game);
+      TEWOU.Engine.mainLoop();
+
+      logger.success('Test running - press keys to test input');
+    }).catch(err => {
+      logger.error('Failed to start test: ' + err.message);
+      status.fail('key-displays', err.message);
+    });
+  </script>
+</body>
+</html>

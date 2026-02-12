@@ -288,27 +288,27 @@ class Player extends TEWOU.Player {
     this.paddle2 = paddle2;
 
     // Player 1 controls (W/S)
-    this.registerkey('w', {
+    this.registerKey('w', {
       keydown: () => { this.paddle1.moveUp = true; },
       keyup: () => { this.paddle1.moveUp = false; }
     });
-    this.registerkey('s', {
+    this.registerKey('s', {
       keydown: () => { this.paddle1.moveDown = true; },
       keyup: () => { this.paddle1.moveDown = false; }
     });
 
     // Player 2 controls (Arrow Up/Down)
-    this.registerkey('ArrowUp', {
+    this.registerKey('ArrowUp', {
       keydown: () => { this.paddle2.moveUp = true; },
       keyup: () => { this.paddle2.moveUp = false; }
     });
-    this.registerkey('ArrowDown', {
+    this.registerKey('ArrowDown', {
       keydown: () => { this.paddle2.moveDown = true; },
       keyup: () => { this.paddle2.moveDown = false; }
     });
 
     // Reset game with R key
-    this.registerkey('r', {
+    this.registerKey('r', {
       keydown: () => { this.resetGame(); }
     });
 

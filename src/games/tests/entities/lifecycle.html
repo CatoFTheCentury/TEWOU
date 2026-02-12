@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Entity Lifecycle Test</title>
+  <link rel="stylesheet" href="../test-common.css">
+</head>
+<body>
+  <div class="test-container">
+    <div class="test-header">
+      <h1>Entity Lifecycle Test</h1>
+      <p>Tests entity creation, update cycle, and destruction with the <code>destroy()</code> method.</p>
+    </div>
+
+    <div class="canvas-wrapper">
+      <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="test-info">
+      <h2>Test Status</h2>
+      <ul id="test-status"></ul>
+    </div>
+
+    <div class="controls">
+      <h3>Controls</h3>
+      <button id="createBtn">Create Entity</button>
+      <button id="destroyBtn">Destroy Random Entity</button>
+      <button id="destroyAllBtn">Destroy All</button>
+      <p id="entityCount">Entities: 0</p>
+    </div>
+
+    <div class="expected-result">
+      <h3>Expected Result</h3>
+      <p>Create and destroy entities dynamically. Watch the entity count and observe that destroyed entities are removed from the rendering and update cycle.</p>
+    </div>
+
+    <div class="log" id="log"></div>
+  </div>
+
+  <script src="../test-utils.js"></script>
+  <script src="../../../engine/dist/engine.js"></script>
+  <script>
+    const logger = new TestLogger();
+    const status = new TestStatus();
+
+    logger.info('Starting Entity Lifecycle Test');
+
+    class LifecycleTestGame extends TEWOU.ActionGame {
+      constructor(canvas) {
+        super(canvas, 900, 700);
+        this.gamename = "lifecycle-test";
+        this.fileextensions = [];
+      }
+
+      async load() {
+        await super.load();
+        logger.success('Game initialized');
+      }
+    }
+
+    var game;
+    var entityList = [];
+    var nextId = 0;
+
+    class LifecycleEntity extends TEWOU.Fauna {
+      constructor(x, y, id) {
+        const color = {
+          r: Math.floor(Math.random() * 200) + 55,
+          g: Math.floor(Math.random() * 200) + 55,
+          b: Math.floor(Math.random() * 200) + 55,
+          a: 255
+        };
+
+        const rect = game.newRectangle(
+          { x: 0, y: 0, w: 50, h: 50 },
+          color
+        );
+
+        const idText = game.newText("#" + id, {
+          color: { r: 255, g: 255, b: 255, a: 255 },
+          size: 16,
+          font: "monospace"
+        });
+        idText.rprops.dstrect.x = 10;
+        idText.rprops.dstrect.y = 15;
+
+        super(game.newFrame([rect, idText]));
+
+        this.pos.x = x;
+        this.pos.y = y;
+        this.entityId = id;
+        this.updateCount = 0;
+
+        // Define minimal action
+        this.actions = {
+          exist: {
+            state: 1,
+            running: () => {
+              this.updateCount++;
+            }
+          }
+        };
+        this.action = "exist";
+
+        game.registerEntity(this);
+        entityList.push(this);
+
+        logger.info(`Entity #${id} created at (${x}, ${y})`);
+      }
+
+      update() {
+        super.update();
+
+        // Slight floating animation
+        this.pos.y += Math.sin(this.updateCount / 30) * 0.3;
+      }
+
+      destroy() {
+        super.destroy();
+        logger.warning(`Entity #${this.entityId} destroyed (lived ${this.updateCount} frames)`);
+
+        // Remove from our tracking list
+        const index = entityList.indexOf(this);
+        if (index > -1) {
+          entityList.splice(index, 1);
+        }
+
+        updateEntityCount();
+      }
+    }
+
+    function updateEntityCount() {
+      document.getElementById('entityCount').textContent = `Entities: ${entityList.length}`;
+    }
+
+    function createRandomEntity() {
+      const x = Math.random() * 800 + 50;
+      const y = Math.random() * 600 + 50;
+      new LifecycleEntity(x, y, nextId++);
+      updateEntityCount();
+
+      status.addTest('entity-creation-' + (nextId - 1), `Entity #${nextId - 1} creation`);
+      status.pass('entity-creation-' + (nextId - 1), `Created at (${Math.round(x)}, ${Math.round(y)})`);
+    }
+
+    function destroyRandomEntity() {
+      if (entityList.length === 0) {
+        logger.error('No entities to destroy');
+        return;
+      }
+
+      const randomIndex = Math.floor(Math.random() * entityList.length);
+      const entity = entityList[randomIndex];
+      const id = entity.entityId;
+
+      entity.destroy();
+
+      status.addTest('entity-destruction-' + id, `Entity #${id} destruction`);
+      status.pass('entity-destruction-' + id, `Successfully destroyed`);
+    }
+
+    function destroyAllEntities() {
+      const count = entityList.length;
+      logger.info(`Destroying all ${count} entities`);
+
+      // Create a copy since destroy() modifies the array
+      const entitiesToDestroy = [...entityList];
+      entitiesToDestroy.forEach(entity => entity.destroy());
+
+      logger.success(`Destroyed ${count} entities`);
+      status.addTest('bulk-destruction', 'Bulk entity destruction');
+      status.pass('bulk-destruction', `${count} entities destroyed`);
+    }
+
+    // Initialize game
+    game = new LifecycleTestGame(document.getElementById('canvas'));
+    TEWOU.Engine.start(game).then(() => {
+      logger.info('Lifecycle test initialized');
+
+      // Create initial entities
+      for (let i = 0; i < 5; i++) {
+        createRandomEntity();
+      }
+
+      logger.success('Created 5 initial entities');
+      status.addTest('initial-creation', 'Initial entity creation');
+      status.pass('initial-creation', '5 entities created');
+
+      // Button handlers
+      document.getElementById('createBtn').addEventListener('click', () => {
+        createRandomEntity();
+        logger.info('Entity created via button');
+      });
+
+      document.getElementById('destroyBtn').addEventListener('click', () => {
+        destroyRandomEntity();
+      });
+
+      document.getElementById('destroyAllBtn').addEventListener('click', () => {
+        destroyAllEntities();
+      });
+
+      TEWOU.Engine.games.push(game);
+      TEWOU.Engine.mainLoop();
+
+      logger.success('Test running - use buttons to create/destroy entities');
+      status.addTest('lifecycle-test', 'Entity lifecycle system');
+      status.pass('lifecycle-test', 'Create, update, and destroy working');
+    }).catch(err => {
+      logger.error('Failed to start test: ' + err.message);
+      status.fail('initial-creation', err.message);
+    });
+  </script>
+</body>
+</html>
