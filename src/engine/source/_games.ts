@@ -209,7 +209,7 @@ export namespace Games{
 
     public registerEntity(entity:Bodies.Embodiment, frame: Composite.Frame = this.window.frame){
       this.alacritypool.push(entity);
-      frame.frame.push(entity.myFrame)
+      frame.addToComposition([entity.myFrame])
     }
 
   }
