@@ -32,12 +32,9 @@ Console:
 ## Performance Overview
 Some performance tests have been written with the help of Claude.ai and reviewed in surface. The benchmark reports here takes into account that most ill-formed or incomplete objects are skipped and should reflect the engine's performance. Benchmark tests reporting extremely fast speeds were turned down as skipping the whole thing.
 
-**What is FAST**
-  - Rendering itself is "blazing fast", benchmarks have shown very high efficiency creating rectangles, doing transformations and composing image.
-
-**What is SLOW**
+**SLOW**
   - Render + Entities
-    - Only 2000 entities can coexist with no framedrop. That is, before collisions are added. See below.
+    - Only 2000 entities can coexist with no framedrop. That is, before collisions are added. See below. Rendering 5000 rectangles being only 6 ms per frame slower than looping through 5000 entities, rendering is bottlenecking.
   - Physics are slow, spatial partitioning is required.
     - Once physics have 100 objects, it will take an whopping average of 2ms to loop through them all. This is due to every object verifying collision on every object. Some filters are present but quadtree collision would be necessary.
     - An empty physics system apparently takes 2ms to refresh???
