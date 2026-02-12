@@ -4,7 +4,7 @@
     "baseUrl": "./",
 
     "paths": {
-      "TEWOU": ["../engine/source/index.ts"],
+      "TEWOU": ["../engine/source/api.ts"],
       "Console": ["../console/source/main.ts"]
     },
     "module": "esnext",
@@ -41,12 +41,12 @@
     // "paths": {}
   },
 
-  "files": [
-    "./demon/main.ts",
-  ],
-  "include": [
-    "./demon/"
-  ],
+  // "files": [
+  //   "./demon/main.ts",
+  // ],
+  // "include": [
+  //   "./demon/"
+  // ],
   "exclude": ["build-types", "build", "dist", "out"],
 
   // "exclude":["node_modules", "dist"]
