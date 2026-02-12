@@ -15,7 +15,6 @@ export default abstract class Shader {
   protected gl : WebGL2RenderingContext;
 
   constructor(gl: WebGL2RenderingContext){
-    // super();
     this.gl = gl;
   }
 
@@ -57,11 +56,8 @@ export default abstract class Shader {
       if(cmp.rprops.shaderID!=undefined) this.validateShader(cmp.rprops.shaderID);
       else this.validateShader(this.fallbackShader);
 
-      // console.log(Shader.currShader.name)
-  
       if(this.currShader != undefined){
         // for(const a in this.currShader.first){
-        //   // console.log("A");
         //   this.currShader.first[a]();
         // }
         
