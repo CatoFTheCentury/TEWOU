@@ -93,8 +93,8 @@ export namespace Bodies {
         fr = frame as Composite.Frame;
       }
       this.myFrame = fr;
-      this.myFrame.rprops.pos = this.pos;
-      this.myFrame.rprops.layer = .5;
+      // this.myFrame.rprops.pos = this.pos;
+      // if(this.myFrame.rprops.layer == -1) this.myFrame.rprops.layer = .5;
       this.myFrame.rprops.flip = this.flip;
     }
     
@@ -105,6 +105,13 @@ export namespace Bodies {
         c.deleteMe = true;
       }
       
+    }
+
+    public finalize(){
+      if(this.myFrame.rprops.pos.x != this.pos.x || this.myFrame.rprops.pos.y != this.pos.y){
+        this.myFrame.setPosition(this.pos);
+      }
+      super.finalize();
     }
   }
 
@@ -166,6 +173,7 @@ export namespace Bodies {
           this.pos.y += movement.y;
         }
       
+      super.finalize();
     }
     public resetMovementVector(){
       this.movementvector = {x:0,y:0};
