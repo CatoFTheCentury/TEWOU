@@ -12,7 +12,7 @@ export namespace Time {
 
   class Watch {
     public static lastTick : number = 0;
-    public static currTick : number = 0;
+    public static currTick : number = Date.now();
   }
   
   export class Delta {
