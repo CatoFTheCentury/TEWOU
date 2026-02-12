@@ -23,13 +23,17 @@ export class Window {
   }
   
   public update(){
+    this.frame.setDirty();
     this.frame.compose();
     
     
     if(this.target!=null){
       
     } else {
+      let focus = Composite.Frame.createFocus(this.frame.frame)
       var gl = this.source.gl;
+
+      gl.clearColor(1,1,1,1);
 
       gl.bindFramebuffer(gl.FRAMEBUFFER, null);
       
@@ -38,7 +42,6 @@ export class Window {
       gl.clear(gl.COLOR_BUFFER_BIT);
       
       gl.bindTexture(gl.TEXTURE_2D, this.frame.texture)
-      let focus = Composite.Frame.createFocus(this.frame.frame)
       this.frame.shadercontext.passShader(this.frame, {x:focus.x,y:focus.y,w:gl.canvas.width,h:gl.canvas.height});
       
       gl.drawArrays(gl.TRIANGLES, 0, 6);
