@@ -8,6 +8,7 @@ import {WhiteTransparent} from './shaders/whitetransparent'
 
 export class ShaderLoader extends Shader {
   private shaderts : Array<ShaderTemplate>;
+  private static initialized = false;
 
   constructor(gl: WebGL2RenderingContext, shaderts : Array<ShaderTemplate> = [new Normal(), new Reverser(), new WhiteTransparent()]){
     super(gl);
@@ -15,8 +16,8 @@ export class ShaderLoader extends Shader {
   }
 
   public async init() : Promise<void>{
-    await this.compileAllShadersFrom("shaders/");
-
+    if(!ShaderLoader.initialized) await this.compileAllShadersFrom("shaders/");
+    ShaderLoader.initialized = true;
   }
     
   private async compileAllShadersFrom(folder: string) : Promise<Array<string>>{ 
